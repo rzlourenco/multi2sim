@@ -261,6 +261,53 @@ void WorkItem::ISA_S_BUFFER_LOAD_DWORDX16_Impl(Instruction *instruction)
 #undef INST
 
 #define INST INST_SMRD
+void WorkItem::ISA_S_LOAD_DWORD_Impl(Instruction *instruction)
+{
+	// Record access
+	wavefront->setScalarMemoryRead(true);
+
+	assert(INST.imm);
+
+	int sbase = INST.sbase << 1;
+
+	MemoryPointer memory_pointer;
+	ReadMemPtr(sbase, memory_pointer);
+
+	// Calculate effective address
+	unsigned m_base = memory_pointer.addr;
+	unsigned m_offset = INST.offset * 4;
+	unsigned m_addr = m_base + m_offset;
+
+	assert(!(m_addr & 0x3));
+
+	Instruction::Register value[1];
+	for (int i = 0; i < 1; i++)
+	{
+		// Read value from global memory
+		global_mem->Read(m_addr + i * 4, 4, (char *)&value[i]);
+		// Store the data in the destination register
+		WriteSReg(INST.sdst + i, value[i].as_uint);
+	}
+
+	// Debug
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("S[%u,%u] <= (addr %u): ", INST.sdst, INST.sdst+3,
+			m_addr);
+		for (int i = 0; i < 1; i++)
+		{
+			Emulator::isa_debug << misc::fmt("S%u<=(%u,%gf) ", INST.sdst + i,
+				value[i].as_uint, value[i].as_float);
+		}
+	}
+
+	// Record last memory access for the detailed simulator.
+	global_memory_access_address = m_addr;
+	global_memory_access_size = 4 * 1;
+}
+#undef INST
+
+#define INST INST_SMRD
 void WorkItem::ISA_S_LOAD_DWORDX2_Impl(Instruction *instruction)
 {
 	// Record access
@@ -1105,6 +1152,51 @@ void WorkItem::ISA_S_LSHL_B32_Impl(Instruction *instruction)
 	}
 }
 #undef INST
+
+// D.u = S0.u << S1.u[4:0]. scc = 1 if result is non-zero.
+#define INST INST_SOP2
+void WorkItem::ISA_S_LSHL_B64_Impl(Instruction *instruction)
+{
+	// Assert no literal constants for a 64 bit instruction.
+	assert(!(INST.ssrc0 == 0xFF || INST.ssrc1 == 0xFF));
+
+	Instruction::Register s0_lo;
+	Instruction::Register s0_hi;
+	Instruction::Register s1;
+	Instruction::Register result_lo;
+	Instruction::Register result_hi;
+	Instruction::Register nonzero;
+
+	// Load operands from registers.
+	s0_lo.as_uint = ReadSReg(INST.ssrc0);
+	s0_hi.as_uint = ReadSReg(INST.ssrc0 + 1);
+	s1.as_uint = ReadSReg(INST.ssrc1) & 0x3F;
+
+	/* Left shift the first operand by the second and determine if the
+	 * result is non-zero. */
+	uint64_t result = (s0_lo.as_uint | ((uint64_t)s0_hi.as_uint << 32u)) << s1.as_uint;
+	result_lo.as_uint = (uint32_t)result;
+	result_hi.as_uint = (uint32_t)(result >> 32u);
+	nonzero.as_uint = result_lo.as_uint != 0 || result_hi.as_uint != 0;
+
+	// Write the results.
+	// Store the data in the destination register
+	WriteSReg(INST.sdst, result_lo.as_uint);
+	WriteSReg(INST.sdst + 1, result_hi.as_uint);
+
+	// Store the data in the destination register
+	WriteSReg(Instruction::RegisterScc, nonzero.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("S%u<<(0x%x) ", INST.sdst, result_lo.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<<(0x%x) ", INST.sdst + 1, result_hi.as_uint);
+		Emulator::isa_debug << misc::fmt("scc<<(%u)", nonzero.as_uint);
+	}
+}
+#undef INST
+
 
 // D.u = S0.u >> S1.u[4:0]. scc = 1 if result is non-zero.
 #define INST INST_SOP2
@@ -3582,6 +3674,50 @@ void WorkItem::ISA_V_SUBREV_I32_Impl(Instruction *instruction)
 			dif.as_int);
 		Emulator::isa_debug << misc::fmt("vcc<=(%u) ", carry.as_uint);
 	}
+}
+#undef INST
+
+// D.u = S0.u + S1.u + VCC
+#define INST INST_VOP2
+void WorkItem::ISA_V_ADDC_U32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register vcc;
+	Instruction::Register carry;
+
+	// Load operands from registers or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+	s1.as_uint = ReadVReg(INST.vsrc1);
+	vcc.as_uint = ReadReg(Instruction::RegisterVcc);
+
+	// Calculate the sum and carry. XXX(rzl): is there a better way than to
+	// use uint64_t?
+	uint64_t sum = s0.as_uint + s1.as_uint + vcc.as_uint;
+	carry.as_uint = sum > (uint32_t)sum;
+
+	// Write the results.
+	WriteVReg(INST.vdst, (uint32_t)sum);
+	WriteBitmaskSReg(Instruction::RegisterVcc, carry.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V%u<=(%d) ", id, INST.vdst,
+			(uint32_t)sum);
+		Emulator::isa_debug << misc::fmt("vcc<=(%u) ", carry.as_uint);
+	}
+}
+#undef INST
+
+// D.u = S0.u - S1.u - VCC
+#define INST INST_VOP2
+void WorkItem::ISA_V_SUBB_U32_Impl(Instruction *instruction)
+{
+	ISAUnimplemented(instruction);
 }
 #undef INST
 

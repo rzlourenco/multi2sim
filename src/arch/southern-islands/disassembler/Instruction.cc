@@ -249,6 +249,18 @@ void Instruction::DumpOperandSeries(std::ostream& os, int start, int end)
 			assert(end <= 123);
 			os << "ttmp[" << start - 112 << ':' << end - 112 << ']';
 		}
+		else if (start >= 128 && start <= 192)
+		{
+			assert(end <= 192);
+			// 0 .. 64
+			os << start - 128;
+		}
+		else if (start >= 193 && start <= 208)
+		{
+			assert(end <= 208);
+			// -1 .. -16
+			os << -(start - 194);
+		}
 		else
 		{
 			assert(end == start + 1);

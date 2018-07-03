@@ -122,6 +122,14 @@ DEFINST(S_LSHL_B32,
 	0
 )
 
+DEFINST(S_LSHL_B64,
+	" s_lshl_b64      %64_SDST, %64_SSRC0, %SSRC1",
+	SOP2,
+	31,
+	4,
+	0
+)
+
 DEFINST(S_LSHR_B32,
 	" s_lshr_b32    %SDST, %SSRC0, %SSRC1",
 	SOP2,
@@ -407,6 +415,14 @@ DEFINST(PHI,
 /*
  * SMRD
  */
+
+DEFINST(S_LOAD_DWORD,
+	" s_load_dword  %SERIES_SDST, %SERIES_SBASE, %OFFSET",
+	SMRD,
+	0,
+	4,
+	0
+)
 
 DEFINST(S_LOAD_DWORDX2,
 	" s_load_dwordx2  %SERIES_SDST, %SERIES_SBASE, %OFFSET",
@@ -696,6 +712,22 @@ DEFINST(V_SUBREV_I32,
 	" v_subrev_i32  %VDST, vcc, %SRC0, %VSRC1",
 	VOP2,
 	39,
+	4,
+	0
+)
+
+DEFINST(V_ADDC_U32,
+	" v_addc_i32    %VDST, vcc, %SRC0, %VSRC1, vcc",
+	VOP2,
+	40,
+	4,
+	0
+)
+
+DEFINST(V_SUBB_U32,
+	" v_subb_i32    %VDST, vcc, %SRC0, %VSRC1, vcc",
+	VOP2,
+	41,
 	4,
 	0
 )
