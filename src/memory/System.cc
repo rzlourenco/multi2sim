@@ -38,7 +38,8 @@ std::string System::debug_file;
 std::string System::report_file;
 bool System::help = false;
 int System::frequency = 1000;
-
+long long System::sanity_check_interval = 0;
+long long System::last_sanity_check = 0;
 
 esim::Trace System::trace;
 
@@ -331,6 +332,14 @@ void System::RegisterOptions()
 			"cache hits, misses evictions, etc. This option must "
 			"be used together with detailed simulation of any "
 			"CPU/GPU architecture.");
+
+	// Option sanity check
+	command_line->RegisterInt64("--mem-sanity-check <interval>",
+			sanity_check_interval,
+			"This option performs a sanity check for the underlying "
+			"coherency protocol in constant periods equal to the interval, "
+			"to examine its consistency and correctness. The simulation "
+			"fails if the correctness is not maintained.");
 }
 
 
@@ -360,16 +369,16 @@ void System::DumpReport()
 					report_file.c_str()));
 		
 		// Dump the memory report
-		Dump(f);
+		DumpReport(f);
 
 		// For every internal network report in the same file
 		for (auto &network : networks)
-			network->Dump(f);
+			network->DumpReport(f);
 	}
 }
 
 
-void System::Dump(std::ostream &os) const
+void System::DumpReport(std::ostream &os) const
 {
 	// Dump introduction to the memory report file
 	os << "; Report for caches, TLBs, and main memory\n";
@@ -390,7 +399,297 @@ void System::Dump(std::ostream &os) const
 	
 	// Dump report for each module
 	for (auto &module : modules)
-		module->Dump(os);
+		module->DumpReport(os);
+}
+
+
+void System::SanityCheck()
+{
+	//
+	// Top down Rules
+	//
+	// Get the blocks of each module in the highest level
+	for (auto &module : modules)
+	{
+		// Get the associated cache
+		Cache *cache = module->getCache();
+
+		// Get the associated directory
+		Directory *directory = module->getDirectory();
+
+		// Continue if module is in the last level
+		if (module->getType() == Module::TypeMainMemory)
+			continue;
+
+		// Get every block of the cache
+		for (unsigned set = 0; set < cache->getNumSets(); set++)
+		{
+			for (unsigned way = 0; way < cache->getNumWays(); way++)
+			{
+				// Get the block
+				Cache::Block *block = cache->getBlock(set,way);
+				
+				// If the block is not valid, continue
+				Cache::BlockState state = block->getState();
+				if (state == Cache::BlockInvalid)
+					continue;
+
+				// Get the block's tag
+				unsigned tag = block->getTag();
+
+				// Get the lower module for the top-down rules
+				Module *lower_module = module->
+						getLowModuleServingAddress(
+						block->getTag());
+				assert(lower_module);
+
+				int lower_set;
+				int lower_way;
+				int lower_tag;
+				Cache::BlockState lower_state = Cache::BlockInvalid;
+				lower_module->FindBlock(tag,
+						lower_set,
+						lower_way,
+						lower_tag,
+						lower_state);
+
+				// Rule 1:
+				// Lower level module should have the block
+				// in an state other than Invalid.
+				if (lower_state == Cache::BlockInvalid)
+				{
+					module->Dump();
+					lower_module->Dump();
+					throw Error(misc::fmt("Sanity check failed\n"
+					"window %lld to %lld: The module %s "
+					"has a block that is not found in "
+					"module's approperiate lower module %s\n",
+					(last_sanity_check - 1) * sanity_check_interval,
+					last_sanity_check * sanity_check_interval,
+					module->getName().c_str(),
+					lower_module->getName().c_str()));
+				}
+
+				// Rule 2:
+				// If block is in E or M state the lower level
+				// should have that block as an owner
+				if (state == Cache::BlockExclusive ||
+						state == Cache::BlockModified)
+				{
+					// Get lower module directory
+					Directory *lower_directory = lower_module->
+							getDirectory();
+
+					// Get the directory entry tag
+					for (int z = 0; z < lower_directory->
+							getNumSubBlocks();
+							z++)
+					{
+						// Get tag of directory entry
+						unsigned directory_entry_tag =
+								lower_tag + z *
+								lower_module->
+								getSubBlockSize();
+						assert(directory_entry_tag <
+								lower_tag +
+								(unsigned)
+								lower_module->
+								getBlockSize());
+
+						// Find the entry
+						if (directory_entry_tag <
+								tag ||
+								directory_entry_tag >=
+								tag + lower_module->
+								getSubBlockSize())
+							continue;
+
+						// Sub-block is z
+						// Module should be owner of the
+						// sub-block
+						if (lower_module->getOwner(lower_set,
+								lower_way,
+								z) != module.get())
+						{
+							// The only reason that
+							// the lower level can be 
+							// different from what
+							// higher level expect
+							// it to be is that
+							// this is an in-flight
+							// process. So the higher
+							// level directory should
+							// be locked
+							if (directory->isEntryLocked(
+									set, way))
+								continue;
+
+							// Otherwise this is 
+							// an error
+							module->Dump();
+							lower_module->Dump();
+							throw Error(misc::fmt(
+									"Sanity "
+									"check "
+									"failed\n"
+									"window "
+									"%lld to "
+									"%lld: "
+									"The "
+									"module %s:"
+									"block "
+									"(set %d: "
+									" way %d) "
+									"is in E/M "
+									"state "
+									"but not "
+									"considered "
+									"an owner "
+									"by lower "
+									"module %s "
+									"block "
+									"(set %d: "
+									" way %d: "
+									"sub %d)\n",
+									(last_sanity_check -
+									1) * 
+									sanity_check_interval,
+									last_sanity_check *
+									sanity_check_interval,
+									module->
+									getName().
+									c_str(),
+									set,
+									way,
+									lower_module->
+									getName().
+									c_str(),
+									lower_set,
+									lower_way,
+									z));
+						}
+
+						// Module should be the only sharer
+						// of the sub-block
+						if (lower_module->getNumSharers(
+								lower_set,
+								lower_way,
+								z) != 1)
+						{
+							// The only reason that
+							// the lower module might
+							// have zero sharer
+							// or have 1 sharer but
+							// not the 'module' 
+							// is that this is
+							// an in-flight eviction.
+							// Lower level removes
+							// the module as sharer
+							// but the module is 
+							// still not updated.
+							if (directory->isEntryLocked(
+									set, way))
+								continue;
+
+							// Else there is an error
+							throw Error(misc::fmt(
+									"Sanity "
+									"check "
+									"failed\n"
+									"window "
+									"%lld to "
+									"%lld: "
+									"The "
+									"module %s"
+									"has a "
+									"block "
+									"that is "
+									"in E/M "
+									"state "
+									"but lower "
+									"module %s "
+									"has more "
+									"than 1 "
+									"sharer\n",
+									(last_sanity_check -
+									1) * 
+									sanity_check_interval,
+									last_sanity_check *
+									sanity_check_interval,
+									module->
+									getName().
+									c_str(),
+									lower_module->
+									getName().
+									c_str()));
+						}
+	
+						// Module should be the only sharer
+						// of the sub-block
+						if (!lower_module->isSharer(
+								lower_set,
+								lower_way,
+								z, module.get()))
+						{
+							// The only reason that
+							// the module is not the
+							// sharer is that
+							// this is an in-flight
+							// process.
+							// We removed it as sharer
+							// but the module is not
+							// yet updated.
+							if (directory->isEntryLocked(
+									set, way))
+								continue;
+
+							// Otherwise this is an
+							// error
+							throw Error(misc::fmt(
+									"Sanity "
+									"check "
+									"failed\n"
+									"window "
+									"%lld to "
+									"%lld: "
+									"The "
+									"module %s"
+									"has a "
+									"block "
+									"that is "
+									"in E/M "
+									"state "
+									"but is "
+									"not the "
+									"sharer "
+									"in the "
+									"lower "
+									"module %s\n",
+									(last_sanity_check -
+									1) * 
+									sanity_check_interval,
+									last_sanity_check *
+									sanity_check_interval,
+									module->
+									getName().
+									c_str(),
+									lower_module->
+									getName().
+									c_str()));
+						}
+					}
+				}
+			}
+		}
+	}
+
+	//
+	// Down Up Rules
+	//
+
+	//
+	// Peer Rules
+	//
 }
 
 }  // namespace mem

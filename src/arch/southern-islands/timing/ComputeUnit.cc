@@ -150,8 +150,17 @@ void ComputeUnit::Issue(FetchBuffer *fetch_buffer)
 	IssueToExecutionUnit(fetch_buffer, &scalar_unit);
 
 	// Issue instructions to SIMD units
-	for (auto &simd_unit : simd_units)
-		IssueToExecutionUnit(fetch_buffer, simd_unit.get());
+    for (int i = 0; i < num_wavefront_pools; ++i) {
+      // Save timing simulator
+      timing = Timing::getInstance();
+  
+    // Issue buffer chosen to issue this cycle
+      int active_issue_buffer = timing->getCycle() % num_wavefront_pools;
+
+      // Issue in round-robin fashion
+      int index = (i + active_issue_buffer) % num_wavefront_pools;
+      IssueToExecutionUnit(fetch_buffer, simd_units[index].get());
+    }
 
 	// Issue instructions to vector memory unit
 	IssueToExecutionUnit(fetch_buffer, &vector_memory_unit);
@@ -532,6 +541,9 @@ void ComputeUnit::AddWorkGroup(WorkGroup *work_group)
 		work_groups[index] = work_group;
 	}
 
+	// Checks
+	assert(work_group->id_in_compute_unit == index);
+
 	// Save iterator 
 	auto it = work_groups.begin();
 	std::advance(it, work_group->getIdInComputeUnit()); 
@@ -554,10 +566,28 @@ void ComputeUnit::RemoveWorkGroup(WorkGroup *work_group)
 			index,
 			work_group->id_in_compute_unit);
 
-	// Erase work group                                                      
+	// Unmap work group from the compute unit
 	assert(work_group->compute_unit_work_groups_iterator != 
 			work_groups.end());
 	work_groups[work_group->id_in_compute_unit] = nullptr;
+}
+
+
+void ComputeUnit::Reset()
+{
+	// If there are no work groups ever assigned to this compute unit
+	// the size would be zero, so no reset is required. 
+	if (!work_groups.size())
+		return;
+
+	// Debug info
+	Emulator::scheduler_debug << misc::fmt("@%lld compute unit %d "
+			"reset\n",
+			timing->getCycle(),
+			index);
+
+	// Reset the workgroups size to 0
+	work_groups.resize(0);
 }
 
 
@@ -672,6 +702,32 @@ void ComputeUnit::Run()
 		Fetch(fetch_buffers[i].get(), wavefront_pools[i].get());
 }
 
+
+void ComputeUnit::Dump(std::ostream &os) const
+{
+	// Title
+	std::string output_line = misc::fmt("Compute unit %d", index);	
+	os << output_line  << '\n';
+	os << std::string(output_line.length(), '=') << "\n\n";
+
+	// Number of workgroups and their ids
+	os << "Work group capacity = " <<  work_groups.size() << '\n';
+	for (int i = 0; i < (int) work_groups.size(); i++)
+	{
+		// Get the work group
+		WorkGroup* work_group = work_groups[i];
+
+		// Dump the information
+		output_line = misc::fmt("[%d] work group %d ", i, 
+				work_group->getId());
+	}
+	os << '\n';
+
+	// Is it an available compute unit
+	os << "Compute unit is available : " << (in_available_compute_units ?
+			"True" : "False");
+	os << '\n';
+}
 
 } // Namespace SI
 
