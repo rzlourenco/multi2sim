@@ -1,0 +1,37 @@
+libcpp_src = [
+  'Bitmap.cc',
+  'Bitmap.h',
+  'CommandLine.cc',
+  'CommandLine.h',
+  'Debug.cc',
+  'Debug.h',
+  'ELFReader.cc',
+  'ELFReader.h',
+  'ELFWriter.cc',
+  'ELFWriter.h',
+  'Environment.cc',
+  'Environment.h',
+  'Error.cc',
+  'Error.h',
+  'Graph.cc',
+  'Graph.h',
+  'IniFile.cc',
+  'IniFile.h',
+  'List.cc',
+  'List.h',
+  'Misc.cc',
+  'Misc.h',
+  'String.cc',
+  'String.h',
+  'Terminal.cc',
+  'Terminal.h',
+  'Timer.cc',
+  'Timer.h',
+]
+
+libcpp_lib = static_library('cpp',
+  sources: libcpp_src,
+  include_directories: m2s_inc)
+libcpp = declare_dependency(
+  link_with: libcpp_lib,
+  include_directories: m2s_inc)

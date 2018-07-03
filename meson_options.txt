@@ -1,0 +1,2 @@
+option('32bit', type: 'boolean', value: false)
+
