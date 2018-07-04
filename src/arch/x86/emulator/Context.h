@@ -681,6 +681,8 @@ private:
 			int flags, int mode);
 	comm::FileDescriptor *SyscallOpenVirtualDevice(const std::string &path,
 			int flags, int mode);
+	comm::FileDescriptor *SyscallOpen(const std::string &path, int flags,
+			int mode);
 
 	// System call 'nanosleep'
 	long long syscall_nanosleep_wakeup_time;

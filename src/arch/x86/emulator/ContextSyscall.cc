@@ -675,26 +675,14 @@ comm::FileDescriptor *Context::SyscallOpenVirtualDevice(const std::string &path,
 	return desc;		
 }
 
-int Context::ExecuteSyscall_open()
-{
-	// Arguments
-	unsigned file_name_ptr = regs.getEbx();
-	int flags = regs.getEcx();
-	int mode = regs.getEdx();
-	std::string file_name = memory->ReadString(file_name_ptr);
-	std::string full_path = getFullPath(file_name);
-	emulator->syscall_debug << misc::fmt("  filename='%s' flags=0x%x, mode=0x%x\n",
-			file_name.c_str(), flags, mode);
-	emulator->syscall_debug << misc::fmt("  fullpath='%s'\n", full_path.c_str());
-	emulator->syscall_debug << misc::fmt("  flags=%s\n",
-			open_flags_map.MapFlags(flags).c_str());
-	
+comm::FileDescriptor *Context::SyscallOpen(const std::string &path, int flags, int mode) {
 	// The dynamic linker uses the 'open' system call to open shared libraries.
 	// We need to intercept here attempts to access runtime libraries and
 	// redirect them to our own Multi2Sim runtimes.
 	comm::RuntimePool *runtime_pool = comm::RuntimePool::getInstance();
 	std::string runtime_redirect_path;
-	if (runtime_pool->Redirect(full_path, runtime_redirect_path))
+	std::string full_path = path;
+	if (runtime_pool->Redirect(path, runtime_redirect_path))
 		full_path = runtime_redirect_path;
 
 	// Driver devices
@@ -704,7 +692,7 @@ int Context::ExecuteSyscall_open()
 		// Attempt to open virtual file
 		comm::FileDescriptor *desc = SyscallOpenVirtualDevice(
 				full_path, flags, mode);
-		return desc->getGuestIndex();
+		return desc;
 	}
 
 	// Virtual files
@@ -714,7 +702,7 @@ int Context::ExecuteSyscall_open()
 		comm::FileDescriptor *desc = SyscallOpenVirtualFile(
 				full_path, flags, mode);
 		if (desc)
-			return desc->getGuestIndex();
+			return desc;
 		
 		// Unhandled virtual file. Let the application read the contents
 		// of the host version of the file as if it was a regular file.
@@ -724,7 +712,7 @@ int Context::ExecuteSyscall_open()
 	// Regular file.
 	int host_fd = open(full_path.c_str(), flags, mode);
 	if (host_fd == -1)
-		return -errno;
+		return nullptr;
 
 	// File opened, create a new file descriptor.
 	comm::FileDescriptor *desc = file_table->newFileDescriptor(
@@ -738,9 +726,37 @@ int Context::ExecuteSyscall_open()
 			"    host_fd=%d\n",
 			desc->getGuestIndex(),
 			desc->getHostIndex());
+	return desc;
+}
 
-	// Return guest descriptor index
-	return desc->getGuestIndex();
+int Context::ExecuteSyscall_open()
+{
+	// Arguments
+	unsigned file_name_ptr = regs.getEbx();
+	int flags = regs.getEcx();
+	int mode = regs.getEdx();
+	std::string file_name = memory->ReadString(file_name_ptr);
+	std::string full_path = getFullPath(file_name);
+
+	emulator->syscall_debug << misc::fmt(
+			"  filename='%s', flags=0x%x, mode=0x%x\n",
+			file_name.c_str(),
+			flags,
+			mode);
+	emulator->syscall_debug << misc::fmt(
+			"  fullpath='%s'\n"
+			"  flags=%s\n",
+			full_path.c_str(),
+			open_flags_map.MapFlags(flags).c_str());
+
+	comm::FileDescriptor *desc = SyscallOpen(full_path, flags, mode);
+	if (desc) {
+		// Return guest descriptor index
+		return desc->getGuestIndex();
+	} else {
+		// XXX(rzl): this may not be accurate!
+		return -errno;
+	}
 }
 
 
@@ -7030,10 +7046,7 @@ int Context::ExecuteSyscall_openat()
 
 	// Debug
 	emulator->syscall_debug << misc::fmt(
-			"  dirfd = %d, "
-			"path_ptr = 0x%x, "
-			"flags = 0x%x %s, "
-			"mode = 0x%x\n",
+			"  dirfd = %d, path_ptr = 0x%x, flags = 0x%x %s, mode = 0x%x\n",
 			dirfd,
 			path_ptr,
 			flags,
@@ -7061,43 +7074,17 @@ int Context::ExecuteSyscall_openat()
 	// dirfd != AT_FDCWD, path is relative -> path is relative to 'difd'
 	// (not implemented)
 	//
-	if (dirfd != -100 && path[0] != '/')
+	if (dirfd != AT_FDCWD && path[0] != '/')
 		throw misc::Panic("Unsupported for difd != AT_FDCWD with relative path");
 
-	// The dynamic linker uses the 'open' system call to open shared libraries.
-	// We need to intercept here attempts to access runtime libraries and
-	// redirect them to our own Multi2Sim runtimes.
-	comm::RuntimePool *runtime_pool = comm::RuntimePool::getInstance();
-	std::string runtime_redirect_path;
-	if (runtime_pool->Redirect(full_path, runtime_redirect_path))
-		full_path = runtime_redirect_path;
-
-	// Virtual files
-	if (misc::StringPrefix(full_path, "/proc/"))
-		throw misc::Panic("Virtual files are not supported");
-
-	// Regular file.
-	int host_fd = open(full_path.c_str(), flags, mode);
-	if (host_fd == -1)
+	comm::FileDescriptor *desc = SyscallOpen(full_path, flags, mode);
+	if (desc) {
+		// Return guest descriptor index
+		return desc->getGuestIndex();
+	} else {
+		// XXX(rzl): this may not be accurate!
 		return -errno;
-
-	// File opened, create a new file descriptor.
-	comm::FileDescriptor *descriptor = file_table->newFileDescriptor(
-			comm::FileDescriptor::TypeRegular,
-			host_fd,
-			full_path,
-			flags);
-	
-	// Debug
-	emulator->syscall_debug << misc::fmt(
-			"  File opened:\n"
-			"    guest_fd=%d\n"
-			"    host_fd=%d\n",
-			descriptor->getGuestIndex(),
-			descriptor->getHostIndex());
-
-	// Return guest descriptor index
-	return descriptor->getGuestIndex();
+	}
 }
 
 
