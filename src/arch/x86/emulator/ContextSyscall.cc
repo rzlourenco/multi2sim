@@ -3230,7 +3230,7 @@ static simUtsName sim_utsname =
 {
 	"Linux",
 	"Multi2Sim",
-	"3.2.0-1.fc16.i686"
+	"3.1.9-1.fc16.i686"
 	"#1 Fri Jan 13 16:37:42 UTC 2012",
 	"i686"
 	""
