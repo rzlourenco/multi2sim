@@ -188,6 +188,10 @@ void Context::ExecuteInst_jcxz_rel8()
 	newUinst(Uinst::OpcodeBranch, Uinst::DepEcx, 0, 0, 0, 0, 0, 0);
 }
 
+void Context::ExecuteInst_endbr32() {
+	// XXX(rzl): this is a nop when CET is not implemented.
+}
+
 
 }  // namespace x86
 

@@ -170,6 +170,8 @@ DEFINST(divps_xmm_xmmm128, 0x0f, 0x5e, SKIP, REG, SKIP, 0)
 DEFINST(divsd_xmm_xmmm64, 0x0f, 0x5e, SKIP, REG, SKIP, Instruction::PrefixRepnz)
 DEFINST(divss_xmm_xmmm32, 0x0f, 0x5e, SKIP, REG, SKIP, Instruction::PrefixRep)
 
+DEFINST(endbr32, 0x0f, 0x1e, 0xfb, SKIP, SKIP, Instruction::PrefixRepz)
+
 DEFINST(f2xm1, 0xd9, 0xf0, SKIP, SKIP, SKIP, 0)
 
 DEFINST(fabs, 0xd9, 0xe1, SKIP, SKIP, SKIP, 0)
