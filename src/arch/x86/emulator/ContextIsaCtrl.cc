@@ -192,6 +192,10 @@ void Context::ExecuteInst_endbr32() {
 	// XXX(rzl): this is a nop when CET is not implemented.
 }
 
+void Context::ExecuteInst_rdssp_rm32() {
+	// XXX(rzl): this is a nop when CET is not implemented.
+}
+
 
 }  // namespace x86
 

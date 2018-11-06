@@ -669,6 +669,7 @@ DEFINST(repnz_scasd, 0xaf, SKIP, SKIP, SKIP, SKIP, Instruction::PrefixRepnz)
 DEFINST(ret, 0xc3, SKIP, SKIP, SKIP, SKIP, 0)
 DEFINST(ret_imm16, 0xc2, SKIP, SKIP, SKIP, IW, 0)
 
+DEFINST(rdssp_rm32, 0x0f, 0x1e, SKIP, 1, SKIP, Instruction::PrefixRepz)
 DEFINST(rdtsc, 0x0f, 0x31, SKIP, SKIP, SKIP, 0)
 
 DEFINST(sahf, 0x9e, SKIP, SKIP, SKIP, SKIP, 0)
