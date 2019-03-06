@@ -817,7 +817,7 @@ public:
 		OpcodeInvalid = 0,
 	#define DEFINST(_name, _fmt_str, _category, _arg1, _arg2) \
 		Opcode##_name,
-	#include "Instruction.def"
+	#include "Instruction.inc.h"
 	#undef DEFINST
 		// Max
 		OpcodeCount
@@ -829,7 +829,7 @@ public:
 		Thumb16OpcodeInvalid = 0,
 	#define DEFINST(_name,_fmt_str,_cat,_op1,_op2,_op3,_op4,_op5,_op6) \
 		Thumb16Opcode##_name,
-	#include "InstructionThumb.def"
+	#include "InstructionThumb.inc.h"
 	#undef DEFINST
 		// Max
 		Thumb16OpcodeCount
@@ -841,7 +841,7 @@ public:
 		Thumb32OpcodeInvalid = 0,
 	#define DEFINST(_name,_fmt_str,_cat,_op1,_op2,_op3,_op4,_op5,_op6,_op7,_op8) \
 		Thumb32Opcode##_name,
-	#include "InstructionThumb32.def"
+	#include "InstructionThumb32.inc.h"
 	#undef DEFINST
 		// Max
 		Thumb32OpcodeCount

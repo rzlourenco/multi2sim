@@ -31,7 +31,7 @@ enum hsa_abi_call_t
 {
 	hsa_abi_invalid,
 #define DEFCALL(name, code, func) name,
-#include "../../src/arch/hsa/driver/Driver.def"
+#include "../../src/arch/hsa/driver/Driver.inc.h"
 #undef DEFCALL
 	hsa_abi_call_count
 };

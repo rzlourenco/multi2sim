@@ -33,7 +33,7 @@ enum si_call_t
 {                                                                                
         SIInvalid = 0,                                                  
 	#define DEFCALL(name, code) SI##name = code,                    
-	#include "../../src/arch/southern-islands/driver/Driver.def"
+	#include "../../src/arch/southern-islands/driver/Driver.inc.h"
 	#undef DEFCALL                                                           
 	SICallCount                                                    
 };  

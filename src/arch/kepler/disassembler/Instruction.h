@@ -40,7 +40,7 @@ public:
 
 	#define DEFINST(_name, _fmt_str, ...)        \
 		INST_##_name,
-	#include "Instruction.def"
+	#include "Instruction.inc.h"
 	#undef DEFINST
 
 		// Max

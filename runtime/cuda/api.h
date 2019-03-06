@@ -36,7 +36,7 @@ enum cuda_call_t
 {
 	cuda_call_invalid,
 #define DEFCALL(name, id) cuda_call_##name,
-#include "../../src/arch/kepler/driver/Driver.def"
+#include "../../src/arch/kepler/driver/Driver.inc.h"
 #undef DEFCALL
 	cuda_call_count
 };

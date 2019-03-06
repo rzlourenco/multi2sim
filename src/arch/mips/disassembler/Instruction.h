@@ -37,7 +37,7 @@ public:
 
 	#define DEFINST(_name, _fmt_str, _op0, _op1, _op2, _op3) \
 		Opcode##_name,
-	#include "Instruction.def"
+	#include "Instruction.inc.h"
 	#undef DEFINST
 
 		// Max
