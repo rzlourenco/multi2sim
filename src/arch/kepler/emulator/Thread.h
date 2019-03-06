@@ -109,7 +109,7 @@ private:
 	// instruction. For example:
 #define DEFINST(_name, _fmt_str, ...) \
 		void	ExecuteInst_##_name(Instruction *inst);
-#include "../disassembler/Instruction.def"
+#include "../disassembler/Instruction.inc.h"
 #undef DEFINST
 
 	// The special instruction appearing every 64 instructions

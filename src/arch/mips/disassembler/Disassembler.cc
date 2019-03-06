@@ -267,7 +267,7 @@ Disassembler::Disassembler() : comm::Disassembler("MIPS")
 	current_table[table_arg[i]].name = #_name;			\
 	current_table[table_arg[i]].fmt_str = _fmt_str;			\
 	current_table[table_arg[i]].size = 4;
-#include "Instruction.def"
+#include "Instruction.inc.h"
 #undef DEFINST
 }
 

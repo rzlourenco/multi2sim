@@ -70,7 +70,7 @@ Disassembler::Disassembler() : comm::Disassembler("ARM")
 #define DEFINST(_name, _fmt_str, _category, _arg1, _arg2) \
 	SetupInstInfo(#_name, _fmt_str, Instruction::Category##_category, \
 			_arg1, _arg2, Instruction::Opcode##_name);
-#include "Instruction.def"
+#include "Instruction.inc.h"
 #undef DEFINST
 
 
@@ -524,7 +524,7 @@ Disassembler::Disassembler() : comm::Disassembler("ARM")
 #define DEFINST(_name,_fmt_str,_cat,_op1,_op2,_op3,_op4,_op5,_op6,_op7,_op8) \
 	Thumb32SetupTable(#_name, _fmt_str, Instruction::Thumb32Category##_cat, _op1, _op2,\
 		_op3, _op4, _op5, _op6, _op7, _op8, Instruction::Thumb32Opcode##_name);
-#include "InstructionThumb32.def"
+#include "InstructionThumb32.inc.h"
 #undef DEFINST
 
 
@@ -656,7 +656,7 @@ Disassembler::Disassembler() : comm::Disassembler("ARM")
 #define DEFINST(_name,_fmt_str,_cat,_op1,_op2,_op3,_op4,_op5,_op6) \
 	Thumb16SetupTable(#_name, _fmt_str, Instruction::Thumb16Category##_cat, _op1, _op2,\
 		_op3, _op4, _op5, _op6, Instruction::Thumb16Opcode##_name);
-#include "InstructionThumb.def"
+#include "InstructionThumb.inc.h"
 #undef DEFINST
 
 }

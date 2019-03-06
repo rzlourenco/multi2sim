@@ -33,7 +33,7 @@ Context::ExecuteInstFn Context::execute_inst_fn[Instruction::OpcodeCount] =
 	nullptr  // For InstOpcodeNone
 #define DEFINST(name, _fmt_str, _op0, _op1, _op2, _op3) \
 		 , &Context::ExecuteInst_##name
-#include "../disassembler/Instruction.def"
+#include "../disassembler/Instruction.inc.h"
 #undef DEFINST
 };
 

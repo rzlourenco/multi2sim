@@ -324,7 +324,7 @@ class Context
 	// is expanded to
 	//	void ExecuteInst_adc_al_imm8();
 #define DEFINST(_name, _fmt_str, _op0, _op1, _op2, _op3) void ExecuteInst_##_name();
-#include "../disassembler/Instruction.def"
+#include "../disassembler/Instruction.inc.h"
 #undef DEFINST
 
 	// Table of functions
@@ -351,7 +351,7 @@ class Context
 	enum
 	{
 #define DEFSYSCALL(name, code) SyscallCode_##name = code,
-#include "ContextSyscall.def"
+#include "ContextSyscall.inc.h"
 #undef DEFSYSCALL
 		SyscallCodeCount
 	};
@@ -362,7 +362,7 @@ class Context
 	// is expanded to
 	//	void ExecuteSyscall_exit();
 #define DEFSYSCALL(name, code) int ExecuteSyscall_##name();
-#include "ContextSyscall.def"
+#include "ContextSyscall.inc.h"
 #undef DEFSYSCALL
 
 	// System call names

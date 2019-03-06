@@ -90,7 +90,7 @@ Disassembler::Disassembler() : comm::Disassembler("SouthernIslands")
 	info->op = _op; \
 	info->size = _size; \
 	info->flags = (Instruction::Flag) _flags;
-#include "Instruction.def"
+#include "Instruction.inc.h"
 #undef DEFINST
 
 	// Tables of pointers to 'inst_info'

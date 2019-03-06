@@ -37,7 +37,7 @@ const char *Driver::call_name[CallCodeCount] =
 {
 	"Invalid",  // For code 0
 #define DEFCALL(name, code, func) #name,
-#include "Driver.def"
+#include "Driver.inc.h"
 #undef DEFCALL
 };
 
@@ -47,7 +47,7 @@ const Driver::CallFn Driver::call_fn[CallCodeCount] =
 {
 	nullptr,  // For code 0
 #define DEFCALL(name, code, func) &Driver::Call##name,
-#include "Driver.def"
+#include "Driver.inc.h"
 #undef DEFCALL
 };
 
@@ -57,7 +57,7 @@ misc::StringMap Driver::function_name_to_call_map =
 {
 #define STR(x) #x
 #define DEFCALL(name, code, func) {STR(func), code},
-#include "Driver.def"
+#include "Driver.inc.h"
 #undef DEFCALL
 #undef STR
 };

@@ -481,7 +481,7 @@ private:
 	// is expanded to
 	//	void ExecuteInst_adc_al_imm8();
 #define DEFINST(name, op1, op2, op3, modrm, imm, pfx) void ExecuteInst_##name();
-#include <arch/x86/disassembler/Instruction.def>
+#include <arch/x86/disassembler/Instruction.inc.h>
 #undef DEFINST
 
 	// Table of functions
@@ -648,7 +648,7 @@ private:
 	enum
 	{
 #define DEFSYSCALL(name, code) SyscallCode_##name = code,
-#include "ContextSyscall.def"
+#include "ContextSyscall.inc.h"
 #undef DEFSYSCALL
 		SyscallCodeCount
 	};
@@ -659,7 +659,7 @@ private:
 	// is expanded to
 	//	void ExecuteSyscall_exit();
 #define DEFSYSCALL(name, code) int ExecuteSyscall_##name();
-#include "ContextSyscall.def"
+#include "ContextSyscall.inc.h"
 #undef DEFSYSCALL
 
 	// System call names

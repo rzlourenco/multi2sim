@@ -35,7 +35,7 @@ enum InstOpcode
 
 #define DEFINST(_name, _fmt_str, _op0, _op1, _op2, _op3) \
 	INST_##_name,
-#include "Inst.def"
+#include "Inst.inc.h"
 #undef DEFINST
 
 	// Max

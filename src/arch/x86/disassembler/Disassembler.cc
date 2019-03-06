@@ -160,7 +160,7 @@ Disassembler::Disassembler() : comm::Disassembler("x86")
 	info->imm = __imm; \
 	info->prefixes = __prefixes; \
 	info->fmt = #__name;
-#include "Instruction.def"
+#include "Instruction.inc.h"
 #undef DEFINST
 
 	// Initialize table of prefixes

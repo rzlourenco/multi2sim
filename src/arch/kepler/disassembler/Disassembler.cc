@@ -461,7 +461,7 @@ Disassembler::Disassembler() : comm::Disassembler("Kepler")
 #define DEFINST(_name, _fmt_str, ...) \
 	InitTable(Instruction::INST_##_name, #_name, _fmt_str, __VA_ARGS__);
 
-#include "Instruction.def"
+#include "Instruction.inc.h"
 #undef DEFINST
 }
 

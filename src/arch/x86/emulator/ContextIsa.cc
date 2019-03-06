@@ -34,7 +34,7 @@ Context::ExecuteInstFn Context::execute_inst_fn[Instruction::OpcodeCount] =
 		nullptr  // For Inst::OpcodeNone
 #define DEFINST(name, op1, op2, op3, modrm, imm, pfx) \
 		 , &Context::ExecuteInst_##name
-#include <arch/x86/disassembler/Instruction.def>
+#include <arch/x86/disassembler/Instruction.inc.h>
 #undef DEFINST
 };
 

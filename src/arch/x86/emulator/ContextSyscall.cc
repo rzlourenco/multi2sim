@@ -66,7 +66,7 @@ static const char *syscall_error_note =
 const char *Context::syscall_name[SyscallCodeCount + 1] =
 {
 #define DEFSYSCALL(name, code) #name,
-#include "ContextSyscall.def"
+#include "ContextSyscall.inc.h"
 #undef DEFSYSCALL
 	""
 };
@@ -75,7 +75,7 @@ const char *Context::syscall_name[SyscallCodeCount + 1] =
 const Context::ExecuteSyscallFn Context::execute_syscall_fn[SyscallCodeCount + 1] =
 {
 #define DEFSYSCALL(name, code) &Context::ExecuteSyscall_##name,
-#include "ContextSyscall.def"
+#include "ContextSyscall.inc.h"
 #undef DEFSYSCALL
 	nullptr
 };

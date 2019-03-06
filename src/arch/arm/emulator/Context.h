@@ -382,7 +382,7 @@ class Context
 	// is expanded to
 	//	void ExecuteInst_AND_reg();
 #define DEFINST(_name, _fmt_str, _category, _arg1, _arg2) void ExecuteInst_##_name();
-#include <arch/arm/disassembler/Instruction.def>
+#include <arch/arm/disassembler/Instruction.inc.h>
 #undef DEFINST
 
 	// Table of functions
@@ -402,7 +402,7 @@ class Context
 	//	void ExecuteInstThumb16_LSL_imm();
 #define DEFINST(_name, _fmt_str, _cat, _op1, _op2, _op3, _op4, _op5, _op6) \
 	void ExecuteInstThumb16_##_name();
-#include <arch/arm/disassembler/InstructionThumb.def>
+#include <arch/arm/disassembler/InstructionThumb.inc.h>
 #undef DEFINST
 
 	// Table of functions
@@ -423,7 +423,7 @@ class Context
 
 #define DEFINST(_name,_fmt_str,_cat,_op1,_op2,_op3,_op4,_op5,_op6,_op7,_op8) \
 	void ExecuteInstThumb32_##_name();
-#include <arch/arm/disassembler/InstructionThumb32.def>
+#include <arch/arm/disassembler/InstructionThumb32.inc.h>
 #undef DEFINST
 
 	// Table of functions
@@ -556,7 +556,7 @@ class Context
 	enum
 	{
 #define DEFSYSCALL(name, code) SyscallCode_##name = code,
-#include "ContextSyscall.def"
+#include "ContextSyscall.inc.h"
 #undef DEFSYSCALL
 		SyscallCodeCount
 	};
@@ -567,7 +567,7 @@ class Context
 	// is expanded to
 	//	void ExecuteSyscall_exit();
 #define DEFSYSCALL(name, code) int ExecuteSyscall_##name();
-#include "ContextSyscall.def"
+#include "ContextSyscall.inc.h"
 #undef DEFSYSCALL
 
 	// System call names

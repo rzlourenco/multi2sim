@@ -54,7 +54,7 @@ Thread::Thread(Warp *warp, int id)
 	// Initialization instruction table
 #define DEFINST(_name, _fmt_str, ...) \
 		inst_func[Instruction::INST_##_name] = &Thread::ExecuteInst_##_name;
-#include "../disassembler/Instruction.def"
+#include "../disassembler/Instruction.inc.h"
 #undef DEFINST
 
 	// Initialize  general purpose registers

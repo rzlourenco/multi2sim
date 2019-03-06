@@ -46,7 +46,7 @@ enum InstOpcode
 {
 #define DEFINST(name, opcode, opstr) \
 	INST_##name,
-#include <arch/hsa/disassembler/Instruction.def>
+#include <arch/hsa/disassembler/Instruction.inc.h>
 #undef DEFINST
 	// Max
 	InstOpcodeCount

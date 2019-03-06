@@ -194,7 +194,7 @@ public:
 #define DEFINST(_name, _fmt_str, _fmt, _opcode, _size, _flags) \
 	Opcode_##_name,
 
-#include "Instruction.def"
+#include "Instruction.inc.h"
 #undef DEFINST
 
 		// Max

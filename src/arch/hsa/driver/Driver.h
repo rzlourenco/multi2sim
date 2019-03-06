@@ -68,7 +68,7 @@ class Driver: public comm::Driver
 	{
 		CallInvalid,
 #define DEFCALL(name, code, func) CallCode##name,
-#include "Driver.def"
+#include "Driver.inc.h"
 #undef DEFCALL
 		CallCodeCount
 	};
@@ -86,7 +86,7 @@ class Driver: public comm::Driver
 	int Call##name(comm::Context *context, \
 			mem::Memory *memory, \
 			unsigned args_ptr);
-#include "Driver.def"
+#include "Driver.inc.h"
 #undef DEFCALL
 
 	// ABI call names

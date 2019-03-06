@@ -66,7 +66,7 @@ class Driver : public comm::Driver
 	enum
 	{
 #define DEFCALL(name, code) CallCode##name = code,
-#include "Driver.def"
+#include "Driver.inc.h"
 #undef DEFCALL
 		CallCodeCount
 	};
@@ -84,7 +84,7 @@ class Driver : public comm::Driver
 	int Call##name(comm::Context *context, \
 			mem::Memory *memory, \
 			unsigned args_ptr);
-#include "Driver.def"
+#include "Driver.inc.h"
 #undef DEFCALL
 
 	// System call names
