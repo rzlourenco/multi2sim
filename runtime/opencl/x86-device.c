@@ -20,6 +20,7 @@
 #include <assert.h>
 #include <limits.h>
 #include <pthread.h>
+#include <sched.h>
 
 #include "debug.h"
 #include "device.h"
@@ -46,7 +47,7 @@ static struct opencl_x86_work_group_t *opencl_x86_device_get_work_group_data(
 {
 	struct opencl_x86_work_group_t *data;
 
-	asm volatile (
+	__asm volatile (
 		"lea " XSTR(OPENCL_WORK_GROUP_STACK_SIZE) "(%%esp), %%eax\n\t"
 		"and $" XSTR(OPENCL_WORK_GROUP_STACK_MASK) ", %%eax\n\t"
 		"mov " XSTR(OPENCL_WORK_GROUP_DATA_OFFSET) "(%%eax), %0\n\t"
@@ -188,7 +189,7 @@ void opencl_x86_device_exit_fiber(void)
 		new_eip = workgroup_data->work_fibers->eip;
 	}
 
-	asm volatile (
+	__asm volatile (
 		"mov %0, %%esp\n\t"
 		"jmp *%1\n\t"
 		:

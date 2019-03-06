@@ -68,7 +68,7 @@ public:
 	void LoadFileFromBuffer(const char *file);
 
 	/// Destructor
-	~BrigFile();
+	virtual ~BrigFile();
 
 	/// Returns the path to the BRIG file
 	const std::string &getPath() const { return path; }

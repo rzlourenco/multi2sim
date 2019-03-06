@@ -152,7 +152,7 @@ bool Context::SyscallReadCanWakeup()
 
 		regs.setGPR(2, count);
 		memory->Write(pbuf, count, buf);
-		delete buf;
+		delete[] buf;
 
 		emulator->syscall_debug << misc::fmt("syscall 'read' - "
 				"continue (pid %d)\n", pid);
@@ -207,7 +207,7 @@ int Context::ExecuteSyscall_read()
 		err = read(host_fd, buf, count);
 		if (err == -1)
 		{
-			delete buf;
+			delete[] buf;
 			// set reg a3 to 1 to indicate failure
 			regs.setGPR(7,1);
 			return -errno;
@@ -225,7 +225,7 @@ int Context::ExecuteSyscall_read()
 		regs.setGPR(7,0);
 
 		// Return number of read bytes
-		delete buf;
+		delete[] buf;
 		return err;
 	}
 
@@ -241,7 +241,7 @@ int Context::ExecuteSyscall_read()
 
 	// Free allocated buffer. Return value doesn't matter,
 	// it will be overwritten when context wakes up from blocking call.
-	delete buf;
+	delete[] buf;
 	return 0;
 }
 
@@ -303,7 +303,7 @@ int Context::ExecuteSyscall_write()
 			err = -errno;
 
 		// Return written bytes
-		delete buf;
+		delete[] buf;
 
 		// Set reg a3 to 0 in case of success
 		if (err != 0)
@@ -323,7 +323,7 @@ int Context::ExecuteSyscall_write()
 
 	// Return value doesn't matter here. It will be overwritten when the
 	// context wakes up after blocking call.
-	delete buf;
+	delete[] buf;
 
 	// set reg a3 to 0 to indicate success
 	regs.setGPR(7,0);
@@ -1136,7 +1136,7 @@ int Context::ExecuteSyscall_readlink()
 		}
 	}
 
-	delete buf;
+	delete[] buf;
 	return ret;
 }
 

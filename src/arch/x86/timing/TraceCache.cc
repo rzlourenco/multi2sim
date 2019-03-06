@@ -288,8 +288,8 @@ void TraceCache::Flush()
 	assert(found_way >= 0);
 	temp->counter = found_entry->counter;
 	Entry *temp_ptr = temp.get();
-	memcpy(found_entry, temp_ptr, sizeof(Entry));
-	memset(temp_ptr, 0, sizeof(Entry));
+	*found_entry = *temp_ptr;
+	*temp_ptr = {};
 
 	// Debug
 	debug << misc::fmt("** Commit trace **\n");

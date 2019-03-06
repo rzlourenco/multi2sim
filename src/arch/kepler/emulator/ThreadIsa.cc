@@ -685,7 +685,7 @@ void Thread::ExecuteInst_ISAD_B(Instruction *inst)
 			src3_id = format.src3;
 			src3 = ReadGPR(src3_id);
 		}
-		else if ((format.op2 == 2)) // src2 is register src3 is const
+		else if (format.op2 == 2) // src2 is register src3 is const
 		{
 			unsigned src2_id;
 			src2_id = format.src3;
@@ -2158,7 +2158,7 @@ void Thread::ExecuteInst_ICMP_B(Instruction *inst)
 			src3_id = format.src3;
 			src3 = ReadGPR(src3_id);
 		}
-		else if ((format.op2 == 2)) // src2 is register src3 is const
+		else if (format.op2 == 2) // src2 is register src3 is const
 		{
 			unsigned src2_id;
 			src2_id = format.src3;
@@ -4344,7 +4344,7 @@ void Thread::ExecuteInst_MUFU(Instruction *inst)
 
 		// Absolute value
 		if (format.src_abs == 1)
-			src = abs(src);
+			src = std::abs(src);
 
 		// Execute
 		if (format.mufu_op == 4) // RCP mode

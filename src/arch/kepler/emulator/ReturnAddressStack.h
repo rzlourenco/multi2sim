@@ -58,7 +58,7 @@ class ReturnAddressStack
 
                 ReturnAddressStackEntry(ReturnAddressStackEntry &entry)
                 {
-                	this->active_mask = active_mask;
+                	this->active_mask = entry.active_mask;
                 	this->counter = entry.getCounter();
                 	this->return_address = entry.getReturnAddress();
                 	this->sync_stack = std::move(*(entry.getSyncStack()));

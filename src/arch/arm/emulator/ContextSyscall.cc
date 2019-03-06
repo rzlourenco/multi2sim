@@ -280,7 +280,7 @@ bool Context::SyscallReadCanWakeup()
 		// FIXME
 		//regs.setRegister(7, count);
 		memory->Write(pbuf, count, buf);
-		delete buf;
+		delete[] buf;
 
 		emulator->syscall_debug << misc::fmt("syscall 'read' - "
 				"continue (pid %d)\n", pid);
@@ -344,7 +344,7 @@ int Context::ExecuteSyscall_read()
 		}
 
 		// Return number of read bytes 
-		delete buf;
+		delete[] buf;
 		return err;
 	}
 
@@ -357,7 +357,7 @@ int Context::ExecuteSyscall_read()
 
 	// Free allocated buffer. Return value doesn't matter,
 	// it will be overwritten when context wakes up from blocking call.
-	delete buf;
+	delete[] buf;
 	return 0;
 }
 
@@ -413,7 +413,7 @@ bool Context::SyscallWriteCanWakeup()
 
 		// FIXME
 		//regs.setRegister(7, count);
-		delete buf;
+		delete[] buf;
 
 		emulator->syscall_debug << misc::fmt("syscall write - "
 				"continue (pid %d)\n", pid);
@@ -476,7 +476,7 @@ int Context::ExecuteSyscall_write()
 			err = -errno;
 
 		// Return written bytes 
-		delete buf;
+		delete[] buf;
 		return err;
 	}
 
@@ -489,7 +489,7 @@ int Context::ExecuteSyscall_write()
 
 	// Return value doesn't matter here. It will be overwritten when the
 	// context wakes up after blocking call.
-	delete buf;
+	delete[] buf;
 	return 0;
 }
 

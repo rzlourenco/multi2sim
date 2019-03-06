@@ -727,7 +727,7 @@ void Instruction::Dump(std::ostream &os) const
 			/* The sbase field is missing the LSB, 
 			 * so multiply by 2 */
 			int sdst = bytes.smrd.sdst;
-			int sdst_end;
+			int sdst_end = sdst;
 			int op = bytes.smrd.op;
 
 			/* S_LOAD_DWORD */
@@ -997,8 +997,7 @@ void Instruction::Dump(std::ostream &os) const
 		}
 		else if (comm::Disassembler::isToken(fmt_str, "EXP_VSRCs", token_len))
 		{
-			if (bytes.exp.compr == 0 && 
-					(bytes.exp.en && 0x0) == 0x0)
+			if (bytes.exp.compr == 0 && bytes.exp.en == 0x0)
 			{
 				os << '[';
 				DumpVector(os, bytes.exp.vsrc0);
@@ -1010,8 +1009,7 @@ void Instruction::Dump(std::ostream &os) const
 				DumpVector(os, bytes.exp.vsrc3);
 				os << ']';
 			}
-			else if (bytes.exp.compr == 1 && 
-				(bytes.exp.en && 0x0) == 0x0)
+			else if (bytes.exp.compr == 1 && bytes.exp.en == 0x0)
 			{
 				os << '[';
 				DumpVector(os, bytes.exp.vsrc0);

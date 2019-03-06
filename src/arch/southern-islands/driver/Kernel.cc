@@ -806,7 +806,7 @@ Kernel::Kernel(int id, const std::string &name, Program *program) :
 	kernel_symbol = program->getSymbol("__OpenCL_" + name + "_kernel");
 	if (!metadata_symbol || !header_symbol || !kernel_symbol)
 		throw Driver::Error(misc::fmt("Invalid kernel function\n"
-				"\tELF symbol 'OpenCL_%s_xxx missing'\n%s",
+				"\tELF symbol 'OpenCL_%s_xxx' missing\n%s",
 				name.c_str(), OpenCLErrSIKernelSymbol));
 
 	Driver::debug << misc::fmt("\tmetadata symbol: offset=0x%x, size=%u\n",

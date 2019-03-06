@@ -314,16 +314,19 @@ SymbolTable *File::newSymbolTable(const std::string &symtab,
 void File::Generate(std::ostream& os)
 {
 	// ELF Magic Characters
-	info.e_ident[0] = ELFMAG0;
-	info.e_ident[1] = ELFMAG1;
-	info.e_ident[2] = ELFMAG2;
-	info.e_ident[3] = ELFMAG3;
+	info.e_ident[EI_MAG0] = ELFMAG0;
+	info.e_ident[EI_MAG1] = ELFMAG1;
+	info.e_ident[EI_MAG2] = ELFMAG2;
+	info.e_ident[EI_MAG3] = ELFMAG3;
 
-	// Set remaining e_ident properties - e_ident[7-15] is padding
-	info.e_ident[4] = ELFCLASS32;
-	info.e_ident[5] = ELFDATA2LSB;
-	info.e_ident[6] = EV_CURRENT;
-	info.e_ident[16] = EI_NIDENT;
+	// Set remaining e_ident properties - e_ident[9-15] is padding
+	info.e_ident[EI_CLASS] = ELFCLASS32;
+	info.e_ident[EI_DATA] = ELFDATA2LSB;
+	info.e_ident[EI_VERSION] = EV_CURRENT;
+	info.e_ident[EI_OSABI] = ELFOSABI_NONE;
+	info.e_ident[EI_ABIVERSION] = 0;
+	for (int i = EI_PAD; i < EI_NIDENT; ++i)
+		info.e_ident[i] = 0;
 	info.e_type = ET_EXEC;
 	
 	// Set ELF Header Properties for sections. Use elf.h structs for

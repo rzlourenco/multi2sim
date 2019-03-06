@@ -139,6 +139,8 @@ public:
 	/// it can be invoked by the child class to print general statistics
 	/// present for all emulators, such as instruction count.
 	virtual void DumpSummary(std::ostream &os) const;
+
+	virtual ~Emulator() { }
 };
 
 

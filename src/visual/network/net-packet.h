@@ -54,8 +54,8 @@ struct vi_net_packet_t
         enum vi_net_packet_stage stage;
 };
 
-struct str_map_t vi_packet_stage_map;
-struct str_map_t vi_packet_stage_color_map;
+extern struct str_map_t vi_packet_stage_map;
+extern struct str_map_t vi_packet_stage_color_map;
 
 struct vi_net_packet_t *vi_net_packet_create(char *net_name, char *name, int size);
 struct vi_net_packet_t *vi_net_packet_duplicate(struct vi_net_packet_t *packet);

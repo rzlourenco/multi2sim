@@ -1307,7 +1307,6 @@ cudaError_t cudaMalloc(void **devPtr, size_t size)
 	cuda_debug("CUDA runtime API '%s'", __func__);
 	cuda_debug("\t(runtime) '%s' in: dptr address = [%p]", __func__, devPtr);
 	cuda_debug("\t(runtime) '%s' in: size = %d", __func__, size);
-	cuda_debug("\t(runtime) '%s' in: dptr = %d", __func__,  dptr);
 
 	if (!active_device)
 		cuInit(0);
@@ -1915,7 +1914,7 @@ struct cudaChannelFormatDesc cudaCreateChannelDesc(int x, int y, int z, int w,
 		enum cudaChannelFormatKind f)
 {
 	__CUDART_NOT_IMPL__;
-	struct cudaChannelFormatDesc cfd;
+	struct cudaChannelFormatDesc cfd = {};
 	return cfd;
 }
 

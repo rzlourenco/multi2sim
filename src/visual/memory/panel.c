@@ -356,7 +356,7 @@ struct vi_mem_panel_t *vi_mem_panel_create(void)
 	layout = gtk_layout_new(NULL, NULL);
 
 	gdk_rgba_parse(&color, "white");
-	gtk_widget_override_background_color(layout, GTK_STATE_NORMAL,&color);
+	gtk_widget_override_background_color(layout, GTK_STATE_FLAG_NORMAL, &color);
 
 	/* Frame */
 	GtkWidget *frame;

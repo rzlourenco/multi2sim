@@ -334,7 +334,7 @@ public:
 	void incExportInstCount() { num_export_instructions++; }
 
 	/// Dump the statistics summary
-	void DumpSummary(std::ostream &os) const;
+	void DumpSummary(std::ostream &os) const override;
 
 	/// Increase video memory top
 	void incVideoMemoryTop(unsigned inc) { video_memory_top += inc; }

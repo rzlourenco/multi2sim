@@ -19,9 +19,11 @@
 #include <iostream>
 #include <poll.h>
 #include <vector>
+#include <cstring>
+#include <unistd.h>
 
 #include <lib/cpp/Environment.h>
-#include <lib/cpp/Misc.cc>
+#include <lib/cpp/Misc.h>
 
 #include "Context.h"
 #include "Emulator.h"

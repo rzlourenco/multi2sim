@@ -367,7 +367,7 @@ public:
 	friend std::ostream &operator<<(std::ostream &os,
 			const Wavefront &wavefront)
 	{
-		os << wavefront;
+		wavefront.Dump(os);
 		return os;
 	}
 

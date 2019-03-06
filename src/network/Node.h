@@ -165,6 +165,8 @@ public:
 
 	/// Update trace header with node detailed information
 	void TraceHeader();
+
+        virtual ~Node() { }
 };
 
 

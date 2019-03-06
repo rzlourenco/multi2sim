@@ -387,7 +387,7 @@ struct vi_evg_panel_t *vi_evg_panel_create(void)
 	GdkRGBA color;
 	layout = gtk_layout_new(NULL, NULL);
 	gdk_rgba_parse(&color,"white");
-	gtk_widget_override_background_color(layout, GTK_STATE_NORMAL, &color);
+	gtk_widget_override_background_color(layout, GTK_STATE_FLAG_NORMAL, &color);
 
 	/* Scrolled window */
 	GtkWidget *scrolled_window;

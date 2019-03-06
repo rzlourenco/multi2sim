@@ -157,7 +157,7 @@ void cuLaunchKernelImpl(struct cuda_stream_command_t *command)
 	assert(gridDimX != 0 && gridDimY != 0 && gridDimZ != 0);
 	assert(blockDimX != 0 && blockDimY != 0 && blockDimZ != 0);
 
-	unsigned args[11];
+	unsigned args[12];
 	args[0] = f->id;
 	args[1] = (unsigned) f->name;
 	args[2] = gridDimX;

@@ -183,7 +183,7 @@ void Context::LoadELFSections(ELFReader::File *binary)
 				char *zero_buffer = new char[section->getSize()]();
 				memory->Init(section->getAddr(), section->getSize(),
 						zero_buffer);
-				delete zero_buffer;
+				delete[] zero_buffer;
 			}
 			else
 			{

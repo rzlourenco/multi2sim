@@ -568,7 +568,6 @@ void elf_enc_file_generate(struct elf_enc_file_t *file,
 	elf_header->e_ident[4] = ELFCLASS32;
 	elf_header->e_ident[5] = ELFDATA2LSB;
 	elf_header->e_ident[6] = EV_CURRENT;
-	elf_header->e_ident[16] = EI_NIDENT;
 
 	elf_header->e_type = ET_EXEC;
 	

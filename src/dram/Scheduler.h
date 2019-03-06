@@ -73,6 +73,8 @@ public:
 	/// scheduled next.  In the case that one isn't found, nullptr is
 	/// returned.
 	virtual Bank *FindNext() = 0;
+
+	virtual ~Scheduler() {}
 };
 
 

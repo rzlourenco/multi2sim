@@ -84,6 +84,8 @@ public:
 
 	/// Transfer the packet 
 	virtual void TransferPacket(Packet *packet) = 0;
+
+        virtual ~Connection() { }
 };
 }
 

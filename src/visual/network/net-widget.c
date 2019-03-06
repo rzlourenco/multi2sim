@@ -546,7 +546,7 @@ static void vi_link_board_project(struct vi_link_board_t *subLink)
 	GtkWidget *drawing_area = gtk_drawing_area_new();
 	gtk_widget_set_size_request(drawing_area,
 			MAX(subLink->src_x, subLink->dst_x) + 10, MAX(subLink->src_y, subLink->dst_y) + 10);
-	gtk_widget_override_background_color(drawing_area, GTK_STATE_NORMAL, &color);
+	gtk_widget_override_background_color(drawing_area, GTK_STATE_FLAG_NORMAL, &color);
 	g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(vi_link_board_draw), subLink);
 
 	/* Main widget */

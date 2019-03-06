@@ -83,6 +83,8 @@ public:
 
 	/// Return the compute unit that this execution unit belongs to.
 	ComputeUnit *getComputeUnit() const { return compute_unit; }
+	
+	virtual ~ExecutionUnit() { }
 };
 
 }

@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <zlib.h>
 #include <assert.h>
+#include <string.h>
 
 #include <lib/mhandle/mhandle.h>
 #include <lib/util/hash-table.h>

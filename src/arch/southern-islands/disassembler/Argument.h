@@ -169,6 +169,8 @@ public:
 	/// \param index Index of the argument
 	virtual void WriteReflection(ELFWriter::Buffer *buffer, 
 			unsigned int index) = 0;
+
+        virtual ~Argument() { }
 };
 
 

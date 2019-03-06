@@ -71,6 +71,8 @@ public:
 
 	/// Return whether the context is suspended.
 	virtual bool isSuspended();
+
+        virtual ~Context() { }
 };
 
 

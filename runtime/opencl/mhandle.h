@@ -28,10 +28,24 @@
 #define MHANDLE_AT __FILE__ ":" MHANDLE_TOSTRING(__LINE__)
 
 
-#undef strdup
+#ifdef malloc
+#undef malloc
+#endif
 #define malloc(sz) __ERROR_USE_XMALLOC_INSTEAD__
+
+#ifdef calloc
+#undef calloc
+#endif
 #define calloc(nmemb, sz) __ERROR_USE_XCALLOC_INSTEAD__
+
+#ifdef realloc
+#undef realloc
+#endif
 #define realloc(x, sz) __ERROR_USE_XREALLOC_INSTEAD__
+
+#ifdef strdup
+#undef strdup
+#endif
 #define strdup(x) __ERROR_USE_XSTRDUP_INSTEAD__
 
 

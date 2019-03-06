@@ -91,7 +91,7 @@ public:
 	}
 
 	/// Run the actions occurring in one cycle
-	void Run();
+	void Run() override;
 
 	/// Return whether there is room in the issue buffer of the SIMD
 	/// unit to absorb a new instruction.

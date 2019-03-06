@@ -241,7 +241,7 @@ public:
 	friend std::ostream &operator<<(std::ostream &os,
 			const Warp &warp)
 	{
-		os << warp;
+		warp.Dump(os);
 		return os;
 	}
 

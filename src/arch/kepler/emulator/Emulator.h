@@ -213,10 +213,10 @@ public:
 	}
 
 	/// Dump the statistics summary
-	void DumpSummary(std::ostream &os);
+	void DumpSummary(std::ostream &os) const override;
 
 	/// Run one iteration of the emulation loop
-	bool Run();
+	bool Run() override;
 
 	/// Write Constant Memory
 	/// \param starting address to be written in

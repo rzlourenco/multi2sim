@@ -123,6 +123,8 @@ public:
 	{
 		last_simulation_cycle = frequency_domain->getCycle();
 	}
+        
+        virtual ~Timing() { }
 };
 
 }

@@ -1122,16 +1122,15 @@ void Context::ExecuteInst_QDSUB()
 
 void Context::ExecuteInst_MRS_reg()
 {
-	unsigned int rd_val;
 	if (IsaCheckCond())
 	{
 		if(!(inst.getBytes()->psr.psr_loc))
 		{
-			rd_val = IsaRetCpsrVal();
+			unsigned int rd_val = IsaRetCpsrVal();
+			IsaRegStore(inst.getBytes()->psr.dst_reg, rd_val);
 		}
 	}
 
-	IsaRegStore(inst.getBytes()->psr.dst_reg, rd_val);
 }
 
 void Context::ExecuteInst_MSR_reg()

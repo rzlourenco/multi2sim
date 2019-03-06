@@ -91,6 +91,8 @@ public:
 			mem::Memory *memory,
 			int code,
 			unsigned args_ptr) = 0;
+	
+	virtual ~Driver() { }
 };
 
 

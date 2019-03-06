@@ -132,8 +132,8 @@ void HsaExecutable::preprocessRegisters(
 	}
 
 	// Set last entry in the function
-	function->setLastEntry(std::move(binary->getCodeEntryByOffset(
-			last_entry_offset)));
+	function->setLastEntry(binary->getCodeEntryByOffset(
+			last_entry_offset));
 
 	// Allocate registers
 	function->AllocateRegister(max_reg);
