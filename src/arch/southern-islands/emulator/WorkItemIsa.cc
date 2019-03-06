@@ -2598,6 +2598,34 @@ void WorkItem::ISA_V_RCP_F32_Impl(Instruction *instruction)
 }
 #undef INST
 
+// D.f = 1.0 / S0.f, only integer div_by_zero flag can be raised.
+#define INST INST_VOP1
+void WorkItem::ISA_V_RCP_IFLAG_F32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register rcp;
+
+	// Load operand from register or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+
+	// TODO(rzl): flag div_by_zero
+	rcp.as_float = 1.0f / s0.as_float;
+
+	// Write the results.
+	WriteVReg(INST.vdst, rcp.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V%u<=(%gf) ", id, INST.vdst,
+			rcp.as_float);
+	}
+}
+#undef INST
+
 // D.f = 1.0 / sqrt(S0.f).
 #define INST INST_VOP1
 void WorkItem::ISA_V_RSQ_F32_Impl(Instruction *instruction)
@@ -4234,8 +4262,31 @@ void WorkItem::ISA_V_CMP_LT_U32_Impl(Instruction *instruction)
 #define INST INST_VOPC
 void WorkItem::ISA_V_CMP_EQ_U32_Impl(Instruction *instruction)
 {
-	ISAUnimplemented(instruction);
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register result;
+
+	// Load operands from registers or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+	s1.as_uint = ReadVReg(INST.vsrc1);
+
+	// Compare the operands.
+	result.as_uint = (s0.as_uint == s1.as_uint);
+
+	// Write the results.
+	WriteBitmaskSReg(Instruction::RegisterVcc, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: vcc<=(%u) ",
+			id_in_wavefront, result.as_uint);
+	}
 }
+#undef INST
 
 // vcc = (S0.u <= S1.u).
 #define INST INST_VOPC
@@ -5776,6 +5827,39 @@ void WorkItem::ISA_V_CMP_LT_U32_VOP3a_Impl(Instruction *instruction)
 
 	// Compare the operands.
 	result.as_uint = (s0.as_uint < s1.as_uint);
+
+	// Write the results.
+	WriteBitmaskSReg(INST.vdst, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: S[%u:+1]<=(%u) ",
+			id_in_wavefront, INST.vdst,
+			result.as_uint);
+	}
+}
+#undef INST
+
+// D.u = (S0.u == S1.u).
+#define INST INST_VOP3a
+void WorkItem::ISA_V_CMP_EQ_U32_VOP3a_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register result;
+
+	assert(!INST.clamp);
+	assert(!INST.omod);
+	assert(!INST.neg);
+	assert(!INST.abs);
+
+	// Load operands from registers.
+	s0.as_uint = ReadReg(INST.src0);
+	s1.as_uint = ReadReg(INST.src1);
+
+	// Compare the operands.
+	result.as_uint = (s0.as_uint == s1.as_uint);
 
 	// Write the results.
 	WriteBitmaskSReg(INST.vdst, result.as_uint);

@@ -872,6 +872,14 @@ DEFINST(V_RCP_F32,
 	0
 )
 
+DEFINST(V_RCP_IFLAG_F32,
+	" v_rcp_iflag_f32     %VDST, %SRC0",
+	VOP1,
+	43,
+	4,
+	0
+)
+
 DEFINST(V_RSQ_F32,
 	" v_rsq_f32     %VDST, %SRC0",
 	VOP1,
@@ -1518,6 +1526,14 @@ DEFINST(V_CMP_LT_U32_VOP3a,
 	" v_cmp_lt_u32  %VOP3_64_SVDST, %VOP3_SRC0, %VOP3_SRC1",
 	VOP3a,
 	193,
+	8,
+	0
+)
+
+DEFINST(V_CMP_EQ_U32_VOP3a,
+	" v_cmp_eq_u32  %VOP3_64_SVDST, %VOP3_SRC0, %VOP3_SRC1",
+	VOP3a,
+	194,
 	8,
 	0
 )
