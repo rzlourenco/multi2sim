@@ -120,8 +120,12 @@ const Context::ExecuteSyscallFn Context::execute_syscall_fn[SyscallCodeCount + 1
 #define SIM_EPIPE		32
 #define SIM_EDOM		33
 #define SIM_ERANGE		34
+#define SIM_EDEADLK		35
+#define SIM_ENAMETOOLONG	36
+#define SIM_ENOLCK		37
+#define SIM_ENOSYS		38
 
-#define SIM_ERRNO_MAX		34
+#define SIM_ERRNO_MAX		38
 static misc::StringMap syscall_error_map =
 {
 	{ "EPERM", 1 },
@@ -157,7 +161,11 @@ static misc::StringMap syscall_error_map =
 	{ "EMLINK", 31 },
 	{ "EPIPE", 32 },
 	{ "EDOM", 33 },
-	{ "ERANGE", 34 }
+	{ "ERANGE", 34 },
+	{ "EDEADLK", 35 },
+	{ "ENAMETOOLONG", 36 },
+	{ "ENOLCK", 37 },
+	{ "ENOSYS", 38 },
 };
 
 
