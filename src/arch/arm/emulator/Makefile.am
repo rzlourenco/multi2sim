@@ -13,7 +13,7 @@ libemulator_a_SOURCES = \
 	ContextIsaThumb16.cc \
 	ContextIsaThumb32.cc \
 	ContextSyscall.cc \
-	ContextSyscall.def \
+	ContextSyscall.inc.h \
 	ContextSignal.cc \
 	\
 	Regs.h \

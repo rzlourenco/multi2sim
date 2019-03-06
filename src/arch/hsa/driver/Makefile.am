@@ -6,7 +6,7 @@ libdriver_a_SOURCES = \
 		Driver.cc \
 		DriverCall.cc \
 		\
-		Driver.def \
+		Driver.inc.h \
 		\
 		HsaExecutable.h \
 		HsaExecutable.cc \

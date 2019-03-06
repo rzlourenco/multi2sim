@@ -6,7 +6,7 @@ libdisassembler_a_SOURCES = \
 	Disassembler.h \
 	\
 	Instruction.cc \
-	Instruction.def \
+	Instruction.inc.h \
 	Instruction.h
 
 AM_CPPFLAGS = @M2S_INCLUDES@

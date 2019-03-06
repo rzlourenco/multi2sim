@@ -9,7 +9,7 @@ libdriver_a_SOURCES = \
 		Driver.h \
 		\
 		DriverCall.cc \
-		Driver.def \
+		Driver.inc.h \
 		\
 		Function.cc \
 		Function.h \

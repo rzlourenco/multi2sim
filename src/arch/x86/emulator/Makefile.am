@@ -18,7 +18,7 @@ libemulator_a_SOURCES = \
 	ContextLoader.cc \
 	ContextSignal.cc \
 	ContextSyscall.cc \
-	ContextSyscall.def \
+	ContextSyscall.inc.h \
 	ContextUinst.cc \
 	Context.h \
 	\

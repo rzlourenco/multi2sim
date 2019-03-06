@@ -4,7 +4,7 @@ libdriver_a_SOURCES = \
 		\
 		Driver.h \
 		Driver.cc \
-		Driver.def \
+		Driver.inc.h \
 		DriverCall.cc \
 		\
 		Kernel.h \

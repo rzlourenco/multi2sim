@@ -5,9 +5,9 @@ libdisassembler_a_SOURCES = \
 	Instruction.cc \
 	Instruction.h \
 	\
-	Instruction.def \
-	InstructionThumb.def \
-	InstructionThumb32.def \
+	Instruction.inc.h \
+	InstructionThumb.inc.h \
+	InstructionThumb32.inc.h \
 	\
 	Disassembler.cc \
 	Disassembler.h 

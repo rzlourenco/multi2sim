@@ -50,8 +50,8 @@ libutil_a_SOURCES = \
 	repos.c \
 	repos.h \
 	\
-	string.c \
-	string.h \
+	stringutil.c \
+	stringutil.h \
 	\
 	timer.c \
 	timer.h
