@@ -20,7 +20,7 @@
 
 #include <lib/mhandle/mhandle.h>
 #include <lib/util/misc.h>
-#include <lib/util/string.h>
+#include <lib/util/stringutil.h>
 
 #include "cycle-bar.h"
 #include "state.h"

@@ -31,8 +31,8 @@ libutil_src = [
   'matrix.h',
   'repos.c',
   'repos.h',
-  'string.c',
-  'string.h',
+  'stringutil.c',
+  'stringutil.h',
   'timer.c',
   'timer.h',
 ]

@@ -24,7 +24,7 @@
 #include <lib/util/list.h>
 #include <lib/util/hash-table.h>
 #include <lib/util/misc.h>
-#include <lib/util/string.h>
+#include <lib/util/stringutil.h>
 #include <lib/mhandle/mhandle.h>
 #include <visual/common/state.h>
 #include <visual/common/trace.h>

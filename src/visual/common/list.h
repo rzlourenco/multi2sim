@@ -23,7 +23,7 @@
 
 #include <gtk/gtk.h>
 
-#include <lib/util/string.h>
+#include <lib/util/stringutil.h>
 
 
 extern char vi_list_image_close_path[MAX_PATH_SIZE];

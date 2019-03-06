@@ -25,7 +25,7 @@
 #include <lib/util/hash-table.h>
 #include <lib/util/list.h>
 #include <lib/util/misc.h>
-#include <lib/util/string.h>
+#include <lib/util/stringutil.h>
 #include <visual/common/cycle-bar.h>
 #include <visual/common/state.h>
 #include <visual/common/trace.h>

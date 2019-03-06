@@ -24,7 +24,7 @@
 #include <lib/util/list.h>
 #include <lib/util/matrix.h>
 #include <lib/util/misc.h>
-#include <lib/util/string.h>
+#include <lib/util/stringutil.h>
 #include <visual/common/state.h>
 
 #include "compute-unit.h"

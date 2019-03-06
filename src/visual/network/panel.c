@@ -21,7 +21,7 @@
 #include <lib/util/hash-table.h>
 #include <lib/util/list.h>
 #include <lib/util/misc.h>
-#include <lib/util/string.h>
+#include <lib/util/stringutil.h>
 #include <visual/common/list.h>
 
 #include "net.h"

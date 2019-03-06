@@ -14,6 +14,7 @@ libm2s_hsa_src = [
   'hsa_system.c',
 ]
 
-libm2s_hsa_lib = static_library('m2s-hsa',
+libm2s_hsa_lib = both_libraries('m2s-hsa',
+  install: true,
   sources: libm2s_hsa_src,
   dependencies: [have_m32])

@@ -23,7 +23,7 @@
 
 #include "debug.h"
 #include "file.h"
-#include "string.h"
+#include "stringutil.h"
 
 
 /* Open file, choosing from "stdout", "stderr" or <name> */

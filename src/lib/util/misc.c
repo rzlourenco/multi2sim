@@ -24,7 +24,7 @@
 
 #include "debug.h"
 #include "misc.h"
-#include "string.h"
+#include "stringutil.h"
 
 
 /*

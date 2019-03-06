@@ -1,0 +1,7 @@
+subdir('common')
+subdir('arm')
+subdir('hsa')
+subdir('kepler')
+subdir('mips')
+subdir('southern-islands')
+subdir('x86')

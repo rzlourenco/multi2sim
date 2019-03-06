@@ -30,6 +30,7 @@ libm2s_cuda_src = [
   'stream.h',
 ]
 
-libm2s_cuda_lib = static_library('m2s-cuda',
+libm2s_cuda_lib = both_libraries('m2s-cuda',
   sources: libm2s_cuda_src,
   dependencies: [have_m32, threads])
+

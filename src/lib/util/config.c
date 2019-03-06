@@ -25,7 +25,7 @@
 #include "debug.h"
 #include "hash-table.h"
 #include "linked-list.h"
-#include "string.h"
+#include "stringutil.h"
 
 
 #define HASH_TABLE_SIZE		100

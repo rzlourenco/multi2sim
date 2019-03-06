@@ -24,7 +24,7 @@
 #include <lib/mhandle/mhandle.h>
 #include <lib/util/debug.h>
 #include <lib/util/hash-table.h>
-#include <lib/util/string.h>
+#include <lib/util/stringutil.h>
 
 
 

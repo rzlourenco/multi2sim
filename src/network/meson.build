@@ -1,0 +1,38 @@
+libnetwork_src = [
+  'Buffer.cc',
+  'Buffer.h',
+  'Bus.cc',
+  'Bus.h',
+  'Connection.cc',
+  'Connection.h',
+  'EndNode.cc',
+  'EndNode.h',
+  'Frame.h',
+  'Graph.cc',
+  'Graph.h',
+  'Link.cc',
+  'Link.h',
+  'Message.cc',
+  'Message.h',
+  'Network.cc',
+  'Network.h',
+  'Node.cc',
+  'Node.h',
+  'Packet.cc',
+  'Packet.h',
+  'RoutingTable.cc',
+  'RoutingTable.h',
+  'Switch.cc',
+  'Switch.h',
+  'System.cc',
+  'System.h',
+  'SystemConfig.cc',
+  'SystemEvents.cc',
+]
+
+libnetwork_lib = static_library('network',
+  sources: libnetwork_src,
+  include_directories: m2s_inc)
+libnetwork = declare_dependency(
+  link_with: libnetwork_lib,
+  include_directories: m2s_inc)

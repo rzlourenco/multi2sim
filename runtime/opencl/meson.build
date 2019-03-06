@@ -64,6 +64,7 @@ libm2s_opencl_src = [
   'x86-device-wi.s',
 ]
 
-libm2s_opencl_lib = static_library('m2s-opencl',
+libm2s_opencl_lib = both_libraries('m2s-opencl',
+  install: true,
   sources: libm2s_opencl_src,
-  dependencies: [have_m32, threads])
+  dependencies: [have_m32, threads, libdl])

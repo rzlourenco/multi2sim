@@ -24,7 +24,7 @@
 #include <arch/kepler/emulator/Emulator.h>
 #include <arch/kepler/emulator/Grid.h>
 #include <lib/cpp/String.h>
-#include <lib/util/string.h>
+#include <lib/util/stringutil.h>
 #include <memory/Memory.h>
 
 #include "Driver.h"
