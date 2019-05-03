@@ -125,6 +125,12 @@ public:
 	};
 
 
+        struct UserMappedBuffer {
+                unsigned int address;
+                unsigned int size;
+        };
+
+        std::vector<UserMappedBuffer> userBuffers = {};
 
 
 	//

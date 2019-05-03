@@ -1119,6 +1119,18 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
         Emulator::isa_debug << misc::fmt("================ Initialization Summary ================\n");
         Emulator::isa_debug << misc::fmt("\n");
 
+        // Buffers
+        Emulator::isa_debug << misc::fmt("User Buffers:\n");
+        Emulator::isa_debug << misc::fmt("\t------------------------------------------------\n");
+        Emulator::isa_debug << misc::fmt("\t|    Address Range                             |\n");
+        for (auto const &buf : driver->userBuffers)
+            Emulator::isa_debug << misc::fmt("\t| [%10u:%10u] |\n",
+                    buf.address, buf.address + buf.size - 1);
+        Emulator::isa_debug << misc::fmt("\t------------------------------------------------\n");
+
+        Emulator::isa_debug << misc::fmt("\t------------------------------------------------\n");
+        Emulator::isa_debug << misc::fmt("\n");
+
         // Table locations
         Emulator::isa_debug << misc::fmt("NDRange table locations:\n");
         Emulator::isa_debug << misc::fmt("\t------------------------------------------------\n");

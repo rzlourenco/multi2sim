@@ -78,6 +78,7 @@ int Driver::CallMemAlloc(comm::Context *context,
 
 	debug << misc::fmt("\t%d bytes of device memory allocated at 0x%x\n",
 		size, device_ptr);
+	si_drv->userBuffers.push_back({device_ptr, size});
 
 	// For now, memory allocation in device memory is done by just 
 	// incrementing a pointer to the top of the global memory space. 
