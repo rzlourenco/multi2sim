@@ -31,10 +31,8 @@ AC_CHECK_MEMBERS([struct stat.st_rdev])
 AC_FUNC_CHOWN
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
-AC_FUNC_MALLOC
 AC_FUNC_MMAP
-AC_FUNC_REALLOC
-AC_CHECK_FUNCS([alarm bzero ftruncate getcwd gettimeofday memset mkdir munmap select socket strcasecmp strchr strdup strncasecmp strtol utime])
+AC_CHECK_FUNCS([alarm bzero ftruncate getcwd gettimeofday malloc memset mkdir munmap realloc select socket strcasecmp strchr strdup strncasecmp strtol utime])
 
 
 
@@ -94,34 +92,13 @@ then
 fi
 AC_MSG_RESULT(yes)
 
-# Get GCC version
-AC_MSG_CHECKING([for GCC version])
-cxx_version=`$CXX -dumpversion`
-AC_MSG_RESULT($cxx_version)
-
-# Check version
-cxx_major_version=`echo $cxx_version | cut -d. -f1`
-cxx_minor_version=`echo $cxx_version | cut -d. -f2`
-if test \( $cxx_major_version -lt 4 \) -o \( $cxx_major_version -eq 4 -a $cxx_minor_version -lt 8 \)
-then
-	AC_MSG_ERROR([
-
-	The version of the GCC compiler must be 4.8 or higher to support the
-	C++11 code introduced in Multi2Sim. Please install a more recent version
-	of GCC and recompile.]
-	)
-fi
-
-
-
-
 ###############
 # Debug/Profile
 ###############
 
 debug=false
-CFLAGS="-msse2 -O3 -std=gnu99 -DNDEBUG"
-CXXFLAGS="-msse2 -std=gnu++0x -O3 -DNDEBUG"
+CFLAGS="-std=gnu99 -g -O2"
+CXXFLAGS="-std=gnu++11 -g -O2"
 AC_ARG_ENABLE(debug,
 [  --enable-debug    Turn on debugging],
 [
@@ -131,8 +108,7 @@ AC_ARG_ENABLE(debug,
 		
 		# Add flag '-Wno-error=deprecated-declarations' only if it is supported.
 		# This flag prevents warnings caused by newer GTK versions that would cause with -Werror
-		CXXFLAGS="-msse2 -std=gnu++0x -Wall -Werror -g -O0"
-		saved_flags="-msse2 -Wall -Werror -DMHANDLE -g -O0 -std=gnu99"
+		saved_flags="-g -O0 -Wall -Werror"
 		CFLAGS="-Wno-error=deprecated-declarations"
 		AC_MSG_CHECKING([whether CC supports -Wno-error=deprecated-declarations])
 		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
@@ -140,7 +116,26 @@ AC_ARG_ENABLE(debug,
 				[ saved_flags="$saved_flags -Wno-error=deprecated-declarations" ],
 				[ AC_MSG_RESULT([no]) ]
 			)
-		CFLAGS="$saved_flags"
+		AC_MSG_CHECKING([whether CC supports -Wno-error=unused-private-field])
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
+				[ AC_MSG_RESULT([yes]) ]
+				[ saved_flags="$saved_flags -Wno-error=unused-private-field" ],
+				[ AC_MSG_RESULT([no]) ]
+			)
+		AC_MSG_CHECKING([whether CC supports -Wno-error=unused-const-variable])
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
+				[ AC_MSG_RESULT([yes]) ]
+				[ saved_flags="$saved_flags -Wno-error=unused-const-variable" ],
+				[ AC_MSG_RESULT([no]) ]
+			)
+		AC_MSG_CHECKING([whether CC supports -Wno-error=sometimes-uninitialized])
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
+				[ AC_MSG_RESULT([yes]) ]
+				[ saved_flags="$saved_flags -Wno-error=sometimes-uninitialized" ],
+				[ AC_MSG_RESULT([no]) ]
+			)
+		CFLAGS="-std=gnu99 $saved_flags"
+		CXXFLAGS="-std=gnu++11 $saved_flags"
 		enable_debug="yes"
 		AC_SUBST([ENABLE_DEBUG], 1)
 		;;
