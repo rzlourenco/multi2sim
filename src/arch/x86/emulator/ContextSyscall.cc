@@ -3238,7 +3238,7 @@ static simUtsName sim_utsname =
 {
 	"Linux",
 	"Multi2Sim",
-	"3.1.9-1.fc16.i686"
+	"3.2.0-1.fc16.i686"
 	"#1 Fri Jan 13 16:37:42 UTC 2012",
 	"i686"
 	""
@@ -7454,6 +7454,377 @@ int Context::ExecuteSyscall_fallocate()
 	__UNIMPLEMENTED__
 }
 
+
+
+int Context::ExecuteSyscall_timerfd_settime() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_timerfd_gettime() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_signalfd4() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_eventfd2() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_epoll_create1() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_dup3() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_pipe2() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_inotify_init1() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_preadv() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_pwritev() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_rt_tgsigqueueinfo() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_perf_event_open() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_recvmmsg() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_fanotify_init() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_fanotify_mark() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_prlimit64() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_name_to_handle_at() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_open_by_handle_at() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_clock_adjtime() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_syncfs() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_sendmmsg() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_setns() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_process_vm_readv() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_process_vm_writev() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_kcmp() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_finit_module() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_sched_setattr() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_sched_getattr() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_renameat2() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_seccomp() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_getrandom() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_memfd_create() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_bpf() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_execveat() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_socket() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_socketpair() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_bind() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_connect() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_listen() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_accept4() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_getsockopt() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_setsockopt() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_getsockname() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_getpeername() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_sendto() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_sendmsg() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_recvfrom() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_recvmsg() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_shutdown() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_userfaultfd() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_membarrier() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_mlock2() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_copy_file_range() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_preadv2() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_pwritev2() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_pkey_mprotect() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_pkey_alloc() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_pkey_free() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_statx() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_arch_prctl() {
+	return -SIM_ENOSYS;
+}
+
+
+
+int Context::ExecuteSyscall_io_pgetevents() {
+	__UNIMPLEMENTED__
+}
+
+
+
+int Context::ExecuteSyscall_rseq() {
+	__UNIMPLEMENTED__
+}
 
 
 
