@@ -392,25 +392,28 @@ void Instruction::DumpSeriesVdata(std::ostream& os, unsigned int vdata, int op)
 
 	switch (op)
 	{
-		case 0:
-		case 4:
-		case 9:
-		case 12:
-		case 24:
-		case 28:
-		case 50:
+		case 0:  // BUFFER_LOAD_FORMAT_X
+		case 4:  // BUFFER_STORE_FORMAT_X
+		case 8:  // BUFFER_LOAD_UBYTE
+		case 9:  // BUFFER_LOAD_SBYTE
+		case 12: // BUFFER_LOAD_DWORD
+		case 24: // BUFFER_STORE_BYTE
+		case 28: // BUFFER_STORE_DWORD
+		case 50: // BUFFER_ATOMIC_ADD
 			vdata_end = vdata + 0;
 			break;
-		case 1:
-		case 5:
+		case 1:  // BUFFER_LOAD_FORMAT_XY
+		case 5:  // BUFFER_STORE_FORMAT_XY
+		case 29: // BUFFER_STORE_DWORDX2
 			vdata_end = vdata + 1;
 			break;
-		case 2:
-		case 6:
+		case 2:  // BUFFER_LOAD_FORMAT_XYZ
+		case 6:  // BUFFER_STORE_FORMAT_XYZ
 			vdata_end = vdata + 2;
 			break;
-		case 3:
-		case 7:
+		case 3:  // BUFFER_LOAD_FORMAT_XYZW
+		case 7:  // BUFFER_STORE_FORMAT_XYZW
+		case 30: // BUFFER_STORE_DWORDX4
 			vdata_end = vdata + 3;
 			break;
 		default:

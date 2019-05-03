@@ -7652,6 +7652,97 @@ void WorkItem::ISA_BUFFER_STORE_DWORD_Impl(Instruction *instruction)
 #undef INST
 
 #define INST INST_MUBUF
+void WorkItem::ISA_BUFFER_STORE_DWORDX4_Impl(Instruction *instruction)
+{
+	assert(!INST.slc);
+	assert(!INST.tfe);
+	assert(!INST.lds);
+	assert(!INST.addr64 || (INST.addr64 && !INST.offen));
+	assert(!INST.addr64 || (INST.addr64 && !INST.idxen));
+
+	BufferDescriptor buffer_descriptor;
+	Instruction::Register value;
+
+	unsigned off_vgpr = 0;
+	unsigned idx_vgpr = 0;
+
+	int bytes_to_write = 4 * 4;
+
+	if (INST.glc)
+	{
+		wavefront->setVectorMemoryGlobalCoherency(true); // FIXME redundant
+	}
+
+	// srsrc is in units of 4 registers
+	ReadBufferResource(INST.srsrc * 4, buffer_descriptor);
+
+	// Figure 8.1 from SI ISA defines address calculation
+	unsigned base = buffer_descriptor.base_addr;
+	unsigned soffset = ReadSReg(INST.soffset);
+	unsigned ioffset = INST.offset;
+	unsigned stride = buffer_descriptor.stride;
+
+        uint32_t addr;
+	if (INST.addr64) {
+	        uint32_t addr_lsb = ReadVReg(INST.vaddr);
+	        uint32_t addr_msb = ReadVReg(INST.vaddr+1);
+	        uint64_t vaddr = addr_msb;
+	        vaddr = (vaddr << 32) | addr_lsb;
+	        vaddr += base + ioffset + soffset;
+	        // FIXME(rzl): this requires 64-bit addressing in the memory
+	        // emulation.
+	        addr = (uint32_t)vaddr;
+	        assert(addr == vaddr && "need 64-bit addressing support!");
+	}
+	else
+	{
+	    // Table 8.3 from SI ISA
+	    if (!INST.idxen && INST.offen)
+	    {
+		off_vgpr = ReadVReg(INST.vaddr);
+	    }
+	    else if (INST.idxen && !INST.offen)
+	    {
+		idx_vgpr = ReadVReg(INST.vaddr);
+	    }
+	    else if (INST.idxen && INST.offen)
+	    {
+		idx_vgpr = ReadVReg(INST.vaddr);
+		off_vgpr = ReadVReg(INST.vaddr + 1);
+	    }
+
+	    addr = base + soffset + ioffset + off_vgpr + 
+		stride * (idx_vgpr + id_in_wavefront);
+	}
+
+	/* It wouldn't make sense to have a value for idxen without
+	 * having a stride */
+	if (idx_vgpr && !stride)
+		throw misc::Panic("Probably invalid buffer descriptor");
+
+	value.as_int = ReadVReg(INST.vdata);
+	global_mem->Write(addr, bytes_to_write, (char *)&value);
+	value.as_int = ReadVReg(INST.vdata + 1);
+	global_mem->Write(addr + 4, bytes_to_write, (char *)&value);
+	value.as_int = ReadVReg(INST.vdata + 2);
+	global_mem->Write(addr + 8, bytes_to_write, (char *)&value);
+	value.as_int = ReadVReg(INST.vdata + 3);
+	global_mem->Write(addr + 12, bytes_to_write, (char *)&value);
+	
+	// Record last memory access for the detailed simulator.
+	global_memory_access_address = addr;
+	global_memory_access_size = bytes_to_write;
+
+	if (Emulator::isa_debug)
+	{
+		// TODO(rzl): fix debug output
+		Emulator::isa_debug << misc::fmt("t%d: (%u)<=V%u(%d) ", id,
+			addr, INST.vdata, value.as_int);
+	}
+}
+#undef INST
+
+#define INST INST_MUBUF
 void WorkItem::ISA_BUFFER_ATOMIC_ADD_Impl(Instruction *instruction)
 {
 

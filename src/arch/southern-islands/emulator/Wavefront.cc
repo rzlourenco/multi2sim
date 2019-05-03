@@ -691,7 +691,7 @@ void Wavefront::Execute()
 			vector_memory_read = true;
 		}
 		else if ((op >= 4 && op < 8) ||
-			(op >= 24 && op < 30))
+			(op >= 24 && op < 31))
 		{
 			vector_memory_write = true;
 		}
