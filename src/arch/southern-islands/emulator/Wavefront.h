@@ -39,7 +39,7 @@ class WavefrontPoolEntry;
 class WavefrontData
 {
 public:
-	virtual ~WavefrontData();
+	virtual ~WavefrontData() = default;
 };
 
 

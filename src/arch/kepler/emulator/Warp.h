@@ -51,7 +51,7 @@ class WarpData
 public:
 
 	/// Virtual destructor for polymorphic class.
-	virtual ~WarpData();
+	virtual ~WarpData() = default;
 };
 
 /// The class Warp represents a warp in CUDA.

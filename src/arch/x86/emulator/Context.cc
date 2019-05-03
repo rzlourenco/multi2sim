@@ -831,7 +831,7 @@ void Context::Execute()
 
 			// Propagate exception
 			e.PrependPrefix("x86");
-			throw e;
+			throw;
 		}
 		catch (misc::Error &e)
 		{
@@ -842,14 +842,14 @@ void Context::Execute()
 				e.AppendPrefix(misc::fmt("pid %d", getId()));
 				e.AppendPrefix(misc::fmt("eip 0x%x",
 						regs.getEip()));
-				throw e;
+				throw;
 			}
 		}
 		catch (misc::Panic &e)
 		{
 			// Ignore in speculative mode
 			if (!spec_mode)
-				throw e;
+				throw;
 		}
 	}
 	

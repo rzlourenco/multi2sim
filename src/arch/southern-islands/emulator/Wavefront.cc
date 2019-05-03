@@ -803,7 +803,7 @@ bool Wavefront::isWorkItemActive(int id_in_wavefront)
 
 void Wavefront::setSReg(int sreg, unsigned value)
 {
-	assert(sreg > 0 && sreg < 104);
+	assert(sreg >= 0 && sreg < 104);
 	this->sreg[sreg].as_uint = value;
 }
 
