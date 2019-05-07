@@ -275,6 +275,14 @@ DEFINST(S_AND_SAVEEXEC_B64,
 	0
 )
 
+DEFINST(S_OR_SAVEEXEC_B64,
+	" s_or_saveexec_b64   %64_SDST, %64_SSRC0",
+	SOP1,
+	37,
+	4,
+	0
+)
+
 /*
  * SOPC
  */

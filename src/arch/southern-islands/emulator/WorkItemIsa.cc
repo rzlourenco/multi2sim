@@ -1791,6 +1791,58 @@ void WorkItem::ISA_S_AND_SAVEEXEC_B64_Impl(Instruction *instruction)
 }
 #undef INST
 
+/* D.u = EXEC, EXEC = S0.u | EXEC. scc = 1 if the new value of EXEC is
+ * non-zero. */
+#define INST INST_SOP1
+void WorkItem::ISA_S_OR_SAVEEXEC_B64_Impl(Instruction *instruction)
+{
+	// Assert no literal constant with a 64 bit instruction.
+	assert(!(INST.ssrc0 == 0xFF));
+
+	Instruction::Register exec_lo;
+	Instruction::Register exec_hi;
+	Instruction::Register s0_lo;
+	Instruction::Register s0_hi;
+	Instruction::Register exec_new_lo;
+	Instruction::Register exec_new_hi;
+	Instruction::Register nonzero;
+
+	// Load operands from registers.
+	exec_lo.as_uint = ReadSReg(Instruction::RegisterExec);
+	exec_hi.as_uint = ReadSReg(Instruction::RegisterExec + 1);
+	s0_lo.as_uint = ReadSReg(INST.ssrc0);
+	s0_hi.as_uint = ReadSReg(INST.ssrc0 + 1);
+
+	/* Bitwise OR exec and the first operand and determine if the result 
+	 * is non-zero. */
+	exec_new_lo.as_uint = s0_lo.as_uint | exec_lo.as_uint;
+	exec_new_hi.as_uint = s0_hi.as_uint | exec_hi.as_uint;
+	nonzero.as_uint = exec_new_lo.as_uint || exec_new_hi.as_uint;
+
+	// Write the results.
+	// Store the data in the destination register
+	WriteSReg(INST.sdst, exec_lo.as_uint);
+	// Store the data in the destination register
+	WriteSReg(INST.sdst + 1, exec_hi.as_uint);
+	// Store the data in the destination register
+	WriteSReg(Instruction::RegisterExec, exec_new_lo.as_uint);
+	// Store the data in the destination register
+	WriteSReg(Instruction::RegisterExec + 1, exec_new_hi.as_uint);
+	// Store the data in the destination register
+	WriteSReg(Instruction::RegisterScc, nonzero.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, exec_lo.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst + 1, exec_hi.as_uint);
+		Emulator::isa_debug << misc::fmt("exec_lo<=(0x%x) ", exec_new_lo.as_uint);
+		Emulator::isa_debug << misc::fmt("exec_hi<=(0x%x) ", exec_new_hi.as_uint);
+		Emulator::isa_debug << misc::fmt("scc<=(%u)", nonzero.as_uint);
+	}
+}
+#undef INST
+
 /*
  * SOPC
  */
