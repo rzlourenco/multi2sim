@@ -26,6 +26,14 @@ DEFINST(S_SUB_I32,
 	0
 )
 
+DEFINST(S_ADDC_U32,
+	" s_addc_i32    %SDST, %SSRC0, %SSRC1",
+	SOP2,
+	4,
+	4,
+	0
+)
+
 DEFINST(S_MIN_U32,
 	" s_min_u32     %SDST, %SSRC0, %SSRC1",
 	SOP2,
