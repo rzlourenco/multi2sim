@@ -251,6 +251,14 @@ DEFINST(S_WQM_B64,
 	0
 )
 
+DEFINST(S_BITSET0_B32,
+	" s_bitset0_b32 %SDST, %SSRC0",
+	SOP1,
+	27,
+	4,
+	0
+)
+
 DEFINST(S_SWAPPC_B64,
 	" s_swappc_b64  %64_SDST, %64_SSRC0",
 	SOP1,

@@ -1679,6 +1679,34 @@ void WorkItem::ISA_S_WQM_B64_Impl(Instruction *instruction)
 }
 #undef INST
 
+
+// D.u[S0.u[4:0]] = 0.
+#define INST INST_SOP1
+void WorkItem::ISA_S_BITSET0_B32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register dst;
+
+	// Load operand from registers or as a literal constant.
+	if (INST.ssrc0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadSReg(INST.ssrc0);
+	dst.as_uint = ReadSReg(INST.sdst);
+	dst.as_uint &= ~(1U << (s0.as_uint & 0x1F));
+
+	// Write the results.
+	// Store the data in the destination register
+	WriteSReg(INST.sdst, dst.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, s0.as_uint);
+	}
+}
+#undef INST
+
 // D.u = PC + 4, PC = S0.u
 #define INST INST_SOP1
 void WorkItem::ISA_S_SWAPPC_B64_Impl(Instruction *instruction)
