@@ -1760,6 +1760,45 @@ void WorkItem::ISA_S_BITSET0_B32_Impl(Instruction *instruction)
 }
 #undef INST
 
+// D.u = PC + 4; destination receives the byte address of the next instruction.
+#define INST INST_SOP1
+void WorkItem::ISA_S_GETPC_B64_Impl(Instruction *instruction)
+{
+	Instruction::Register64 dst;
+
+	uint32_t pc = wavefront->getPC() + 4;
+	dst.lo.as_uint = pc;
+	dst.hi.as_uint = 0;
+
+	WriteSReg(INST.sdst, dst.lo.as_uint);
+	WriteSReg(INST.sdst + 1, dst.hi.as_uint);
+
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, dst.lo.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst + 1, dst.hi.as_uint);
+	}
+}
+#undef INST
+
+// PC = S0.u; S0.u is a byte address of the instruction to jump to.
+#define INST INST_SOP1
+void WorkItem::ISA_S_SETPC_B64_Impl(Instruction *instruction)
+{
+	Instruction::Register64 s0;
+
+	s0 = Read_SSRC_64(INST.ssrc0);
+	// Check if we aren't addressing more than 32 bits.
+	assert(s0.as_ulong == s0.lo.as_uint);
+
+	wavefront->setPC(s0.lo.as_uint);
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("PC<=(0x%x)", wavefront->getPC());
+	}
+}
+#undef INST
+
 // D.u = PC + 4, PC = S0.u
 #define INST INST_SOP1
 void WorkItem::ISA_S_SWAPPC_B64_Impl(Instruction *instruction)
@@ -4818,6 +4857,35 @@ void WorkItem::ISA_V_CMP_GE_U32_Impl(Instruction *instruction)
 }
 #undef INST
 
+// D.u = (S0 <> S1)
+#define INST INST_VOPC
+void WorkItem::ISA_V_CMP_LG_U64_Impl(Instruction *instruction)
+{
+	union {
+		uint64_t as_uint;
+		uint32_t as_reg[2];
+	} s0, s1;
+	Instruction::Register result;
+
+	if (INST.src0 == 0xFF) {
+		s0.as_uint = (uint64_t)(int64_t)(int32_t)INST.lit_cnst;
+	} else {
+		s0.as_reg[0] = ReadReg(INST.src0);
+		s0.as_reg[1] = ReadReg(INST.src0 + 1);
+	}
+	s1.as_reg[0] = ReadReg(INST.vsrc1);
+	s1.as_reg[1] = ReadReg(INST.vsrc1 + 1);
+
+	result.as_uint = s0.as_uint != s1.as_uint;
+	WriteBitmaskSReg(Instruction::RegisterVcc, result.as_uint);
+
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: vcc<=(%u) ",
+			id_in_wavefront, result.as_uint);
+	}
+}
+#undef INST
 
 
 /*
@@ -6451,6 +6519,32 @@ void WorkItem::ISA_V_CMP_LT_U64_VOP3a_Impl(Instruction *instruction)
 }
 #undef INST
 
+// D.u = (S0 <> S1)
+#define INST INST_VOP3a
+void WorkItem::ISA_V_CMP_LG_U64_VOP3a_Impl(Instruction *instruction)
+{
+	assert(!INST.abs);
+	assert(!INST.clamp);
+	assert(!INST.omod);
+	assert(!INST.neg);
+
+	Instruction::Register64 s0, s1, result;
+
+	s0 = Read_SRC_64(INST.src0);
+	s1 = Read_SRC_64(INST.src1);
+
+	result.as_ulong = s0.as_ulong != s1.as_ulong;
+	WriteBitmaskSReg(INST.vdst, (unsigned)result.as_ulong);
+
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: S[%u:+1]<=(%lu) ",
+			id_in_wavefront, INST.vdst,
+			result.as_ulong);
+	}
+}
+#undef INST
+
 // Max of three numbers.
 #define INST INST_VOP3a
 void WorkItem::ISA_V_MAX3_I32_Impl(Instruction *instruction)
@@ -7897,6 +7991,178 @@ void WorkItem::ISA_BUFFER_LOAD_DWORD_Impl(Instruction *instruction)
 #undef INST
 
 #define INST INST_MUBUF
+void WorkItem::ISA_BUFFER_LOAD_DWORDX2_Impl(Instruction *instruction)
+{
+	assert(!INST.glc);
+	assert(!INST.slc);
+	assert(!INST.tfe);
+	assert(!INST.lds);
+	assert(!INST.addr64 || (INST.addr64 && !INST.offen));
+	assert(!INST.addr64 || (INST.addr64 && !INST.idxen));
+
+	BufferDescriptor buffer_descriptor;
+	Instruction::Register value;
+
+	unsigned off_vgpr = 0;
+	unsigned idx_vgpr = 0;
+
+	int bytes_to_read = 8;
+
+	// srsrc is in units of 4 registers
+	int srsrc = INST.srsrc << 2;
+	ReadBufferResource(srsrc, buffer_descriptor);
+
+	// Figure 8.1 from SI ISA defines address calculation
+	unsigned base = buffer_descriptor.base_addr;
+	unsigned soffset = ReadSReg(INST.soffset);
+	unsigned ioffset = INST.offset;
+	unsigned stride = buffer_descriptor.stride;
+
+        uint32_t addr;
+	if (INST.addr64)
+	{
+	        uint32_t addr_lsb = ReadVReg(INST.vaddr);
+	        uint32_t addr_msb = ReadVReg(INST.vaddr+1);
+	        uint64_t vaddr = addr_msb;
+	        vaddr = (vaddr << 32) | addr_lsb;
+	        vaddr += base + ioffset + soffset;
+	        // FIXME(rzl): this requires 64-bit addressing in the memory
+	        // emulation.
+	        addr = (uint32_t)vaddr;
+	        assert(addr == vaddr && "need 64-bit addressing support!");
+	}
+	else
+	{
+	        // Table 8.3 from SI ISA
+	        if (!INST.idxen && INST.offen)
+	        {
+	            off_vgpr = ReadVReg(INST.vaddr);
+	        }
+	        else if (INST.idxen && !INST.offen)
+	        {
+	            idx_vgpr = ReadVReg(INST.vaddr);
+	        }
+	        else if (INST.idxen && INST.offen)
+	        {
+	            idx_vgpr = ReadVReg(INST.vaddr);
+	            off_vgpr = ReadVReg(INST.vaddr + 1);
+	        }
+	        addr = base + soffset + ioffset + off_vgpr + 
+		    stride * (idx_vgpr + id_in_wavefront);
+	}
+
+	/* It wouldn't make sense to have a value for idxen without
+	 * having a stride */
+	if (idx_vgpr && !stride)
+		throw misc::Panic("Probably invalid buffer descriptor");
+
+	global_mem->Read(addr, 4, (char *)&value);
+	WriteVReg(INST.vdata, value.as_uint);
+	global_mem->Read(addr + 4, 4, (char *)&value);
+	WriteVReg(INST.vdata + 1, value.as_uint);
+
+	// Record last memory access for the detailed simulator.
+	global_memory_access_address = addr;
+	global_memory_access_size = bytes_to_read;
+
+	if (Emulator::isa_debug)
+	{
+		// FIXME(rzl): update trace format.
+		Emulator::isa_debug << misc::fmt("t%d: V%u<=(%u)(%d) ", id,
+			INST.vdata, addr, value.as_int);
+	}
+}
+#undef INST
+
+#define INST INST_MUBUF
+void WorkItem::ISA_BUFFER_LOAD_DWORDX4_Impl(Instruction *instruction)
+{
+	assert(!INST.glc);
+	assert(!INST.slc);
+	assert(!INST.tfe);
+	assert(!INST.lds);
+	assert(!INST.addr64 || (INST.addr64 && !INST.offen));
+	assert(!INST.addr64 || (INST.addr64 && !INST.idxen));
+
+	BufferDescriptor buffer_descriptor;
+	Instruction::Register value;
+
+	unsigned off_vgpr = 0;
+	unsigned idx_vgpr = 0;
+
+	int bytes_to_read = 16;
+
+	// srsrc is in units of 4 registers
+	int srsrc = INST.srsrc << 2;
+	ReadBufferResource(srsrc, buffer_descriptor);
+
+	// Figure 8.1 from SI ISA defines address calculation
+	unsigned base = buffer_descriptor.base_addr;
+	unsigned soffset = ReadSReg(INST.soffset);
+	unsigned ioffset = INST.offset;
+	unsigned stride = buffer_descriptor.stride;
+
+        uint32_t addr;
+	if (INST.addr64)
+	{
+	        uint32_t addr_lsb = ReadVReg(INST.vaddr);
+	        uint32_t addr_msb = ReadVReg(INST.vaddr+1);
+	        uint64_t vaddr = addr_msb;
+	        vaddr = (vaddr << 32) | addr_lsb;
+	        vaddr += base + ioffset + soffset;
+	        // FIXME(rzl): this requires 64-bit addressing in the memory
+	        // emulation.
+	        addr = (uint32_t)vaddr;
+	        assert(addr == vaddr && "need 64-bit addressing support!");
+	}
+	else
+	{
+	        // Table 8.3 from SI ISA
+	        if (!INST.idxen && INST.offen)
+	        {
+	            off_vgpr = ReadVReg(INST.vaddr);
+	        }
+	        else if (INST.idxen && !INST.offen)
+	        {
+	            idx_vgpr = ReadVReg(INST.vaddr);
+	        }
+	        else if (INST.idxen && INST.offen)
+	        {
+	            idx_vgpr = ReadVReg(INST.vaddr);
+	            off_vgpr = ReadVReg(INST.vaddr + 1);
+	        }
+	        addr = base + soffset + ioffset + off_vgpr + 
+		    stride * (idx_vgpr + id_in_wavefront);
+	}
+
+	/* It wouldn't make sense to have a value for idxen without
+	 * having a stride */
+	if (idx_vgpr && !stride)
+		throw misc::Panic("Probably invalid buffer descriptor");
+
+	global_mem->Read(addr, 4, (char *)&value);
+	WriteVReg(INST.vdata, value.as_uint);
+	global_mem->Read(addr + 4, 4, (char *)&value);
+	WriteVReg(INST.vdata + 1, value.as_uint);
+	global_mem->Read(addr + 8, 4, (char *)&value);
+	WriteVReg(INST.vdata + 2, value.as_uint);
+	global_mem->Read(addr + 12, 4, (char *)&value);
+	WriteVReg(INST.vdata + 3, value.as_uint);
+
+	// Record last memory access for the detailed simulator.
+	global_memory_access_address = addr;
+	global_memory_access_size = bytes_to_read;
+
+	if (Emulator::isa_debug)
+	{
+		// FIXME(rzl): update trace format.
+		Emulator::isa_debug << misc::fmt("t%d: V%u<=(%u)(%d) ", id,
+			INST.vdata, addr, value.as_int);
+	}
+}
+#undef INST
+
+#define INST INST_MUBUF
 void WorkItem::ISA_BUFFER_STORE_BYTE_Impl(Instruction *instruction)
 {
 
@@ -8050,6 +8316,93 @@ void WorkItem::ISA_BUFFER_STORE_DWORD_Impl(Instruction *instruction)
 
 	if (Emulator::isa_debug)
 	{
+		Emulator::isa_debug << misc::fmt("t%d: (%u)<=V%u(%d) ", id,
+			addr, INST.vdata, value.as_int);
+	}
+}
+#undef INST
+
+#define INST INST_MUBUF
+void WorkItem::ISA_BUFFER_STORE_DWORDX2_Impl(Instruction *instruction)
+{
+	assert(!INST.slc);
+	assert(!INST.tfe);
+	assert(!INST.lds);
+	assert(!INST.addr64 || (INST.addr64 && !INST.offen));
+	assert(!INST.addr64 || (INST.addr64 && !INST.idxen));
+
+	BufferDescriptor buffer_descriptor;
+	Instruction::Register value;
+
+	unsigned off_vgpr = 0;
+	unsigned idx_vgpr = 0;
+
+	int bytes_to_write = 4 * 2;
+
+	if (INST.glc)
+	{
+		wavefront->setVectorMemoryGlobalCoherency(true); // FIXME redundant
+	}
+
+	// srsrc is in units of 4 registers
+	ReadBufferResource(INST.srsrc * 4, buffer_descriptor);
+
+	// Figure 8.1 from SI ISA defines address calculation
+	unsigned base = buffer_descriptor.base_addr;
+	unsigned soffset = ReadSReg(INST.soffset);
+	unsigned ioffset = INST.offset;
+	unsigned stride = buffer_descriptor.stride;
+
+        uint32_t addr;
+	if (INST.addr64) {
+	        uint32_t addr_lsb = ReadVReg(INST.vaddr);
+	        uint32_t addr_msb = ReadVReg(INST.vaddr+1);
+	        uint64_t vaddr = addr_msb;
+	        vaddr = (vaddr << 32) | addr_lsb;
+	        vaddr += base + ioffset + soffset;
+	        // FIXME(rzl): this requires 64-bit addressing in the memory
+	        // emulation.
+	        addr = (uint32_t)vaddr;
+	        assert(addr == vaddr && "need 64-bit addressing support!");
+	}
+	else
+	{
+	    // Table 8.3 from SI ISA
+	    if (!INST.idxen && INST.offen)
+	    {
+		off_vgpr = ReadVReg(INST.vaddr);
+	    }
+	    else if (INST.idxen && !INST.offen)
+	    {
+		idx_vgpr = ReadVReg(INST.vaddr);
+	    }
+	    else if (INST.idxen && INST.offen)
+	    {
+		idx_vgpr = ReadVReg(INST.vaddr);
+		off_vgpr = ReadVReg(INST.vaddr + 1);
+	    }
+
+	    addr = base + soffset + ioffset + off_vgpr + 
+		stride * (idx_vgpr + id_in_wavefront);
+	}
+
+	/* It wouldn't make sense to have a value for idxen without
+	 * having a stride */
+	if (idx_vgpr && !stride)
+		throw misc::Panic("Probably invalid buffer descriptor");
+
+	value.as_int = ReadVReg(INST.vdata);
+	global_mem->Write(addr, 4, (char *)&value);
+	value.as_int = ReadVReg(INST.vdata + 1);
+	global_mem->Write(addr + 4, 4, (char *)&value);
+	
+	// Record last memory access for the detailed simulator.
+	global_memory_access_address = addr;
+	global_memory_access_size = bytes_to_write;
+
+	if (Emulator::isa_debug)
+	{
+		// TODO(rzl): fix debug output
 		Emulator::isa_debug << misc::fmt("t%d: (%u)<=V%u(%d) ", id,
 			addr, INST.vdata, value.as_int);
 	}

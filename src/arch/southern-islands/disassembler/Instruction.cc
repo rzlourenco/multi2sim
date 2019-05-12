@@ -404,6 +404,7 @@ void Instruction::DumpSeriesVdata(std::ostream& os, unsigned int vdata, int op)
 			break;
 		case 1:  // BUFFER_LOAD_FORMAT_XY
 		case 5:  // BUFFER_STORE_FORMAT_XY
+		case 13: // BUFFER_LOAD_DWORDX2
 		case 29: // BUFFER_STORE_DWORDX2
 			vdata_end = vdata + 1;
 			break;
@@ -413,6 +414,7 @@ void Instruction::DumpSeriesVdata(std::ostream& os, unsigned int vdata, int op)
 			break;
 		case 3:  // BUFFER_LOAD_FORMAT_XYZW
 		case 7:  // BUFFER_STORE_FORMAT_XYZW
+		case 14: // BUFFER_LOAD_DWORDX4
 		case 30: // BUFFER_STORE_DWORDX4
 			vdata_end = vdata + 3;
 			break;
