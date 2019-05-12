@@ -9,8 +9,13 @@ zlib = dependency('zlib')
 libdl = cc.find_library('dl', required: false)
 gtk3 = dependency('gtk+-3.0', required: false)
 
-add_global_arguments('-DVERSION="5.0"', language: ['c', 'cpp'])
 add_global_arguments('-D_GNU_SOURCE', language: ['c', 'cpp'])
+
+confdata = configuration_data()
+confdata.set_quoted('M2S_VERSION', meson.project_version())
+
+configure_file(output: 'm2s-config.h', configuration: confdata)
+m2s_inc = include_directories('.')
 
 if get_option('32bit')
   add_global_arguments('-m32', language: ['c', 'cpp'])

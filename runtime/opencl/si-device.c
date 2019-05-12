@@ -29,6 +29,7 @@
 #include "si-device.h"
 #include "si-kernel.h"
 #include "si-program.h"
+#include "m2s-config.h"
 
 struct opencl_si_device_t *opencl_si_device_create(struct opencl_device_t *parent)
 {
@@ -89,7 +90,7 @@ struct opencl_si_device_t *opencl_si_device_create(struct opencl_device_t *paren
 	parent->mem_base_addr_align = sizeof (cl_float4);
 	parent->min_data_type_align_size = 1;
 	parent->name = "Multi2Sim Southern Islands GPU Model";
-	parent->opencl_c_version = VERSION;
+	parent->opencl_c_version = M2S_VERSION;
 	parent->version = "1";
 	parent->driver_version = "1";
 	parent->vector_width_char = 16;

@@ -29,6 +29,7 @@
 #include "x86-device.h"
 #include "x86-kernel.h"
 #include "x86-program.h"
+#include "m2s-config.h"
 
 #define OPENCL_WORK_GROUP_STACK_SIZE 0x00002000 
 #define OPENCL_WORK_GROUP_STACK_MASK 0xffffe000 
@@ -583,7 +584,7 @@ struct opencl_x86_device_t *opencl_x86_device_create(
 	parent->mem_base_addr_align = sizeof (cl_float4);
 	parent->min_data_type_align_size = 1;
 	parent->name = "Multi2Sim 32-bit x86 CPU Model";
-	parent->opencl_c_version = VERSION;
+	parent->opencl_c_version = M2S_VERSION;
 	parent->version = "1";
 	parent->driver_version = "1";
 	parent->vector_width_char = 16;
