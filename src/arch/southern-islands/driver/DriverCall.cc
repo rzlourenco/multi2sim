@@ -72,21 +72,26 @@ int Driver::CallMemAlloc(comm::Context *context,
 	SI::Driver *si_drv = SI::Driver::getInstance();	
 
 	mem::Memory *video_mem = si_emu->getVideoMemory();
-	video_mem->Map(si_emu->getVideoMemoryTop(), size,
-		mem::Memory::AccessRead | mem::Memory::AccessWrite);
+
+	// XXX(rzl): quick hack to separate allocations so we segfault instead
+	// of silently corrupting memory.
+	// Begin user buffers at 128MB
+	static uint32_t next_addr = 128u << 20;
 
 	// Virtual address of memory object 
-	unsigned device_ptr = si_emu->getVideoMemoryTop();
+	unsigned device_ptr = next_addr;
+
+	video_mem->Map(next_addr, size,
+		mem::Memory::AccessRead | mem::Memory::AccessWrite);
 
 	debug << misc::fmt("\t%d bytes of device memory allocated at 0x%x\n",
 		size, device_ptr);
 	si_drv->userBuffers.push_back({device_ptr, size});
 
-	// For now, memory allocation in device memory is done by just 
-	// incrementing a pointer to the top of the global memory space. 
-	// Since memory deallocation is not implemented, "holes" in the 
-	// memory space are not considered. 
-	si_emu->incVideoMemoryTop(size);
+	// Align allocations to 32MB boundaries
+	const uint32_t alloc_alignment = 32u << 20;
+	size = (size + alloc_alignment - 1) & ~(alloc_alignment - 1);
+	next_addr += size;
 
 	// Return device pointer 
 	return device_ptr;
@@ -122,11 +127,6 @@ int Driver::CallMemRead(comm::Context *context,
 	// Debug                                                          
 	debug << misc::fmt("\thost_ptr = 0x%x, device_ptr = 0x%x, "
 			"size = %d bytes\n", host_ptr, device_ptr, size);                             
-
-	// Check memory range
-	if (device_ptr + size > emulator->getVideoMemoryTop())
-		throw Error(misc::fmt("%s: accessing device memory not "
-				"allocated", __FUNCTION__));                                   
 
 	// Read memory from host to device
 	auto buffer = misc::new_unique_array<char>(size);
@@ -172,10 +172,6 @@ int Driver::CallMemWrite(comm::Context *context,
 	debug << misc::fmt("\tdevice_ptr = 0x%x, host_ptr = 0x%x, size = %d bytes\n",
 			device_ptr, host_ptr, size);
 
-	// Check memory range
-	if (device_ptr + size > emulator->getVideoMemoryTop())
-		throw Error(misc::fmt("Device not allocated"));
-
 	// Read memory from host to device
 	auto buffer = misc::new_unique_array<char>(size);
 	memory->Read(host_ptr, size, buffer.get());
@@ -215,12 +211,6 @@ int Driver::CallMemCopy(comm::Context *context,
 	// Debug                                                          
 	debug << misc::fmt("\tdest_ptr = 0x%x, src_ptr = 0x%x, "
 			"size = %d bytes\n", dest_ptr, src_ptr, size);                             
-
-	// Check memory range
-	if (src_ptr + size > emulator->getVideoMemoryTop() || 
-			dest_ptr + size > emulator->getVideoMemoryTop())
-		throw Error(misc::fmt("%s: accessing device memory not "
-				"allocated", __FUNCTION__));                                   
 
 	// Read memory from host to device
 	auto buffer = misc::new_unique_array<char>(size);
