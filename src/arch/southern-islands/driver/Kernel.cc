@@ -1109,6 +1109,7 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
 
 	// Get emulator instance and video memory
 	SI::Emulator *emulator = SI::Emulator::getInstance();
+	SI::Driver *driver = SI::Driver::getInstance();
 	mem::Memory *video_memory = emulator->getVideoMemory();
 	
 	// Create a buffer descriptor
@@ -1124,7 +1125,7 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
         Emulator::isa_debug << misc::fmt("\t------------------------------------------------\n");
         Emulator::isa_debug << misc::fmt("\t|    Address Range                             |\n");
         for (auto const &buf : driver->userBuffers)
-            Emulator::isa_debug << misc::fmt("\t| [%10u:%10u] |\n",
+            Emulator::isa_debug << misc::fmt("\t| [%10u:%10u]                      |\n",
                     buf.address, buf.address + buf.size - 1);
         Emulator::isa_debug << misc::fmt("\t------------------------------------------------\n");
 

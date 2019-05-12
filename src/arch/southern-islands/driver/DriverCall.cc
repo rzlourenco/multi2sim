@@ -69,6 +69,8 @@ int Driver::CallMemAlloc(comm::Context *context,
 
 	// Map new pages 
 	SI::Emulator *si_emu = SI::Emulator::getInstance();	
+	SI::Driver *si_drv = SI::Driver::getInstance();	
+
 	mem::Memory *video_mem = si_emu->getVideoMemory();
 	video_mem->Map(si_emu->getVideoMemoryTop(), size,
 		mem::Memory::AccessRead | mem::Memory::AccessWrite);
