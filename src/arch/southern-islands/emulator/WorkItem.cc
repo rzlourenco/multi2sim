@@ -264,6 +264,59 @@ unsigned WorkItem::ReadSReg(int sreg)
 	return wavefront->getSregUint(sreg);
 }
 
+Instruction::Register WorkItem::Read_SSRC(int ssrc)
+{
+	assert(ssrc >= 0 && ssrc < 256);
+	assert(false);
+
+	// FIXME(rzl): This cannot be done in 64-bit encodings! With this
+	// interface there is no decent way to access the instruction encoding.
+	assert (ssrc != 0xFF);
+}
+
+Instruction::Register64 WorkItem::Read_SSRC_64(int ssrc)
+{
+	assert(ssrc >= 0 && ssrc < 256);
+
+	// FIXME(rzl): This cannot be done in 64-bit encodings! With this
+	// interface there is no decent way to access the instruction encoding.
+	assert(ssrc != 0xFF);
+	assert(ssrc % 2 == 0);
+
+	Instruction::Register64 result;
+	if (ssrc < 104 || ssrc == Instruction::RegisterVcc || ssrc == Instruction::RegisterExec) {
+		result.lo.as_uint = ReadSReg(ssrc);
+		result.hi.as_uint = ReadSReg(ssrc + 1);
+	} else if (ssrc >= 128 && ssrc < 209) {
+		result.as_long = (int64_t)(int32_t)ReadSReg(ssrc);
+	} else if (ssrc >= 240 && ssrc < 247) {
+		result.lo.as_uint = ReadSReg(ssrc);
+		result.as_double = (double)result.lo.as_float;
+	} else
+		assert(false);
+	return result;
+}
+
+Instruction::Register WorkItem::Read_SRC(int src)
+{
+	assert(src < 512);
+	if (src < 256)
+		return Read_SSRC(src);
+	src -= 256;
+	assert(false);
+}
+
+Instruction::Register64 WorkItem::Read_SRC_64(int src)
+{
+	assert(src < 512);
+	if (src < 256)
+		return Read_SSRC_64(src);
+	src -= 256;
+	Instruction::Register64 result;
+	result.lo.as_uint = ReadVReg(src);
+	result.hi.as_uint = ReadVReg(src + 1);
+	return result;
+}
 
 void WorkItem::WriteSReg(int sreg, 
 	unsigned value)

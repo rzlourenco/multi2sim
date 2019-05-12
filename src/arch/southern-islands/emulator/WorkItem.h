@@ -408,6 +408,11 @@ public:
 	///
 	unsigned ReadReg(int reg);
 
+	Instruction::Register Read_SSRC(int ssrc);
+	Instruction::Register64 Read_SSRC_64(int ssrc);
+	Instruction::Register Read_SRC(int src);
+	Instruction::Register64 Read_SRC_64(int src);
+
 	/// Set bitmask of scalar registers
 	///
 	/// \param sreg Scalar register identifier

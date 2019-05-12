@@ -469,6 +469,29 @@ public:
 		float as_float;
 	};
 
+	/// 8-byte register
+	union Register64
+	{
+		int64_t as_long;
+		uint64_t as_ulong;
+
+		int32_t as_int[2];
+		uint32_t as_uint[2];
+		struct {
+			Register lo;
+			Register hi;
+		};
+
+		int16_t as_short[4];
+		uint16_t as_ushort[4];
+
+		char as_byte[8];
+		unsigned char as_ubyte[8];
+
+		float as_float[2];
+		double as_double;
+	};
+
 	/// Entry in the instruction information table
 	struct Info
 	{
