@@ -1493,7 +1493,15 @@ void WorkItem::ISA_S_MOVK_I32_Impl(Instruction *instruction)
 }
 #undef INST
 
-//
+// SCC = (D.u == SIMM16)
+#define INST INST_SOPK
+void WorkItem::ISA_S_CMPK_EQ_U32_Impl(Instruction *instruction)
+{
+	ISAUnimplemented(instruction);
+}
+#undef INST
+
+// D.u = SCC = (D.u <= SIMM16)
 #define INST INST_SOPK
 void WorkItem::ISA_S_CMPK_LE_U32_Impl(Instruction *instruction)
 {
@@ -1577,6 +1585,36 @@ void WorkItem::ISA_S_MULK_I32_Impl(Instruction *instruction)
 		Emulator::isa_debug << misc::fmt("S%u<=(%d)", INST.sdst, product.as_int);
 		Emulator::isa_debug << misc::fmt("scc<=(%u)", ovf.as_uint);
 	}
+}
+#undef INST
+
+// D.u = hardware register. Read some or all of a hardware register into the
+// LSBs of D. See Table 5.7 on page 5-7. SIMM16 = {size[4:0], offset[4:0],
+// hwRegId[5:0]}; offset is 0-31, size is 1-32.
+#define INST INST_SOPK
+void WorkItem::ISA_S_GETREG_B32_Impl(Instruction *instruction)
+{
+	ISAUnimplemented(instruction);
+}
+#undef INST
+
+// hardware register = D.u. Write some or all of the LSBs of D into a hardware
+// register (note that D is a source SGPR). See Table 5.7 on page 5-7. SIMM16
+// = {size[4:0], offset[4:0], hwRegId[5:0]}; offset is 0-31, size is 1-32.
+#define INST INST_SOPK
+void WorkItem::ISA_S_SETREG_B32_Impl(Instruction *instruction)
+{
+	ISAUnimplemented(instruction);
+}
+#undef INST
+
+// This instruction uses a 32-bit literal oconstant. Write some or all of the
+// LSBs of IMM32 into a hardware register. SIMM16 = {size[4:0], offset[4:0],
+// hwRegId[5:0]}; offset is 0-31, size is 1-32.
+#define INST INST_SOPK
+void WorkItem::ISA_S_SETREG_IMM32_B32_Impl(Instruction *instruction)
+{
+	ISAUnimplemented(instruction);
 }
 #undef INST
 
@@ -1676,6 +1714,41 @@ void WorkItem::ISA_S_NOT_B32_Impl(Instruction *instruction)
 void WorkItem::ISA_S_WQM_B64_Impl(Instruction *instruction)
 {
 	ISAUnimplemented(instruction);
+}
+#undef INST
+
+static uint32_t BitReverse(uint32_t v)
+{
+	v = ((v >> 1) & 0x55555555) | ((v & 0x55555555) << 1);
+	v = ((v >> 2) & 0x33333333) | ((v & 0x33333333) << 2);
+	v = ((v >> 4) & 0x0F0F0F0F) | ((v & 0x0F0F0F0F) << 4);
+	v = ((v >> 8) & 0x00FF00FF) | ((v & 0x00FF00FF) << 8);
+	v = (v >> 16) | (v << 16);
+	return v;
+}
+
+// D.u = S0.u[0:31] (reverse bits).
+#define INST INST_SOP1
+void WorkItem::ISA_S_BREV_B32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+
+	// Load operand from registers or as a literal constant.
+	if (INST.ssrc0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadSReg(INST.ssrc0);
+	s0.as_uint = BitReverse(s0.as_uint);
+
+	// Write the results.
+	// Store the data in the destination register
+	WriteSReg(INST.sdst, s0.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, s0.as_uint);
+	}
 }
 #undef INST
 
@@ -2020,6 +2093,78 @@ void WorkItem::ISA_S_CMP_LE_I32_Impl(Instruction *instruction)
 }
 #undef INST
 
+// scc = (S0.u == S1.u).
+#define INST INST_SOPC
+void WorkItem::ISA_S_CMP_EQ_U32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register result;
+
+	// Load operands from registers or as a literal constant.
+	assert(!(INST.ssrc0 == 0xFF && INST.ssrc1 == 0xFF));
+	if (INST.ssrc0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadSReg(INST.ssrc0);
+	if (INST.ssrc1 == 0xFF)
+		s1.as_uint = INST.lit_cnst;
+	else
+		s1.as_uint = ReadSReg(INST.ssrc1);
+
+	// Compare the operands.
+	result.as_uint = (s0.as_uint == s1.as_uint);
+
+	// Write the results.
+	// Store the data in the destination register
+	WriteSReg(Instruction::RegisterScc, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("wf%d: scc<=(%u) (%u ==? %u)", 
+			wavefront->getId(), result.as_uint, s0.as_int,
+			s1.as_int);
+	}
+}
+#undef INST
+
+// scc = (S0.u != S1.u).
+#define INST INST_SOPC
+void WorkItem::ISA_S_CMP_LG_U32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register result;
+
+	// Load operands from registers or as a literal constant.
+	assert(!(INST.ssrc0 == 0xFF && INST.ssrc1 == 0xFF));
+	if (INST.ssrc0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadSReg(INST.ssrc0);
+	if (INST.ssrc1 == 0xFF)
+		s1.as_uint = INST.lit_cnst;
+	else
+		s1.as_uint = ReadSReg(INST.ssrc1);
+
+	// Compare the operands.
+	result.as_uint = (s0.as_uint != s1.as_uint);
+
+	// Write the results.
+	// Store the data in the destination register
+	WriteSReg(Instruction::RegisterScc, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("wf%d: scc<=(%u) (%u ==? %u)", 
+			wavefront->getId(), result.as_uint, s0.as_int,
+			s1.as_int);
+	}
+}
+#undef INST
+
 // scc = (S0.u > S1.u).
 #define INST INST_SOPC
 void WorkItem::ISA_S_CMP_GT_U32_Impl(Instruction *instruction)
@@ -2088,6 +2233,40 @@ void WorkItem::ISA_S_CMP_GE_U32_Impl(Instruction *instruction)
 }
 #undef INST
 
+// scc = (S0.u < S1.u).
+#define INST INST_SOPC
+void WorkItem::ISA_S_CMP_LT_U32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register result;
+
+	// Load operands from registers or as a literal constant.
+	assert(!(INST.ssrc0 == 0xFF && INST.ssrc1 == 0xFF));
+	if (INST.ssrc0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadSReg(INST.ssrc0);
+	if (INST.ssrc1 == 0xFF)
+		s1.as_uint = INST.lit_cnst;
+	else
+		s1.as_uint = ReadSReg(INST.ssrc1);
+
+	// Compare the operands.
+	result.as_uint = (s0.as_uint < s1.as_uint);
+
+	// Write the results.
+	// Store the data in the destination register
+	WriteSReg(Instruction::RegisterScc, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("scc<=(%u) ", result.as_uint);
+	}
+}
+#undef INST
+
 // scc = (S0.u <= S1.u).
 #define INST INST_SOPC
 void WorkItem::ISA_S_CMP_LE_U32_Impl(Instruction *instruction)
@@ -2125,6 +2304,12 @@ void WorkItem::ISA_S_CMP_LE_U32_Impl(Instruction *instruction)
 /*
  * SOPP
  */
+
+void WorkItem::ISA_S_NOP_Impl(Instruction *instruction)
+{
+	// No-op
+}
+
 
 // End the program.
 void WorkItem::ISA_S_ENDPGM_Impl(Instruction *instruction)
@@ -2948,6 +3133,33 @@ void WorkItem::ISA_V_NOT_B32_Impl(Instruction *instruction)
 
 	// Bitwise not
 	result.as_uint = ~s0.as_uint;
+
+	// Write the results.
+	WriteVReg(INST.vdst, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V%u<=(0x%x) ", id, INST.vdst,
+			result.as_uint);
+	}
+}
+#undef INST
+
+// D.u[31:0] = S0.u[0:31]
+#define INST INST_VOP1
+void WorkItem::ISA_V_BFREV_B32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register result;
+
+	// Load operand from register or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+
+	result.as_uint = BitReverse(s0.as_uint);
 
 	// Write the results.
 	WriteVReg(INST.vdst, result.as_uint);
@@ -3794,6 +4006,36 @@ void WorkItem::ISA_V_MADMK_F32_Impl(Instruction *instruction)
 }
 #undef INST
 
+// D.f = S0.f * S1.f + K; K is a 32-bit inline constant
+#define INST INST_VOP2
+void WorkItem::ISA_V_MADAK_F32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register K;
+	Instruction::Register dst;
+
+	// Load operands from registers or as a literal constant.
+	s0.as_uint = ReadReg(INST.src0);
+	s1.as_uint = ReadVReg(INST.vsrc1);
+	K.as_uint = INST.lit_cnst;
+	
+	// Calculate the result
+	dst.as_float = s0.as_float * s1.as_float + K.as_float;
+
+	// Write the results.
+	WriteVReg(INST.vdst, dst.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V%u<=(%f) (%f * %f + %f)", id, 
+			INST.vdst, dst.as_float, s0.as_float, K.as_float, 
+			s1.as_float);
+	}
+}
+#undef INST
+
 // D.u = S0.u + S1.u, vcc = carry-out.
 #define INST INST_VOP2
 void WorkItem::ISA_V_ADD_I32_Impl(Instruction *instruction)
@@ -4008,6 +4250,36 @@ void WorkItem::ISA_V_CMP_LT_F32_Impl(Instruction *instruction)
 
 	// Compare the operands.
 	result.as_uint = (s0.as_float < s1.as_float);
+
+	// Write the results.
+	WriteBitmaskSReg(Instruction::RegisterVcc, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: vcc<=(%u) ",
+			id_in_wavefront, result.as_uint);
+	}
+}
+#undef INST
+
+// vcc = (S0.f == S1.f).
+#define INST INST_VOPC
+void WorkItem::ISA_V_CMP_EQ_F32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register result;
+
+	// Load operands from registers or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+	s1.as_uint = ReadVReg(INST.vsrc1);
+
+	// Compare the operands.
+	result.as_uint = (s0.as_float == s1.as_float);
 
 	// Write the results.
 	WriteBitmaskSReg(Instruction::RegisterVcc, result.as_uint);

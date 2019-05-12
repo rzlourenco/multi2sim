@@ -191,6 +191,15 @@ DEFINST(S_MOVK_I32,
 	0
 )
 
+DEFINST(S_CMPK_EQ_U32,
+	" s_cmpk_eq_u32    %SDST, %SIMM16",
+	SOPK,
+	9,
+	4,
+	0
+)
+
+
 DEFINST(S_CMPK_LE_U32,
 	" s_cmpk_le_u32    %SDST, %SIMM16",
 	SOPK,
@@ -215,6 +224,29 @@ DEFINST(S_MULK_I32,
 	0
 )
 
+DEFINST(S_GETREG_B32,
+	" s_getreg_b32    %SDST, %SIMM16",
+	SOPK,
+	18,
+	4,
+	0
+)
+
+DEFINST(S_SETREG_B32,
+	" s_setreg_b32    %SDST, %SIMM16",
+	SOPK,
+	19,
+	4,
+	0
+)
+
+DEFINST(S_SETREG_IMM32_B32,
+	" s_setreg_imm32_b32    %SDST, %SIMM16",
+	SOPK,
+	21,
+	4,
+	0
+)
 /*
  * SOP1
  */
@@ -247,6 +279,14 @@ DEFINST(S_WQM_B64,
 	" s_wqm_b64     %SDST, %SSRC0",
 	SOP1,
 	10,
+	4,
+	0
+)
+
+DEFINST(S_BREV_B32,
+	" s_brev_b32     %SDST, %SSRC0",
+	SOP1,
+	11,
 	4,
 	0
 )
@@ -327,6 +367,22 @@ DEFINST(S_CMP_LE_I32,
 	0
 )
 
+DEFINST(S_CMP_EQ_U32,
+	" s_cmp_eq_u32  %SSRC0, %SSRC1",
+	SOPC,
+	6,
+	4,
+	0
+)
+
+DEFINST(S_CMP_LG_U32,
+	" s_cmp_lg_u32  %SSRC0, %SSRC1",
+	SOPC,
+	7,
+	4,
+	0
+)
+
 DEFINST(S_CMP_GT_U32,
 	" s_cmp_gt_u32  %SSRC0, %SSRC1",
 	SOPC,
@@ -343,6 +399,14 @@ DEFINST(S_CMP_GE_U32,
 	0
 )
 
+DEFINST(S_CMP_LT_U32,
+	" s_cmp_lt_u32  %SSRC0, %SSRC1",
+	SOPC,
+	10,
+	4,
+	0
+)
+
 DEFINST(S_CMP_LE_U32,
 	" s_cmp_le_u32  %SSRC0, %SSRC1",
 	SOPC,
@@ -354,6 +418,14 @@ DEFINST(S_CMP_LE_U32,
 /*
  * SOPP
  */
+
+DEFINST(S_NOP,
+	" s_nop          ",
+	SOPP,
+	0,
+	4,
+	0
+)
 
 DEFINST(S_ENDPGM,
 	" s_endpgm",
@@ -724,6 +796,14 @@ DEFINST(V_MADMK_F32,
 	0
 )
 
+DEFINST(V_MADAK_F32,
+	" v_madak_f32   %VDST, %SRC0, %VOP2_LIT, %VSRC1",
+	VOP2,
+	33,
+	8,
+	0
+)
+
 DEFINST(V_ADD_I32,
 	" v_add_i32     %VDST, vcc, %SRC0, %VSRC1",
 	VOP2,
@@ -968,6 +1048,14 @@ DEFINST(V_NOT_B32,
 	0
 )
 
+DEFINST(V_BFREV_B32,
+	" v_bfrev_b32   %VDST, %SRC0",
+	VOP1,
+	56,
+	4,
+	0
+)
+
 DEFINST(V_FFBH_U32,
 	" v_ffbh_u32    %VDST, %SRC0",
 	VOP1,
@@ -1007,6 +1095,14 @@ DEFINST(V_CMP_LT_F32,
 	" v_cmp_lt_f32  vcc, %SRC0, %VSRC1",
 	VOPC,
 	1,
+	4,
+	0
+)
+
+DEFINST(V_CMP_EQ_F32,
+	" v_cmp_EQ_f32  vcc, %SRC0, %VSRC1",
+	VOPC,
+	2,
 	4,
 	0
 )
