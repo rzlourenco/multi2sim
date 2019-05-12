@@ -280,7 +280,7 @@ std::string Context::OpenProcSelfMaps()
 		}
 
 		// Dump range
-		fprintf(f, "%08x-%08x %c%c%c%c 00000000 00:00\n", start,
+		fprintf(f, "%08x-%08x %c%c%c%c 00000000 00:00 \n", start,
 				end + mem::Memory::PageSize,
 				perm & mem::Memory::AccessRead ? 'r' : '-',
 				perm & mem::Memory::AccessWrite ? 'w' : '-',
