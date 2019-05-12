@@ -437,7 +437,9 @@ DEFINST(movhpd_m64_xmm, 0x0f, 0x17, SKIP, REG, SKIP, Instruction::PrefixOp)
 
 DEFINST(movlhps_xmm_xmmm128, 0x0f, 0x16, SKIP, REG, SKIP, 0)
 
+DEFINST(movlps_xmm_m64, 0x0f, 0x12, SKIP, REG, SKIP, 0)
 DEFINST(movlpd_xmm_m64, 0x0f, 0x12, SKIP, REG, SKIP, Instruction::PrefixOp)
+DEFINST(movlps_m64_xmm, 0x0f, 0x13, SKIP, REG, SKIP, 0)
 DEFINST(movlpd_m64_xmm, 0x0f, 0x13, SKIP, REG, SKIP, Instruction::PrefixOp)
 
 DEFINST(movmskpd_r32_xmmm128, 0x0f, 0x50, SKIP, REG, SKIP, Instruction::PrefixOp)

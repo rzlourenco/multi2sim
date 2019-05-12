@@ -36,6 +36,42 @@ namespace x86
 
 #define __UNIMPLEMENTED__ throw misc::Panic(misc::fmt("Unimplemented instruction %s", __FUNCTION__));
 
+void Context::ExecuteInst_movlps_xmm_m64()
+{
+	XmmValue xmm;
+
+	LoadXmm(xmm);
+	xmm.setAsUInt64(0, LoadM64());
+	StoreXmm(xmm);
+
+	newUinst(Uinst::OpcodeXmmMove,
+			Uinst::DepXmmm64,
+			Uinst::DepXmm,
+			0,
+			Uinst::DepXmm,
+			0,
+			0,
+			0);
+}
+
+void Context::ExecuteInst_movlps_m64_xmm()
+{
+	XmmValue xmm;
+
+	LoadXmm(xmm);
+	StoreM64(xmm.getAsUInt64(0));
+
+	newUinst(Uinst::OpcodeXmmMove,
+			Uinst::DepXmm,
+			0,
+			0,
+			Uinst::DepXmmm64,
+			0,
+			0,
+			0);
+}
+
+
 void Context::ExecuteInst_addps_xmm_xmmm128()
 {
 	XmmValue dest;
