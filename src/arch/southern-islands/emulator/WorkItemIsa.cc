@@ -8126,13 +8126,13 @@ void WorkItem::ISA_BUFFER_STORE_DWORDX4_Impl(Instruction *instruction)
 		throw misc::Panic("Probably invalid buffer descriptor");
 
 	value.as_int = ReadVReg(INST.vdata);
-	global_mem->Write(addr, bytes_to_write, (char *)&value);
+	global_mem->Write(addr, 4, (char *)&value);
 	value.as_int = ReadVReg(INST.vdata + 1);
-	global_mem->Write(addr + 4, bytes_to_write, (char *)&value);
+	global_mem->Write(addr + 4, 4, (char *)&value);
 	value.as_int = ReadVReg(INST.vdata + 2);
-	global_mem->Write(addr + 8, bytes_to_write, (char *)&value);
+	global_mem->Write(addr + 8, 4, (char *)&value);
 	value.as_int = ReadVReg(INST.vdata + 3);
-	global_mem->Write(addr + 12, bytes_to_write, (char *)&value);
+	global_mem->Write(addr + 12, 4, (char *)&value);
 	
 	// Record last memory access for the detailed simulator.
 	global_memory_access_address = addr;
