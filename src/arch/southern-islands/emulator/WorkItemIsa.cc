@@ -2675,6 +2675,106 @@ void WorkItem::ISA_V_CVT_F64_I32_Impl(Instruction *instruction)
 }
 #undef INST
 
+// D.f = UINT2FLT(S0.u[7:0])
+#define INST INST_VOP1
+void WorkItem::ISA_V_CVT_F32_UBYTE0_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register result;
+
+	// Load operand from register or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+
+	result.as_float = (float)(s0.as_uint & 0xFF);
+	WriteVReg(INST.vdst, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V[%u]<=(%lgf) ", id,
+			INST.vdst, result.as_float);
+	}
+}
+#undef INST
+
+// D.f = UINT2FLT(S0.u[15:8])
+#define INST INST_VOP1
+void WorkItem::ISA_V_CVT_F32_UBYTE1_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register result;
+
+	// Load operand from register or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+
+	result.as_float = (float)((s0.as_uint >> 8) & 0xFF);
+	WriteVReg(INST.vdst, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V[%u]<=(%lgf) ", id,
+			INST.vdst, result.as_float);
+	}
+}
+#undef INST
+
+// D.f = UINT2FLT(S0.u[23:16])
+#define INST INST_VOP1
+void WorkItem::ISA_V_CVT_F32_UBYTE2_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register result;
+
+	// Load operand from register or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+
+	result.as_float = (float)((s0.as_uint >> 16) & 0xFF);
+	WriteVReg(INST.vdst, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V[%u]<=(%lgf) ", id,
+			INST.vdst, result.as_float);
+	}
+}
+#undef INST
+
+// D.f = UINT2FLT(S0.u[31:24])
+#define INST INST_VOP1
+void WorkItem::ISA_V_CVT_F32_UBYTE3_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register result;
+
+	// Load operand from register or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+
+	result.as_float = (float)((s0.as_uint >> 24) & 0xFF);
+	WriteVReg(INST.vdst, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V[%u]<=(%lgf) ", id,
+			INST.vdst, result.as_float);
+	}
+}
+#undef INST
+
 // D.f = (float)S0.i.
 #define INST INST_VOP1
 void WorkItem::ISA_V_CVT_F32_I32_Impl(Instruction *instruction)

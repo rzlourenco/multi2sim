@@ -960,6 +960,38 @@ DEFINST(V_CVT_F64_F32,
 	0
 )
 
+DEFINST(V_CVT_F32_UBYTE0,
+	" v_cvt_f32_ubyte0  %64_VDST, %SRC0",
+	VOP1,
+	17,
+	4,
+	0
+)
+
+DEFINST(V_CVT_F32_UBYTE1,
+	" v_cvt_f32_ubyte1  %64_VDST, %SRC0",
+	VOP1,
+	18,
+	4,
+	0
+)
+
+DEFINST(V_CVT_F32_UBYTE2,
+	" v_cvt_f32_ubyte2  %64_VDST, %SRC0",
+	VOP1,
+	19,
+	4,
+	0
+)
+
+DEFINST(V_CVT_F32_UBYTE3,
+	" v_cvt_f32_ubyte3  %64_VDST, %SRC0",
+	VOP1,
+	20,
+	4,
+	0
+)
+
 DEFINST(V_CVT_F64_U32,
 	" v_cvt_f64_u32  %64_VDST, %64_SRC0",
 	VOP1,
