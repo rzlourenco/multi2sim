@@ -267,11 +267,30 @@ unsigned WorkItem::ReadSReg(int sreg)
 Instruction::Register WorkItem::Read_SSRC(int ssrc)
 {
 	assert(ssrc >= 0 && ssrc < 256);
-	assert(false);
 
 	// FIXME(rzl): This cannot be done in 64-bit encodings! With this
 	// interface there is no decent way to access the instruction encoding.
 	assert (ssrc != 0xFF);
+
+	Instruction::Register result;
+	result.as_uint = ReadSReg(ssrc);
+	return result;
+}
+
+Instruction::Register WorkItem::Read_VSRC(int src)
+{
+	assert(src < 256);
+	Instruction::Register result;
+	result.as_uint = ReadVReg(src);
+	return result;
+}
+
+Instruction::Register WorkItem::Read_SRC(int src)
+{
+	if (src < 256)
+		return Read_SSRC(src);
+	else
+		return Read_VSRC(src - 256);
 }
 
 Instruction::Register64 WorkItem::Read_SSRC_64(int ssrc)
@@ -281,10 +300,10 @@ Instruction::Register64 WorkItem::Read_SSRC_64(int ssrc)
 	// FIXME(rzl): This cannot be done in 64-bit encodings! With this
 	// interface there is no decent way to access the instruction encoding.
 	assert(ssrc != 0xFF);
-	assert(ssrc % 2 == 0);
 
 	Instruction::Register64 result;
 	if (ssrc < 104 || ssrc == Instruction::RegisterVcc || ssrc == Instruction::RegisterExec) {
+		assert(ssrc % 2 == 0);
 		result.lo.as_uint = ReadSReg(ssrc);
 		result.hi.as_uint = ReadSReg(ssrc + 1);
 	} else if (ssrc >= 128 && ssrc < 209) {
@@ -297,25 +316,21 @@ Instruction::Register64 WorkItem::Read_SSRC_64(int ssrc)
 	return result;
 }
 
-Instruction::Register WorkItem::Read_SRC(int src)
+Instruction::Register64 WorkItem::Read_VSRC_64(int vsrc)
 {
-	assert(src < 512);
-	if (src < 256)
-		return Read_SSRC(src);
-	src -= 256;
-	assert(false);
+	assert(vsrc >= 0 && vsrc < 256);
+	Instruction::Register64 result;
+	result.lo.as_uint = ReadVReg(vsrc);
+	result.hi.as_uint = ReadVReg(vsrc + 1);
+	return result;
 }
 
 Instruction::Register64 WorkItem::Read_SRC_64(int src)
 {
-	assert(src < 512);
 	if (src < 256)
 		return Read_SSRC_64(src);
-	src -= 256;
-	Instruction::Register64 result;
-	result.lo.as_uint = ReadVReg(src);
-	result.hi.as_uint = ReadVReg(src + 1);
-	return result;
+	else
+		return Read_VSRC_64(src - 256);
 }
 
 void WorkItem::WriteSReg(int sreg, 
