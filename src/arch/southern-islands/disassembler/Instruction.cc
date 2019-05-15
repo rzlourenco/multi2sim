@@ -1250,7 +1250,7 @@ void Instruction::Decode(const char *buf, unsigned int address)
 
 		/* Some opcodes define a 32-bit literal constant following
 		 * the instruction */
-		if (bytes.vop2.op == 32)
+		if (bytes.vop2.op == 32 || bytes.vop2.op == 33)
 		{
 			size = 8;
 			bytes.dword = * (unsigned long long *) buf;
