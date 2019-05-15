@@ -5049,6 +5049,50 @@ void WorkItem::ISA_V_ADD_F32_VOP3a_Impl(Instruction *instruction)
 }
 #undef INST
 
+// D.f = S0.f - S1.f.
+#define INST INST_VOP3a
+void WorkItem::ISA_V_SUB_F32_VOP3a_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register sum;
+
+	assert(!INST.clamp);
+	assert(!INST.omod);
+
+	// Load operands from registers or as a literal constant.
+	s0.as_uint = ReadReg(INST.src0);
+	s1.as_uint = ReadReg(INST.src1);
+
+	// Apply absolute value modifiers.
+	if (INST.abs & 1)
+		s0.as_float = fabsf(s0.as_float);
+	if (INST.abs & 2)
+		s1.as_float = fabsf(s1.as_float);
+	assert(!(INST.abs & 4));
+
+	// Apply negation modifiers.
+	if (INST.neg & 1)
+		s0.as_float = -s0.as_float;
+	if (INST.neg & 2)
+		s1.as_float = -s1.as_float;
+	assert(!(INST.neg & 4));
+
+	// Calculate the sum.
+	sum.as_float = s0.as_float - s1.as_float;
+
+	// Write the results.
+	WriteVReg(INST.vdst, sum.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V%u<=(%gf) ", id, INST.vdst,
+			sum.as_float);
+	}
+}
+#undef INST
+
 // D.f = S1.f - S0.f
 #define INST INST_VOP3a
 void WorkItem::ISA_V_SUBREV_F32_VOP3a_Impl(Instruction *instruction)
@@ -5284,6 +5328,21 @@ void WorkItem::ISA_V_OR_B32_VOP3a_Impl(Instruction *instruction)
 }
 #undef INST
 
+// D.f = S0.f * K + S1.f; K is a 32-bit inline constant
+#define INST INST_VOP3a
+void WorkItem::ISA_V_MADMK_F32_VOP3a_Impl(Instruction *instruction)
+{
+	ISAUnimplemented(instruction);
+}
+#undef INST
+
+// D.f = S0.f * S1.f + K; K is a 32-bit inline constant
+#define INST INST_VOP3a
+void WorkItem::ISA_V_MADAK_F32_VOP3a_Impl(Instruction *instruction)
+{
+	ISAUnimplemented(instruction);
+}
+#undef INST
 
 // D.f = S0.f * S1.f + S2.f.
 #define INST INST_VOP3a
