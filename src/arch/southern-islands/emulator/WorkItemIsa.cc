@@ -1047,39 +1047,33 @@ void WorkItem::ISA_S_ANDN2_B64_Impl(Instruction *instruction)
 	// Assert no literal constants for a 64 bit instruction.
 	assert(!(INST.ssrc0 == 0xFF || INST.ssrc1 == 0xFF));
 
-	Instruction::Register s0_lo;
-	Instruction::Register s0_hi;
-	Instruction::Register s1_lo;
-	Instruction::Register s1_hi;
-	Instruction::Register result_lo;
-	Instruction::Register result_hi;
+	Instruction::Register64 s0;
+	Instruction::Register64 s1;
+	Instruction::Register64 result;
 	Instruction::Register nonzero;
 
 	// Load operands from registers.
-	s0_lo.as_uint = ReadSReg(INST.ssrc0);
-	s0_hi.as_uint = ReadSReg(INST.ssrc0 + 1);
-	s1_lo.as_uint = ReadSReg(INST.ssrc1);
-	s1_hi.as_uint = ReadSReg(INST.ssrc1 + 1);
+	s0 = Read_SSRC_64(INST.ssrc0);
+	s1 = Read_SSRC_64(INST.ssrc1);
 
 	/* Bitwise AND the first operand with the negation of the second and
 	 * determine if the result is non-zero. */
-	result_lo.as_uint = s0_lo.as_uint & ~s1_lo.as_uint;
-	result_hi.as_uint = s0_hi.as_uint & ~s1_hi.as_uint;
-	nonzero.as_uint = result_lo.as_uint || result_hi.as_uint;
+	result.as_ulong = s0.as_ulong & ~s1.as_ulong;
+	nonzero.as_uint = result.as_ulong != 0;
 
 	// Write the results.
 	// Store the data in the destination register
-	WriteSReg(INST.sdst, result_lo.as_uint);
+	WriteSReg(INST.sdst, result.lo.as_uint);
 	// Store the data in the destination register
-	WriteSReg(INST.sdst + 1, result_hi.as_uint);
+	WriteSReg(INST.sdst + 1, result.hi.as_uint);
 	// Store the data in the destination register
 	WriteSReg(Instruction::RegisterScc, nonzero.as_uint);
 
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
-		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, result_lo.as_uint);
-		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst + 1, result_hi.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, result.lo.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst + 1, result.hi.as_uint);
 		Emulator::isa_debug << misc::fmt("scc<=(%u)", nonzero.as_uint);
 	}
 }
@@ -1092,39 +1086,33 @@ void WorkItem::ISA_S_NAND_B64_Impl(Instruction *instruction)
 	// Assert no literal constants for a 64 bit instruction.
 	assert(!(INST.ssrc0 == 0xFF || INST.ssrc1 == 0xFF));
 
-	Instruction::Register s0_lo;
-	Instruction::Register s0_hi;
-	Instruction::Register s1_lo;
-	Instruction::Register s1_hi;
-	Instruction::Register result_lo;
-	Instruction::Register result_hi;
+	Instruction::Register64 s0;
+	Instruction::Register64 s1;
+	Instruction::Register64 result;
 	Instruction::Register nonzero;
 
 	// Load operands from registers.
-	s0_lo.as_uint = ReadSReg(INST.ssrc0);
-	s0_hi.as_uint = ReadSReg(INST.ssrc0 + 1);
-	s1_lo.as_uint = ReadSReg(INST.ssrc1);
-	s1_hi.as_uint = ReadSReg(INST.ssrc1 + 1);
+	s0 = Read_SSRC_64(INST.ssrc0);
+	s1 = Read_SSRC_64(INST.ssrc1);
 
 	/* Bitwise AND the two operands and determine if the result is
 	 * non-zero. */
-	result_lo.as_uint = ~(s0_lo.as_uint & s1_lo.as_uint);
-	result_hi.as_uint = ~(s0_hi.as_uint & s1_hi.as_uint);
-	nonzero.as_uint = result_lo.as_uint || result_hi.as_uint;
+	result.as_ulong = ~(s0.as_ulong & s1.as_ulong);
+	nonzero.as_uint = result.as_ulong != 0;
 
 	// Write the results.
 	// Store the data in the destination register
-	WriteSReg(INST.sdst, result_lo.as_uint);
+	WriteSReg(INST.sdst, result.lo.as_uint);
 	// Store the data in the destination register
-	WriteSReg(INST.sdst + 1, result_hi.as_uint);
+	WriteSReg(INST.sdst + 1, result.hi.as_uint);
 	// Store the data in the destination register
 	WriteSReg(Instruction::RegisterScc, nonzero.as_uint);
 
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
-		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, result_lo.as_uint);
-		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst + 1, result_hi.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, result.lo.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst + 1, result.hi.as_uint);
 		Emulator::isa_debug << misc::fmt("scc<=(%u) ", nonzero.as_uint);
 	}
 }
@@ -1186,29 +1174,24 @@ void WorkItem::ISA_S_LSHL_B64_Impl(Instruction *instruction)
 	// Assert no literal constants for a 64 bit instruction.
 	assert(!(INST.ssrc0 == 0xFF || INST.ssrc1 == 0xFF));
 
-	Instruction::Register s0_lo;
-	Instruction::Register s0_hi;
-	Instruction::Register s1;
-	Instruction::Register result_lo;
-	Instruction::Register result_hi;
+	Instruction::Register64 s0;
+	Instruction::Register64 s1;
+	Instruction::Register64 result;
 	Instruction::Register nonzero;
 
 	// Load operands from registers.
-	s0_lo.as_uint = ReadSReg(INST.ssrc0);
-	s0_hi.as_uint = ReadSReg(INST.ssrc0 + 1);
-	s1.as_uint = ReadSReg(INST.ssrc1) & 0x3F;
+	s0 = Read_SSRC_64(INST.ssrc0);
+	s1 = Read_SSRC_64(INST.ssrc1);
 
 	/* Left shift the first operand by the second and determine if the
 	 * result is non-zero. */
-	uint64_t result = (s0_lo.as_uint | ((uint64_t)s0_hi.as_uint << 32u)) << s1.as_uint;
-	result_lo.as_uint = (uint32_t)result;
-	result_hi.as_uint = (uint32_t)(result >> 32u);
-	nonzero.as_uint = result_lo.as_uint != 0 || result_hi.as_uint != 0;
+	result.as_ulong = s0.as_ulong << (s1.as_ulong & 0x1F);
+	nonzero.as_uint = result.as_ulong != 0;
 
 	// Write the results.
 	// Store the data in the destination register
-	WriteSReg(INST.sdst, result_lo.as_uint);
-	WriteSReg(INST.sdst + 1, result_hi.as_uint);
+	WriteSReg(INST.sdst, result.lo.as_uint);
+	WriteSReg(INST.sdst + 1, result.hi.as_uint);
 
 	// Store the data in the destination register
 	WriteSReg(Instruction::RegisterScc, nonzero.as_uint);
@@ -1216,8 +1199,8 @@ void WorkItem::ISA_S_LSHL_B64_Impl(Instruction *instruction)
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
-		Emulator::isa_debug << misc::fmt("S%u<<(0x%x) ", INST.sdst, result_lo.as_uint);
-		Emulator::isa_debug << misc::fmt("S%u<<(0x%x) ", INST.sdst + 1, result_hi.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<<(0x%x) ", INST.sdst, result.lo.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<<(0x%x) ", INST.sdst + 1, result.hi.as_uint);
 		Emulator::isa_debug << misc::fmt("scc<<(%u)", nonzero.as_uint);
 	}
 }
@@ -1611,8 +1594,7 @@ void WorkItem::ISA_S_MOV_B64_Impl(Instruction *instruction)
 
 	// Load operand from registers.
 	if (INST.ssrc0 == 0xFF){
-		s0.lo.as_uint = INST.lit_cnst;
-		s0.hi.as_uint = 0x0;
+		s0.as_ulong = (uint64_t)(int64_t)(int32_t)INST.lit_cnst;
 	}
 	else{
 		s0 = Read_SSRC_64(INST.ssrc0);
@@ -1803,13 +1785,11 @@ void WorkItem::ISA_S_SETPC_B64_Impl(Instruction *instruction)
 #define INST INST_SOP1
 void WorkItem::ISA_S_SWAPPC_B64_Impl(Instruction *instruction)
 {
-	Instruction::Register s0_lo;
-	Instruction::Register s0_hi;
+	Instruction::Register64 s0;
 
 	// FIXME: cuurently PC is implemented as 32-bit offset
 	// Load operands from registers
-	s0_lo.as_uint = ReadSReg(INST.ssrc0);
-	s0_hi.as_uint = ReadSReg(INST.ssrc0 + 1);
+	s0 = Read_SSRC_64(INST.ssrc0);
 
 	// Write the results
 	// Store the data in the destination register
@@ -1819,13 +1799,13 @@ void WorkItem::ISA_S_SWAPPC_B64_Impl(Instruction *instruction)
 
 	// Set the new PC
 	unsigned pc = wavefront->getPC();
-	wavefront->setPC(s0_lo.as_uint - 4);
+	wavefront->setPC(s0.lo.as_uint - 4);
 
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
 		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, pc + 4);
-		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst + 1, s0_hi.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst + 1, 0);
 		Emulator::isa_debug << misc::fmt("PC<=(0x%x)", wavefront->getPC());
 	}
 }
@@ -1839,45 +1819,39 @@ void WorkItem::ISA_S_AND_SAVEEXEC_B64_Impl(Instruction *instruction)
 	// Assert no literal constant with a 64 bit instruction.
 	assert(!(INST.ssrc0 == 0xFF));
 
-	Instruction::Register exec_lo;
-	Instruction::Register exec_hi;
-	Instruction::Register s0_lo;
-	Instruction::Register s0_hi;
-	Instruction::Register exec_new_lo;
-	Instruction::Register exec_new_hi;
+	Instruction::Register64 exec;
+	Instruction::Register64 s0;
+	Instruction::Register64 exec_new;
 	Instruction::Register nonzero;
 
 	// Load operands from registers.
-	exec_lo.as_uint = ReadSReg(Instruction::RegisterExec);
-	exec_hi.as_uint = ReadSReg(Instruction::RegisterExec + 1);
-	s0_lo.as_uint = ReadSReg(INST.ssrc0);
-	s0_hi.as_uint = ReadSReg(INST.ssrc0 + 1);
+	exec = Read_SSRC_64(Instruction::RegisterExec);
+	s0 = Read_SSRC_64(INST.ssrc0);
 
 	/* Bitwise AND exec and the first operand and determine if the result 
 	 * is non-zero. */
-	exec_new_lo.as_uint = s0_lo.as_uint & exec_lo.as_uint;
-	exec_new_hi.as_uint = s0_hi.as_uint & exec_hi.as_uint;
-	nonzero.as_uint = exec_new_lo.as_uint || exec_new_hi.as_uint;
+	exec_new.as_ulong = s0.as_ulong & exec.as_ulong;
+	nonzero.as_uint = exec_new.as_ulong != 0;
 
 	// Write the results.
 	// Store the data in the destination register
-	WriteSReg(INST.sdst, exec_lo.as_uint);
+	WriteSReg(INST.sdst, exec.lo.as_uint);
 	// Store the data in the destination register
-	WriteSReg(INST.sdst + 1, exec_hi.as_uint);
+	WriteSReg(INST.sdst + 1, exec.hi.as_uint);
 	// Store the data in the destination register
-	WriteSReg(Instruction::RegisterExec, exec_new_lo.as_uint);
+	WriteSReg(Instruction::RegisterExec, exec_new.lo.as_uint);
 	// Store the data in the destination register
-	WriteSReg(Instruction::RegisterExec + 1, exec_new_hi.as_uint);
+	WriteSReg(Instruction::RegisterExec + 1, exec_new.hi.as_uint);
 	// Store the data in the destination register
 	WriteSReg(Instruction::RegisterScc, nonzero.as_uint);
 
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
-		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, exec_lo.as_uint);
-		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst + 1, exec_hi.as_uint);
-		Emulator::isa_debug << misc::fmt("exec_lo<=(0x%x) ", exec_new_lo.as_uint);
-		Emulator::isa_debug << misc::fmt("exec_hi<=(0x%x) ", exec_new_hi.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, exec.lo.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst + 1, exec.hi.as_uint);
+		Emulator::isa_debug << misc::fmt("exec.lo<=(0x%x) ", exec_new.lo.as_uint);
+		Emulator::isa_debug << misc::fmt("exec.hi<=(0x%x) ", exec_new.hi.as_uint);
 		Emulator::isa_debug << misc::fmt("scc<=(%u)", nonzero.as_uint);
 	}
 }
@@ -1891,45 +1865,39 @@ void WorkItem::ISA_S_OR_SAVEEXEC_B64_Impl(Instruction *instruction)
 	// Assert no literal constant with a 64 bit instruction.
 	assert(!(INST.ssrc0 == 0xFF));
 
-	Instruction::Register exec_lo;
-	Instruction::Register exec_hi;
-	Instruction::Register s0_lo;
-	Instruction::Register s0_hi;
-	Instruction::Register exec_new_lo;
-	Instruction::Register exec_new_hi;
+	Instruction::Register64 exec;
+	Instruction::Register64 s0;
+	Instruction::Register64 exec_new;
 	Instruction::Register nonzero;
 
 	// Load operands from registers.
-	exec_lo.as_uint = ReadSReg(Instruction::RegisterExec);
-	exec_hi.as_uint = ReadSReg(Instruction::RegisterExec + 1);
-	s0_lo.as_uint = ReadSReg(INST.ssrc0);
-	s0_hi.as_uint = ReadSReg(INST.ssrc0 + 1);
+	exec = Read_SSRC_64(Instruction::RegisterExec);
+	s0 = Read_SSRC_64(INST.ssrc0);
 
 	/* Bitwise OR exec and the first operand and determine if the result 
 	 * is non-zero. */
-	exec_new_lo.as_uint = s0_lo.as_uint | exec_lo.as_uint;
-	exec_new_hi.as_uint = s0_hi.as_uint | exec_hi.as_uint;
-	nonzero.as_uint = exec_new_lo.as_uint || exec_new_hi.as_uint;
+	exec_new.as_ulong = s0.as_ulong | exec.as_ulong;
+	nonzero.as_uint = exec_new.as_ulong != 0;
 
 	// Write the results.
 	// Store the data in the destination register
-	WriteSReg(INST.sdst, exec_lo.as_uint);
+	WriteSReg(INST.sdst, exec.lo.as_uint);
 	// Store the data in the destination register
-	WriteSReg(INST.sdst + 1, exec_hi.as_uint);
+	WriteSReg(INST.sdst + 1, exec.hi.as_uint);
 	// Store the data in the destination register
-	WriteSReg(Instruction::RegisterExec, exec_new_lo.as_uint);
+	WriteSReg(Instruction::RegisterExec, exec_new.lo.as_uint);
 	// Store the data in the destination register
-	WriteSReg(Instruction::RegisterExec + 1, exec_new_hi.as_uint);
+	WriteSReg(Instruction::RegisterExec + 1, exec_new.hi.as_uint);
 	// Store the data in the destination register
 	WriteSReg(Instruction::RegisterScc, nonzero.as_uint);
 
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
-		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, exec_lo.as_uint);
-		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst + 1, exec_hi.as_uint);
-		Emulator::isa_debug << misc::fmt("exec_lo<=(0x%x) ", exec_new_lo.as_uint);
-		Emulator::isa_debug << misc::fmt("exec_hi<=(0x%x) ", exec_new_hi.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, exec.lo.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst + 1, exec.hi.as_uint);
+		Emulator::isa_debug << misc::fmt("exec.lo<=(0x%x) ", exec_new.lo.as_uint);
+		Emulator::isa_debug << misc::fmt("exec.hi<=(0x%x) ", exec_new.hi.as_uint);
 		Emulator::isa_debug << misc::fmt("scc<=(%u)", nonzero.as_uint);
 	}
 }
@@ -2641,15 +2609,8 @@ void WorkItem::ISA_V_CVT_I32_F64_Impl(Instruction *instruction)
 #define INST INST_VOP1
 void WorkItem::ISA_V_CVT_F64_I32_Impl(Instruction *instruction)
 {
-	union
-	{
-		double as_double;
-		unsigned as_reg[2];
-
-	} value;
 	Instruction::Register s0;
-	Instruction::Register result_lo;
-	Instruction::Register result_hi;
+	Instruction::Register64 result;
 
 	// Load operand from register or as a literal constant.
 	if (INST.src0 == 0xFF)
@@ -2658,19 +2619,17 @@ void WorkItem::ISA_V_CVT_F64_I32_Impl(Instruction *instruction)
 		s0.as_uint = ReadReg(INST.src0);
 
 	// Convert and separate value.
-	value.as_double = (double) s0.as_int;
+	result.as_double = (double) s0.as_int;
 
 	// Write the results.
-	result_lo.as_uint = value.as_reg[0];
-	result_hi.as_uint = value.as_reg[1];
-	WriteVReg(INST.vdst, result_lo.as_uint);
-	WriteVReg(INST.vdst + 1, result_hi.as_uint);
+	WriteVReg(INST.vdst, result.lo.as_uint);
+	WriteVReg(INST.vdst + 1, result.hi.as_uint);
 
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
 		Emulator::isa_debug << misc::fmt("t%d: V[%u:+1]<=(%lgf) ", id,
-			INST.vdst, value.as_double);
+			INST.vdst, result.as_double);
 	}
 }
 #undef INST
@@ -2913,31 +2872,25 @@ void WorkItem::ISA_V_CVT_I32_F32_Impl(Instruction *instruction)
 #define INST INST_VOP1
 void WorkItem::ISA_V_CVT_F32_F64_Impl(Instruction *instruction)
 {
-	union
-	{
-		double as_double;
-		unsigned as_reg[2];
-
-	} s0;
-	Instruction::Register value;
+	Instruction::Register64 s0;
+	Instruction::Register result;
 
 	assert(INST.src0 != 0xFF);
 
 	// Load operand from registers.
-	s0.as_reg[0] = ReadReg(INST.src0);
-	s0.as_reg[1] = ReadReg(INST.src0 + 1);
+	s0 = Read_SRC_64(INST.src0);
 
 	// Cast to a single precision float
-	value.as_float = (float) s0.as_double;
+	result.as_float = (float) s0.as_double;
 
 	// Write the results.
-	WriteVReg(INST.vdst, value.as_uint);
+	WriteVReg(INST.vdst, result.as_uint);
 
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
 		Emulator::isa_debug << misc::fmt("t%d: V%u<=(%gf) ", id, INST.vdst,
-			value.as_float);
+			result.as_float);
 	}
 }
 #undef INST
@@ -2948,14 +2901,7 @@ void WorkItem::ISA_V_CVT_F32_F64_Impl(Instruction *instruction)
 void WorkItem::ISA_V_CVT_F64_F32_Impl(Instruction *instruction)
 {
 	Instruction::Register s0;
-	union
-	{
-		double as_double;
-		unsigned as_reg[2];
-
-	} value;
-	Instruction::Register value_lo;
-	Instruction::Register value_hi;
+	Instruction::Register64 result;
 
 	// Load operand from register or as a literal constant.
 	if (INST.src0 == 0xFF)
@@ -2964,19 +2910,17 @@ void WorkItem::ISA_V_CVT_F64_F32_Impl(Instruction *instruction)
 		s0.as_uint = ReadReg(INST.src0);
 
 	// Cast to a single precision float
-	value.as_double = (double) s0.as_float;
+	result.as_double = (double) s0.as_float;
 
 	// Write the results.
-	value_lo.as_uint = value.as_reg[0];
-	value_hi.as_uint = value.as_reg[1];
-	WriteVReg(INST.vdst, value_lo.as_uint);
-	WriteVReg(INST.vdst + 1, value_hi.as_uint);
+	WriteVReg(INST.vdst, result.lo.as_uint);
+	WriteVReg(INST.vdst + 1, result.hi.as_uint);
 
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
 		Emulator::isa_debug << misc::fmt("t%d: V[%u:+1]<=(%lgf) ", id,
-			INST.vdst, value.as_double);
+			INST.vdst, result.as_double);
 	}
 }
 #undef INST
@@ -4277,7 +4221,7 @@ void WorkItem::ISA_V_ADDC_U32_Impl(Instruction *instruction)
 
 	// Calculate the sum and carry. XXX(rzl): is there a better way than to
 	// use uint64_t?
-	uint64_t sum = s0.as_uint + s1.as_uint + vcc.as_uint;
+	uint64_t sum = (uint64_t)s0.as_uint + (uint64_t)s1.as_uint + vcc.as_uint;
 	carry.as_uint = sum > (uint32_t)sum;
 
 	// Write the results.
@@ -4961,22 +4905,17 @@ void WorkItem::ISA_V_CMP_GE_U32_Impl(Instruction *instruction)
 #define INST INST_VOPC
 void WorkItem::ISA_V_CMP_LG_U64_Impl(Instruction *instruction)
 {
-	union {
-		uint64_t as_uint;
-		uint32_t as_reg[2];
-	} s0, s1;
+	Instruction::Register64 s0, s1;
 	Instruction::Register result;
 
 	if (INST.src0 == 0xFF) {
-		s0.as_uint = (uint64_t)(int64_t)(int32_t)INST.lit_cnst;
+		s0.as_ulong = (uint64_t)(int64_t)(int32_t)INST.lit_cnst;
 	} else {
-		s0.as_reg[0] = ReadReg(INST.src0);
-		s0.as_reg[1] = ReadReg(INST.src0 + 1);
+		s0 = Read_SRC_64(INST.src0);
 	}
-	s1.as_reg[0] = ReadReg(INST.vsrc1);
-	s1.as_reg[1] = ReadReg(INST.vsrc1 + 1);
+	s1 = Read_VSRC_64(INST.vsrc1);
 
-	result.as_uint = s0.as_uint != s1.as_uint;
+	result.as_uint = s0.as_ulong != s1.as_ulong;
 	WriteBitmaskSReg(Instruction::RegisterVcc, result.as_uint);
 
 	if (Emulator::isa_debug)
@@ -6759,45 +6698,32 @@ void WorkItem::ISA_V_MED3_I32_Impl(Instruction *instruction)
 #define INST INST_VOP3a
 void WorkItem::ISA_V_LSHR_B64_Impl(Instruction *instruction)
 {
-	union
-	{
-		unsigned long long as_b64;
-		unsigned as_reg[2];
-
-	} s0, value;
-
-	Instruction::Register s1;
-	Instruction::Register result_lo;
-	Instruction::Register result_hi;
-
 	assert(!INST.clamp);
 	assert(!INST.omod);
 	assert(!INST.neg);
 	assert(!INST.abs);
 
+	Instruction::Register64 s0, s1, result;
+
 	// Load operands from registers.
-	s0.as_reg[0] = ReadReg(INST.src0);
-	s0.as_reg[1] = ReadReg(INST.src0 + 1);
-	s1.as_uint = ReadReg(INST.src1);
-	s1.as_uint = s1.as_uint & 0x1F;
+	s0 = Read_SRC_64(INST.src0);
+	s1 = Read_SRC_64(INST.src1);
 
 	// Shift s0.
-	value.as_b64 = s0.as_b64 >> s1.as_uint;
+	result.as_ulong = s0.as_ulong >> (s1.as_ulong & 0x1F);
 
 	// Write the results.
-	result_lo.as_uint = value.as_reg[0];
-	result_hi.as_uint = value.as_reg[1];
-	WriteVReg(INST.vdst, result_lo.as_uint);
-	WriteVReg(INST.vdst + 1, result_hi.as_uint);
+	WriteVReg(INST.vdst, result.lo.as_uint);
+	WriteVReg(INST.vdst + 1, result.hi.as_uint);
 
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
 		Emulator::isa_debug << misc::fmt("t%d: S[%u]<=(0x%x) ",
 			id_in_wavefront, INST.vdst,
-			result_lo.as_uint);
+			result.lo.as_uint);
 		Emulator::isa_debug << misc::fmt("S[%u]<=(0x%x) ", INST.vdst + 1,
-			result_hi.as_uint);
+			result.hi.as_uint);
 	}
 }
 #undef INST
@@ -6806,45 +6732,32 @@ void WorkItem::ISA_V_LSHR_B64_Impl(Instruction *instruction)
 #define INST INST_VOP3a
 void WorkItem::ISA_V_ASHR_I64_Impl(Instruction *instruction)
 {
-	union
-	{
-		long long as_i64;
-		unsigned as_reg[2];
-
-	} s0, value;
-
-	Instruction::Register s1;
-	Instruction::Register result_lo;
-	Instruction::Register result_hi;
-
 	assert(!INST.clamp);
 	assert(!INST.omod);
 	assert(!INST.neg);
 	assert(!INST.abs);
 
+	Instruction::Register64 s0, s1, result;
+
 	// Load operands from registers.
-	s0.as_reg[0] = ReadReg(INST.src0);
-	s0.as_reg[1] = ReadReg(INST.src0 + 1);
-	s1.as_uint = ReadReg(INST.src1);
-	s1.as_uint = s1.as_uint & 0x1F;
+	s0 = Read_SRC_64(INST.src0);
+	s1 = Read_SRC_64(INST.src1);
 
 	// Shift s0.
-	value.as_i64 = s0.as_i64 >> s1.as_uint;
+	result.as_ulong = s0.as_long >> (s1.as_ulong & 0x1F);
 
 	// Write the results.
-	result_lo.as_uint = value.as_reg[0];
-	result_hi.as_uint = value.as_reg[1];
-	WriteVReg(INST.vdst, result_lo.as_uint);
-	WriteVReg(INST.vdst + 1, result_hi.as_uint);
+	WriteVReg(INST.vdst, result.lo.as_uint);
+	WriteVReg(INST.vdst + 1, result.hi.as_uint);
 
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
 		Emulator::isa_debug << misc::fmt("t%d: S[%u]<=(0x%x) ",
 			id_in_wavefront, INST.vdst,
-			result_lo.as_uint);
+			result.lo.as_uint);
 		Emulator::isa_debug << misc::fmt("S[%u]<=(0x%x) ", INST.vdst + 1,
-			result_hi.as_uint);
+			result.hi.as_uint);
 	}
 }
 #undef INST
@@ -6853,26 +6766,16 @@ void WorkItem::ISA_V_ASHR_I64_Impl(Instruction *instruction)
 #define INST INST_VOP3a
 void WorkItem::ISA_V_ADD_F64_Impl(Instruction *instruction)
 {
-	union
-	{
-		double as_double;
-		unsigned as_reg[2];
-
-	} s0, s1, value;
-
-	Instruction::Register result_lo;
-	Instruction::Register result_hi;
-
 	assert(!INST.clamp);
 	assert(!INST.omod);
 	assert(!INST.neg);
 	assert(!INST.abs);
 
+	Instruction::Register64 s0, s1, result;
+
 	// Load operands from registers.
-	s0.as_reg[0] = ReadReg(INST.src0);
-	s0.as_reg[1] = ReadReg(INST.src0 + 1);
-	s1.as_reg[0] = ReadReg(INST.src1);
-	s1.as_reg[1] = ReadReg(INST.src1 + 1);
+	s0 = Read_SRC_64(INST.src0);
+	s1 = Read_SRC_64(INST.src1);
 
 	// Add the operands, take into account special number cases.
 
@@ -6881,26 +6784,26 @@ void WorkItem::ISA_V_ADD_F64_Impl(Instruction *instruction)
 		std::fpclassify(s1.as_double) == FP_NAN)
 	{
 		// value <-- NaN64
-		value.as_double = NAN;
+		result.as_double = NAN;
 	}
 	// s0,s1 == infinity
 	else if (std::fpclassify(s0.as_double) == FP_INFINITE &&
 		std::fpclassify(s1.as_double) == FP_INFINITE)
 	{
 		// value <-- NaN64
-		value.as_double = NAN;
+		result.as_double = NAN;
 	}
 	// s0,!s1 == infinity
 	else if (std::fpclassify(s0.as_double) == FP_INFINITE)
 	{
 		// value <-- s0(+-infinity)
-		value.as_double = s0.as_double;
+		result.as_double = s0.as_double;
 	}
 	// s1,!s0 == infinity
 	else if (std::fpclassify(s1.as_double) == FP_INFINITE)
 	{
 		// value <-- s1(+-infinity)
-		value.as_double = s1.as_double;
+		result.as_double = s1.as_double;
 	}
 	// s0 == +-denormal, +-0
 	else if (std::fpclassify(s0.as_double) == FP_SUBNORMAL ||
@@ -6913,14 +6816,14 @@ void WorkItem::ISA_V_ADD_F64_Impl(Instruction *instruction)
 			if (std::signbit(s0.as_double)
 				&& std::signbit(s1.as_double))
 				// value <-- -0
-				value.as_double = -0;
+				result.as_double = -0;
 			else
 				// value <-- +0
-				value.as_double = +0;
+				result.as_double = +0;
 		// s1 == F
 		else
 			// value <-- s1
-			value.as_double = s1.as_double;
+			result.as_double = s1.as_double;
 	}
 	// s1 == +-denormal, +-0
 	else if (std::fpclassify(s1.as_double) == FP_SUBNORMAL ||
@@ -6933,33 +6836,31 @@ void WorkItem::ISA_V_ADD_F64_Impl(Instruction *instruction)
 			if (std::signbit(s0.as_double)
 				&& std::signbit(s1.as_double))
 				// value <-- -0
-				value.as_double = -0;
+				result.as_double = -0;
 			else
 				// value <-- +0
-				value.as_double = +0;
+				result.as_double = +0;
 		// s0 == F
 		else
 			// value <-- s1
-			value.as_double = s0.as_double;
+			result.as_double = s0.as_double;
 	}
 	// s0 && s1 == F
 	else
 	{
-		value.as_double = s0.as_double + s1.as_double;
+		result.as_double = s0.as_double + s1.as_double;
 	}
 
 	// Write the results.
-	result_lo.as_uint = value.as_reg[0];
-	result_hi.as_uint = value.as_reg[1];
-	WriteVReg(INST.vdst, result_lo.as_uint);
-	WriteVReg(INST.vdst + 1, result_hi.as_uint);
+	WriteVReg(INST.vdst, result.lo.as_uint);
+	WriteVReg(INST.vdst + 1, result.hi.as_uint);
 
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
 		Emulator::isa_debug << misc::fmt("t%d: S[%u:+1]<=(%lgf) ",
 			id_in_wavefront, INST.vdst,
-			value.as_double);
+			result.as_double);
 	}
 }
 #undef INST
@@ -6968,26 +6869,16 @@ void WorkItem::ISA_V_ADD_F64_Impl(Instruction *instruction)
 #define INST INST_VOP3a
 void WorkItem::ISA_V_MUL_F64_Impl(Instruction *instruction)
 {
-	union
-	{
-		double as_double;
-		unsigned as_reg[2];
-
-	} s0, s1, value;
-
-	Instruction::Register result_lo;
-	Instruction::Register result_hi;
-
 	assert(!INST.clamp);
 	assert(!INST.omod);
 	assert(!INST.neg);
 	assert(!INST.abs);
 
+	Instruction::Register64 s0, s1, result;
+
 	// Load operands from registers.
-	s0.as_reg[0] = ReadReg(INST.src0);
-	s0.as_reg[1] = ReadReg(INST.src0 + 1);
-	s1.as_reg[0] = ReadReg(INST.src1);
-	s1.as_reg[1] = ReadReg(INST.src1 + 1);
+	s0 = Read_SRC_64(INST.src0);
+	s1 = Read_SRC_64(INST.src1);
 
 	// Multiply the operands, take into account special number cases.
 
@@ -6996,7 +6887,7 @@ void WorkItem::ISA_V_MUL_F64_Impl(Instruction *instruction)
 		std::fpclassify(s1.as_double) == FP_NAN)
 	{
 		// value <-- NaN64
-		value.as_double = NAN;
+		result.as_double = NAN;
 	}
 	// s0 == +denormal, +0
 	else if ((std::fpclassify(s1.as_double) == FP_SUBNORMAL ||
@@ -7006,15 +6897,15 @@ void WorkItem::ISA_V_MUL_F64_Impl(Instruction *instruction)
 		// s1 == +-infinity
 		if (std::isinf(s1.as_double))
 			// value <-- NaN64
-			value.as_double = NAN;
+			result.as_double = NAN;
 		// s1 > 0
 		else if (!std::signbit(s1.as_double))
 			// value <-- +0
-			value.as_double = +0;
+			result.as_double = +0;
 		// s1 < 0
 		else if (std::signbit(s1.as_double))
 			// value <-- -0
-			value.as_double = -0;
+			result.as_double = -0;
 	}
 	// s0 == -denormal, -0
 	else if ((std::fpclassify(s1.as_double) == FP_SUBNORMAL ||
@@ -7024,15 +6915,15 @@ void WorkItem::ISA_V_MUL_F64_Impl(Instruction *instruction)
 		// s1 == +-infinity
 		if (std::isinf(s1.as_double))
 			// value <-- NaN64
-			value.as_double = NAN;
+			result.as_double = NAN;
 		// s1 > 0
 		else if (!std::signbit(s1.as_double))
 			// value <-- -0
-			value.as_double = -0;
+			result.as_double = -0;
 		// s1 < 0
 		else if (std::signbit(s1.as_double))
 			// value <-- +0
-			value.as_double = +0;
+			result.as_double = +0;
 	}
 	// s0 == +infinity
 	else if (std::fpclassify(s0.as_double) == FP_INFINITE &&
@@ -7042,15 +6933,15 @@ void WorkItem::ISA_V_MUL_F64_Impl(Instruction *instruction)
 		if (std::fpclassify(s1.as_double) == FP_SUBNORMAL ||
 			std::fpclassify(s1.as_double) == FP_ZERO)
 			// value <-- NaN64
-			value.as_double = NAN;
+			result.as_double = NAN;
 		// s1 > 0
 		else if (!std::signbit(s1.as_double))
 			// value <-- +infinity
-			value.as_double = +INFINITY;
+			result.as_double = +INFINITY;
 		// s1 < 0
 		else if (std::signbit(s1.as_double))
 			// value <-- -infinity
-			value.as_double = -INFINITY;
+			result.as_double = -INFINITY;
 	}
 	// s0 == -infinity
 	else if (std::fpclassify(s0.as_double) == FP_INFINITE &&
@@ -7060,33 +6951,31 @@ void WorkItem::ISA_V_MUL_F64_Impl(Instruction *instruction)
 		if (std::fpclassify(s1.as_double) == FP_SUBNORMAL ||
 			std::fpclassify(s1.as_double) == FP_ZERO)
 			// value <-- NaN64
-			value.as_double = NAN;
+			result.as_double = NAN;
 		// s1 > 0
 		else if (!std::signbit(s1.as_double))
 			// value <-- -infinity
-			value.as_double = -INFINITY;
+			result.as_double = -INFINITY;
 		// s1 < 0
 		else if (std::signbit(s1.as_double))
 			// value <-- +infinity
-			value.as_double = +INFINITY;
+			result.as_double = +INFINITY;
 	}
 	else
 	{
-		value.as_double = s0.as_double * s1.as_double;
+		result.as_double = s0.as_double * s1.as_double;
 	}
 
 	// Write the results.
-	result_lo.as_uint = value.as_reg[0];
-	result_hi.as_uint = value.as_reg[1];
-	WriteVReg(INST.vdst, result_lo.as_uint);
-	WriteVReg(INST.vdst + 1, result_hi.as_uint);
+	WriteVReg(INST.vdst, result.lo.as_uint);
+	WriteVReg(INST.vdst + 1, result.hi.as_uint);
 
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
 		Emulator::isa_debug << misc::fmt("t%d: S[%u:+1]<=(%lgf) ",
 			id_in_wavefront, INST.vdst,
-			value.as_double);
+			result.as_double);
 	}
 }
 #undef INST
