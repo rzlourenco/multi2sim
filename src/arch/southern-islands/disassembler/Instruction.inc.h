@@ -1171,6 +1171,14 @@ DEFINST(V_CMP_GE_F32,
 	0
 )
 
+DEFINST(V_CMP_O_F32,
+	" v_cmp_o_f32  vcc, %SRC0, %VSRC1",
+	VOPC,
+	7,
+	4,
+	0
+)
+
 DEFINST(V_CMP_NGT_F32,
 	" v_cmp_ngt_f32  vcc, %SRC0, %VSRC1",
 	VOPC,
@@ -1766,6 +1774,14 @@ DEFINST(V_CMP_LT_U64_VOP3a,
 	" v_cmp_lt_u64  %VOP3_64_SVDST, %VOP3_64_SRC0, %VOP3_64_SRC1",
 	VOP3a,
 	225,
+	8,
+	0
+)
+
+DEFINST(V_CMP_EQ_U64_VOP3a,
+	" v_cmp_eq_u64  %VOP3_64_SVDST, %VOP3_64_SRC0, %VOP3_64_SRC1",
+	VOP3a,
+	226,
 	8,
 	0
 )

@@ -4416,6 +4416,37 @@ void WorkItem::ISA_V_CMP_GE_F32_Impl(Instruction *instruction)
 }
 #undef INST
 
+// vcc = (!isNaN(S0) && !isNaN(S1)).
+#define INST INST_VOPC
+void WorkItem::ISA_V_CMP_O_F32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register result;
+
+	// Load operands from registers or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+	s1.as_uint = ReadVReg(INST.vsrc1);
+
+	// Compare the operands.
+	result.as_uint = !std::isnan(s0.as_float) && !std::isnan(s1.as_float);
+
+	// Write the results.
+	WriteBitmaskSReg(Instruction::RegisterVcc, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: vcc<=(%u) ",
+			id_in_wavefront, result.as_uint);
+	}
+}
+#undef INST
+
+
 // vcc = !(S0.f > S1.f).
 #define INST INST_VOPC
 void WorkItem::ISA_V_CMP_NGT_F32_Impl(Instruction *instruction)
@@ -6554,7 +6585,51 @@ void WorkItem::ISA_V_CMP_GE_U32_VOP3a_Impl(Instruction *instruction)
 #define INST INST_VOP3a
 void WorkItem::ISA_V_CMP_LT_U64_VOP3a_Impl(Instruction *instruction)
 {
-	ISAUnimplemented(instruction);
+	assert(!INST.abs);
+	assert(!INST.clamp);
+	assert(!INST.omod);
+	assert(!INST.neg);
+
+	Instruction::Register64 s0, s1, result;
+
+	s0 = Read_SRC_64(INST.src0);
+	s1 = Read_SRC_64(INST.src1);
+
+	result.as_ulong = s0.as_ulong < s1.as_ulong;
+	WriteBitmaskSReg(INST.vdst, (unsigned)result.as_ulong);
+
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: S[%u:+1]<=(%lu) ",
+			id_in_wavefront, INST.vdst,
+			result.as_ulong);
+	}
+}
+#undef INST
+
+// D.u = (S0 == S1)
+#define INST INST_VOP3a
+void WorkItem::ISA_V_CMP_EQ_U64_VOP3a_Impl(Instruction *instruction)
+{
+	assert(!INST.abs);
+	assert(!INST.clamp);
+	assert(!INST.omod);
+	assert(!INST.neg);
+
+	Instruction::Register64 s0, s1, result;
+
+	s0 = Read_SRC_64(INST.src0);
+	s1 = Read_SRC_64(INST.src1);
+
+	result.as_ulong = s0.as_ulong == s1.as_ulong;
+	WriteBitmaskSReg(INST.vdst, (unsigned)result.as_ulong);
+
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: S[%u:+1]<=(%lu) ",
+			id_in_wavefront, INST.vdst,
+			result.as_ulong);
+	}
 }
 #undef INST
 
