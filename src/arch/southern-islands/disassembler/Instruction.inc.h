@@ -2016,6 +2016,14 @@ DEFINST(DS_READ_U16,
 	0
 )
 
+DEFINST(DS_WRITE2_B64,
+	" ds_write_b64 %ADDR, %DATA0, %DATA1",
+	DS,
+	78,
+	8,
+	0
+)
+
 /*
  * MUBUF
  */

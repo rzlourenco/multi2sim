@@ -7956,6 +7956,46 @@ void WorkItem::ISA_DS_READ_U16_Impl(Instruction *instruction)
 }
 #undef INST
 
+// DS[ADDR+offset0*8] = D0;
+#define INST INST_DS
+void WorkItem::ISA_DS_WRITE2_B64_Impl(Instruction *instruction)
+{
+	assert(!INST.gds);
+
+	Instruction::Register addr0, addr1;
+	addr0 = Read_VSRC(INST.addr);
+	addr1 = Read_VSRC(INST.addr);
+	addr0.as_uint += INST.offset0 * 8;
+	addr1.as_uint += INST.offset1 * 8;
+	
+	Instruction::Register64 data0, data1;
+	data0 = Read_VSRC_64(INST.data0);
+	data1 = Read_VSRC_64(INST.data1);
+
+	lds->Write(addr0.as_uint, 8, data0.as_byte);
+	lds->Write(addr1.as_uint, 8, data1.as_byte);
+
+	lds_access_count = 2;
+	lds_access[0].type = MemoryAccessWrite;
+	lds_access[0].addr = addr0.as_uint;
+	lds_access[0].size = 8;
+	lds_access[1].type = MemoryAccessWrite;
+	lds_access[1].addr = addr1.as_uint;
+	lds_access[1].size = 8;
+
+	if (Emulator::isa_debug) {
+		Emulator::isa_debug << misc::fmt("t%d: LDS[%u]<=(0x%x) ", id,
+			addr0.as_uint + 0, data0.as_uint[0]);
+		Emulator::isa_debug << misc::fmt("t%d: LDS[%u]<=(0x%x) ", id,
+			addr0.as_uint + 4, data0.as_uint[1]);
+		Emulator::isa_debug << misc::fmt("t%d: LDS[%u]<=(0x%x) ", id,
+			addr1.as_uint + 0, data1.as_uint[0]);
+		Emulator::isa_debug << misc::fmt("t%d: LDS[%u]<=(0x%x) ", id,
+			addr1.as_uint + 4, data1.as_uint[1]);
+	}
+}
+#undef INST
+
 
 /*
  * MUBUF
