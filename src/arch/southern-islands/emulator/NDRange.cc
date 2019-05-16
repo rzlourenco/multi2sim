@@ -153,9 +153,9 @@ void NDRange::InitializeFromKernel(Kernel *kernel)
 	BinaryDictEntry *si_enc = kernel->getKernelBinaryFile()->GetSIDictEntry();
 
 	// Initialize registers and local memory requirements 
-	local_mem_top = kernel->getLocalMemorySize();
 	num_sgpr_used = si_enc->num_sgpr;
 	num_vgpr_used = si_enc->num_vgpr;
+	local_mem_top = si_enc->compute_pgm_rsrc2->lds_size;
 	wg_id_sgpr = si_enc->compute_pgm_rsrc2->user_sgpr;
 
 	// Copy user elements from kernel to ND-Range 

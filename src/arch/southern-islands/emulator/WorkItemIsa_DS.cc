@@ -17,15 +17,46 @@ void WorkItem::ISA_DS_INC_U32_Impl(Instruction *instruction)
 	ISAUnimplemented(instruction);
 }
 
+// DS[A] = D0; write a Dword.
+void WorkItem::ISA_DS_WRITE_B32_Impl(Instruction *instruction)
+{
+	assert(!INST.gds);
+
+	Instruction::Register addr;
+	Instruction::Register data0;
+
+	// Load address and data from registers.
+	addr.as_uint = ReadVReg(INST.addr);
+	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 4;
+	data0.as_uint = ReadVReg(INST.data0);
+
+	bool ignored = addr.as_uint >= std::min(
+			work_group->getNDRange()->getLocalMemTop(), 
+			ReadSReg(Instruction::RegisterM0));
+	if (!ignored) {
+		lds->Write(addr.as_uint, 4, (char *)&data0.as_uint);
+		// Record last memory access for the detailed simulator.
+		lds_access_count = 1;
+		lds_access[0].type = MemoryAccessWrite;
+		lds_access[0].addr = addr.as_uint;
+		lds_access[0].size = 4;
+		if (Emulator::isa_debug)
+		{
+			Emulator::isa_debug << misc::fmt("t%d: LDS[%u]<=(%u,%f) ", id, 
+					addr.as_uint, data0.as_uint, data0.as_float);
+		}
+	}
+
+	// Print isa debug information.
+}
+
 // DS[ADDR+offset0*4] = D0; DS[ADDR+offset1*4] = D1; Write 2 Dwords
 void WorkItem::ISA_DS_WRITE2_B32_Impl(Instruction *instruction)
 {
-	Instruction::Register addr0;
-	Instruction::Register addr1;
-	Instruction::Register data0;
-	Instruction::Register data1;
-
 	assert(!INST.gds);
+
+	Instruction::Register addr0, addr1;
+	Instruction::Register data0, data1;
 
 	// Load address and data from registers.
 	addr0.as_uint = ReadVReg(INST.addr);
@@ -35,123 +66,43 @@ void WorkItem::ISA_DS_WRITE2_B32_Impl(Instruction *instruction)
 	data0.as_uint = ReadVReg(INST.data0);
 	data1.as_uint = ReadVReg(INST.data1);
 
-	if (addr0.as_uint > std::min(work_group->getNDRange()->getLocalMemTop(),
-		ReadSReg(Instruction::RegisterM0)))
-	{
-		throw Emulator::Error("Invalid local memory address");
-	}
-	if (addr1.as_uint > std::min(work_group->getNDRange()->getLocalMemTop(),
-		ReadSReg(Instruction::RegisterM0)))
-	{
-		throw Emulator::Error("Invalid local memory address");
-	}
-
-	// Write Dword.
-	if (INST.gds)
-	{
-		assert(0);
-	}
-	else
-	{
+	bool ignored0 =  addr0.as_uint >= std::min(
+			 work_group->getNDRange()->getLocalMemTop(), 
+			 ReadSReg(Instruction::RegisterM0));
+	bool ignored1 =  addr0.as_uint >= std::min(
+			 work_group->getNDRange()->getLocalMemTop(), 
+			 ReadSReg(Instruction::RegisterM0));
+	lds_access_count = 0;
+	if (!ignored0) {
 		lds->Write(addr0.as_uint, 4,
 			(char *)&data0.as_uint);
+		lds_access[lds_access_count].type = MemoryAccessWrite;
+		lds_access[lds_access_count].addr = addr0.as_uint;
+		lds_access[lds_access_count].size = 4;
+		++lds_access_count;
+	}
+	if (!ignored1) {
 		lds->Write(addr1.as_uint, 4,
 			(char *)&data1.as_uint);
-	}
-
-	// Record last memory access for the detailed simulator.
-	if (INST.gds)
-	{
-		assert(0);
-	}
-	else
-	{
-		// If offset1 != 1, then the following is incorrect
-		assert(INST.offset0 == 0);
-		assert(INST.offset1 == 1);
-		lds_access_count = 2;
-		lds_access[0].type = MemoryAccessWrite;
-		lds_access[0].addr = addr0.as_uint;
-		lds_access[0].size = 4;
-		lds_access[1].type = MemoryAccessWrite;
-		lds_access[1].addr = addr0.as_uint + 4;
-		lds_access[1].size = 4;
+		lds_access[lds_access_count].type = MemoryAccessWrite;
+		lds_access[lds_access_count].addr = addr1.as_uint;
+		lds_access[lds_access_count].size = 4;
+		++lds_access_count;
 	}
 
 	// Print isa debug information.
-	if (Emulator::isa_debug && INST.gds)
+	if (Emulator::isa_debug)
 	{
-		Emulator::isa_debug << misc::fmt("t%d: GDS[%u]<=(%u,%f) ", id, 
-			addr0.as_uint, data0.as_uint, data0.as_float);
-		Emulator::isa_debug << misc::fmt("GDS[%u]<=(%u,%f) ", addr1.as_uint, data0.as_uint,
-			data0.as_float);
-	}
-	else
-	{
-		Emulator::isa_debug << misc::fmt("t%d: LDS[%u]<=(%u,%f) ", id, 
-			addr0.as_uint, data0.as_uint, data0.as_float);
-		Emulator::isa_debug << misc::fmt("LDS[%u]<=(%u,%f) ", addr1.as_uint, data1.as_uint, 
-			data1.as_float);
-	}
-}
-
-// DS[A] = D0; write a Dword.
-void WorkItem::ISA_DS_WRITE_B32_Impl(Instruction *instruction)
-{
-	Instruction::Register addr;
-	Instruction::Register data0;
-
-	assert(!INST.offset0);
-	//assert(!INST.offset1);
-	assert(!INST.gds);
-
-	// Load address and data from registers.
-	addr.as_uint = ReadVReg(INST.addr);
-	data0.as_uint = ReadVReg(INST.data0);
-
-	if (addr.as_uint > std::min(work_group->getNDRange()->getLocalMemTop(), 
-		ReadSReg(Instruction::RegisterM0)))
-	{
-		throw Emulator::Error("Invalid local memory address");
-	}
-
-	// Global data store not supported
-	assert(!INST.gds);
-
-	// Write Dword.
-	if (INST.gds)
-	{
-		assert(0);
-	}
-	else
-	{
-		lds->Write(addr.as_uint, 4, 
-			(char *)&data0.as_uint);
-	}
-
-	// Record last memory access for the detailed simulator.
-	if (INST.gds)
-	{
-		assert(0);
-	}
-	else
-	{
-		lds_access_count = 1;
-		lds_access[0].type = MemoryAccessWrite;
-		lds_access[0].addr = addr.as_uint;
-		lds_access[0].size = 4;
-	}
-
-	// Print isa debug information.
-	if (Emulator::isa_debug && INST.gds)
-	{
-		Emulator::isa_debug << misc::fmt("t%d: GDS[%u]<=(%u,%f) ", id, 
-			addr.as_uint, data0.as_uint, data0.as_float);
-	}
-	else
-	{
-		Emulator::isa_debug << misc::fmt("t%d: LDS[%u]<=(%u,%f) ", id, 
-			addr.as_uint, data0.as_uint, data0.as_float);
+		if (!(ignored0 && ignored1))
+			Emulator::isa_debug << misc::fmt("t%d: ", id);
+		if (!ignored0) {
+			Emulator::isa_debug << misc::fmt("LDS[%u]<=(%u,%f) ",
+				addr0.as_uint, data0.as_uint, data0.as_float);
+		}
+		if (!ignored1) {
+			Emulator::isa_debug << misc::fmt("LDS[%u]<=(%u,%f) ",
+				addr1.as_uint, data1.as_uint, data1.as_float);
+		}
 	}
 }
 
@@ -161,12 +112,11 @@ void WorkItem::ISA_DS_WRITE_B8_Impl(Instruction *instruction)
 	Instruction::Register addr;
 	Instruction::Register data0;
 
-	assert(!INST.offset0);
-	assert(!INST.offset1);
 	assert(!INST.gds);
 
 	// Load address and data from registers.
 	addr.as_uint = ReadVReg(INST.addr);
+	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 4;
 	data0.as_uint = ReadVReg(INST.data0);
 
 	// Global data store not supported
@@ -215,12 +165,11 @@ void WorkItem::ISA_DS_WRITE_B16_Impl(Instruction *instruction)
 	Instruction::Register addr;
 	Instruction::Register data0;
 
-	assert(!INST.offset0);
-	assert(!INST.offset1);
 	assert(!INST.gds);
 
 	// Load address and data from registers.
 	addr.as_uint = ReadVReg(INST.addr);
+	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 4;
 	data0.as_uint = ReadVReg(INST.data0);
 
 	// Global data store not supported
@@ -270,12 +219,11 @@ void WorkItem::ISA_DS_READ_B32_Impl(Instruction *instruction)
 	Instruction::Register addr;
 	Instruction::Register data;
 
-	assert(!INST.offset0);
-	//assert(!INST.offset1);
 	assert(!INST.gds);
 
 	// Load address from register.
 	addr.as_uint = ReadVReg(INST.addr);
+	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 4;
 
 	// Global data store not supported
 	assert(!INST.gds);
@@ -384,12 +332,11 @@ void WorkItem::ISA_DS_READ_I8_Impl(Instruction *instruction)
 	Instruction::Register addr;
 	Instruction::Register data;
 
-	assert(!INST.offset0);
-	assert(!INST.offset1);
 	assert(!INST.gds);
 
 	// Load address from register.
 	addr.as_uint = ReadVReg(INST.addr);
+	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 4;
 
 	// Global data store not supported
 	assert(!INST.gds);
@@ -438,12 +385,11 @@ void WorkItem::ISA_DS_READ_U8_Impl(Instruction *instruction)
 	Instruction::Register addr;
 	Instruction::Register data;
 
-	assert(!INST.offset0);
-	assert(!INST.offset1);
 	assert(!INST.gds);
 
 	// Load address from register.
 	addr.as_uint = ReadVReg(INST.addr);
+	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 4;
 
 	// Global data store not supported
 	assert(!INST.gds);
@@ -492,12 +438,11 @@ void WorkItem::ISA_DS_READ_I16_Impl(Instruction *instruction)
 	Instruction::Register addr;
 	Instruction::Register data;
 
-	assert(!INST.offset0);
-	assert(!INST.offset1);
 	assert(!INST.gds);
 
 	// Load address from register.
 	addr.as_uint = ReadVReg(INST.addr);
+	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 4;
 
 	// Global data store not supported
 	assert(!INST.gds);
@@ -546,12 +491,11 @@ void WorkItem::ISA_DS_READ_U16_Impl(Instruction *instruction)
 	Instruction::Register addr;
 	Instruction::Register data;
 
-	assert(!INST.offset0);
-	assert(!INST.offset1);
 	assert(!INST.gds);
 
 	// Load address from register.
 	addr.as_uint = ReadVReg(INST.addr);
+	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 4;
 
 	// Global data store not supported
 	assert(!INST.gds);

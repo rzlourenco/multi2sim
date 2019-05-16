@@ -21,7 +21,7 @@
 #include <arch/southern-islands/emulator/NDRange.h>
 #include <lib/cpp/Error.h>
 #include <lib/cpp/Misc.h>
-#include <string.h>
+#include <cstring>
 
 #include "Kernel.h"
 #include "Program.h"
@@ -915,8 +915,9 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 	// Initial top of local memory is determined by the static local memory
 	// specified in the kernel binary. Number of vector and scalar
 	// registers used by the kernel recorded as well.
+	// XXX(rzl): this is already set-up in NDRange::InitializeFromKernel
 	const BinaryDictEntry *enc_dict = getKernelBinaryFile()->GetSIDictEntry();
-	ndrange->setLocalMemTop(getLocalMemorySize());
+	ndrange->setLocalMemTop(enc_dict->compute_pgm_rsrc2->lds_size);
 	ndrange->setNumSgprUsed(enc_dict->num_sgpr);
 	ndrange->setNumVgprUsed(enc_dict->num_vgpr);
 
@@ -1119,6 +1120,8 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
 	Emulator::isa_debug << misc::fmt("\n");
         Emulator::isa_debug << misc::fmt("================ Initialization Summary ================\n");
         Emulator::isa_debug << misc::fmt("\n");
+
+	Emulator::isa_debug << "\t| LDS Size: " << ndrange->getLocalMemTop() << misc::fmt("\n");
 
         // Buffers
         Emulator::isa_debug << misc::fmt("User Buffers:\n");
