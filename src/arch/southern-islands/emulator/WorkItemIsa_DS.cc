@@ -538,6 +538,32 @@ void WorkItem::ISA_DS_READ_U16_Impl(Instruction *instruction)
 	}
 }
 
+// Write.
+void WorkItem::ISA_DS_WRITE_B64_Impl(Instruction *instruction)
+{
+	assert(!INST.gds);
+
+	Instruction::Register addr;
+	addr = Read_VSRC(INST.addr);
+	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 8;
+	
+	Instruction::Register64 data;
+	data = Read_VSRC_64(INST.data0);
+
+	// TODO(rzl): ignore stores that go outside the LDS
+	lds->Write(addr.as_uint, 8, data.as_byte);
+
+	lds_access_count = 1;
+	lds_access[0].type = MemoryAccessWrite;
+	lds_access[0].addr = addr.as_uint;
+	lds_access[0].size = 8;
+
+	if (Emulator::isa_debug) {
+		Emulator::isa_debug << misc::fmt("t%d: LDS[%u:+7]<=(0x%x 0x%x) ",
+			id, addr.as_uint, data.as_uint[0], data.as_uint[1]);
+	}
+}
+
 // DS[ADDR+offset0*8] = D0; DS[ADDR+offset1*8] = D1; write 2 Dwords.
 void WorkItem::ISA_DS_WRITE2_B64_Impl(Instruction *instruction)
 {
@@ -553,6 +579,7 @@ void WorkItem::ISA_DS_WRITE2_B64_Impl(Instruction *instruction)
 	data0 = Read_VSRC_64(INST.data0);
 	data1 = Read_VSRC_64(INST.data1);
 
+	// TODO(rzl): ignore stores that go outside the LDS
 	lds->Write(addr0.as_uint, 8, data0.as_byte);
 	lds->Write(addr1.as_uint, 8, data1.as_byte);
 
@@ -573,6 +600,63 @@ void WorkItem::ISA_DS_WRITE2_B64_Impl(Instruction *instruction)
 			addr1.as_uint + 0, data1.as_uint[0]);
 		Emulator::isa_debug << misc::fmt("t%d: LDS[%u]<=(0x%x) ", id,
 			addr1.as_uint + 4, data1.as_uint[1]);
+	}
+}
+
+void WorkItem::ISA_DS_READ_B64_Impl(Instruction *instruction)
+{
+	assert(!INST.gds);
+	Instruction::Register addr;
+	addr = Read_VSRC(INST.addr);
+	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 8;
+
+	Instruction::Register64 data_in;
+	// TODO(rzl): read 0 if outside the LDS
+	lds->Read(addr.as_uint, 8, data_in.as_byte);
+	lds_access_count = 1;
+	lds_access[0].type = MemoryAccessRead;
+	lds_access[0].addr = addr.as_uint;
+	lds_access[0].size = 8;
+
+	WriteVReg(INST.vdst, data_in.lo.as_uint);
+	WriteVReg(INST.vdst + 1, data_in.hi.as_uint);
+
+	if (Emulator::isa_debug) {
+		Emulator::isa_debug << misc::fmt("t%d: V[%d:+1]<=(%x %x)", id,
+			INST.vdst, data_in.lo.as_uint, data_in.hi.as_uint);
+	}
+}
+
+void WorkItem::ISA_DS_READ2_B64_Impl(Instruction *instruction)
+{
+	assert(!INST.gds);
+	Instruction::Register addr0, addr1;
+	addr0 = Read_VSRC(INST.addr);
+	addr0.as_uint += INST.offset0 * 8;
+	addr1 = Read_VSRC(INST.addr);	
+	addr0.as_uint += INST.offset1 * 8;
+
+	Instruction::Register64 data0_in, data1_in;
+	// TODO(rzl): read 0 if outside the LDS
+	lds->Read(addr0.as_uint, 8, data0_in.as_byte);
+	lds->Read(addr1.as_uint, 8, data1_in.as_byte);
+	lds_access_count = 2;
+	lds_access[0].type = MemoryAccessRead;
+	lds_access[0].addr = addr0.as_uint;
+	lds_access[0].size = 8;
+	lds_access[1].type = MemoryAccessRead;
+	lds_access[1].addr = addr1.as_uint;
+	lds_access[1].size = 8;
+
+	WriteVReg(INST.vdst, data0_in.lo.as_uint);
+	WriteVReg(INST.vdst + 1, data0_in.hi.as_uint);
+	WriteVReg(INST.vdst + 2, data1_in.lo.as_uint);
+	WriteVReg(INST.vdst + 3, data1_in.hi.as_uint);
+
+	if (Emulator::isa_debug) {
+		Emulator::isa_debug << misc::fmt("t%d: V[%d:+3]<=(%x %x %x %x)", id,
+			INST.vdst, data0_in.lo.as_uint, data0_in.hi.as_uint,
+			data1_in.lo.as_uint, data1_in.hi.as_uint);
 	}
 }
 

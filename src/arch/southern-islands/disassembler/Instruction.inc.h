@@ -2016,10 +2016,34 @@ DEFINST(DS_READ_U16,
 	0
 )
 
+DEFINST(DS_WRITE_B64,
+	" ds_write_b64 %ADDR, %DATA0",
+	DS,
+	77,
+	8,
+	0
+)
+
 DEFINST(DS_WRITE2_B64,
-	" ds_write_b64 %ADDR, %DATA0, %DATA1",
+	" ds_write2_b64 %ADDR, %DATA0, %DATA1",
 	DS,
 	78,
+	8,
+	0
+)
+
+DEFINST(DS_READ_B64,
+	" ds_read_b64 %ADDR, %DATA0",
+	DS,
+	118,
+	8,
+	0
+)
+
+DEFINST(DS_READ2_B64,
+	" ds_read2_b64 %ADDR, %DATA0, %DATA1",
+	DS,
+	119,
 	8,
 	0
 )
