@@ -324,7 +324,6 @@ void Disassembler::DisassembleBuffer(std::ostream& os, const char *buffer, int s
 
 		// Dump the instruction
 		ss.str("");
-		ss << ' ';
 		inst.Dump(ss);
 
 		// Spaces

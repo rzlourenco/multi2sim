@@ -212,11 +212,6 @@ void Instruction::DumpOperand(std::ostream& os, int operand)
 		/* Negative integer constant */
 		os << '-' << operand - 192;
 	}
-	else if (operand <= 239)
-	{
-		throw Disassembler::Error(misc::fmt("Unused operand code (%d)",
-				operand));
-	}
 	else if (operand <= 255)
 	{
 		os << ssrc_map.MapValue(operand - 240);
@@ -225,6 +220,11 @@ void Instruction::DumpOperand(std::ostream& os, int operand)
 	{
 		/* VGPR */
 		os << "v" << operand - 256;
+	}
+	else
+	{
+		throw Disassembler::Error(misc::fmt("Unused operand code (%d)",
+				operand));
 	}
 }
 
@@ -430,7 +430,7 @@ void Instruction::DumpSeriesVdata(std::ostream& os, unsigned int vdata, int op)
 void Instruction::DumpSsrc(std::ostream& os, unsigned int ssrc) const
 {
 	if (ssrc == 0xff)
-		os << misc::fmt("0x%08x", bytes.sop2.lit_cnst);
+		os << misc::fmt("0x%x", bytes.sop2.lit_cnst);
 	else
 		DumpScalar(os, ssrc);
 }
@@ -439,7 +439,7 @@ void Instruction::DumpSsrc(std::ostream& os, unsigned int ssrc) const
 void Instruction::Dump64Ssrc(std::ostream& os, unsigned int ssrc) const
 {		
 	if (ssrc == 0xff)
-		os << misc::fmt("0x%08x", bytes.sop2.lit_cnst);
+		os << misc::fmt("0x%8x", bytes.sop2.lit_cnst);
 	else
 		DumpScalarSeries(os, ssrc, ssrc + 1);
 }
@@ -455,13 +455,13 @@ void Instruction::DumpVop3Src(std::ostream& os, unsigned int src, int neg) const
 	{
 		if ((bytes.vop3a.neg & neg) && 
 				(bytes.vop3a.abs & neg))
-			os << "-abs(" << ss.str() << ")";
+			os << "-|" << ss.str() << "|";
 		else if ((bytes.vop3a.neg & neg) && 
 				!(bytes.vop3a.abs & neg))
 			os << '-' << ss.str();
 		else if (!(bytes.vop3a.neg & neg) && 
 				(bytes.vop3a.abs & neg))
-			os << "abs(" << ss.str() << ')';
+			os << "|" << ss.str() << '|';
 		else if (!(bytes.vop3a.neg & neg) && 
 				!(bytes.vop3a.abs & neg))
 			os << ss.str();
@@ -486,13 +486,13 @@ void Instruction::DumpVop364Src(std::ostream& os, unsigned int src, int neg) con
 	{
 		if ((bytes.vop3a.neg & neg) && 
 				(bytes.vop3a.abs & neg))
-			os << "-abs(" << ss.str() << ')';
+			os << "-|" << ss.str() << '|';
 		else if ((bytes.vop3a.neg & neg) && 
 				!(bytes.vop3a.abs & neg))
 			os << "-" << ss.str();
 		else if (!(bytes.vop3a.neg & neg) && 
 				(bytes.vop3a.abs & neg))
-			os << "abs(" << ss.str() << ")";
+			os << "|" << ss.str() << "|";
 		else if (!(bytes.vop3a.neg & neg) && 
 				!(bytes.vop3a.abs & neg))
 			os << ss.str();
@@ -523,6 +523,10 @@ void Instruction::DumpMaddr(std::ostream& os) const
 	/* index */
 	if (bytes.mtbuf.idxen)
 		os << " idxen";
+
+	/* addr64 */
+	if (bytes.mtbuf.addr64)
+		os << " addr64";
 
 	/* offset */
 	if (bytes.mtbuf.offset)
@@ -577,19 +581,11 @@ void Instruction::Dump(std::ostream &os) const
 
 			unsigned int more = 0;
 			int vm_cnt = (sopp->simm16 & 0xF);
-
 			if (vm_cnt != 0xF)
 			{
-				os << "vmcnt(" << vm_cnt << ")";
-				more = 1;
-			}
-
-			int lgkm_cnt = (sopp->simm16 & 0x1f00) >> 8;
-			if (lgkm_cnt != 0x1f)
-			{
 				if (more)
-					os << " & ";
-				os << "lgkmcnt(" << lgkm_cnt << ")";
+					os << " ";
+				os << "vmcnt(" << vm_cnt << ")";
 				more = 1;
 			}
 
@@ -597,10 +593,20 @@ void Instruction::Dump(std::ostream &os) const
 			if (exp_cnt != 0x7)
 			{
 				if (more)
-					os << " & ";
+					os << " ";
 				os << "expcnt(" << exp_cnt << ")";
 				more = 1;
 			}
+
+			int lgkm_cnt = (sopp->simm16 & 0x1f00) >> 8;
+			if (lgkm_cnt != 0x1f)
+			{
+				if (more)
+					os << " ";
+				os << "lgkmcnt(" << lgkm_cnt << ")";
+				more = 1;
+			}
+
 		}
 		else if (comm::Disassembler::isToken(fmt_str, "LABEL", token_len))
 		{		
@@ -638,12 +644,16 @@ void Instruction::Dump(std::ostream &os) const
 		}
 		else if (comm::Disassembler::isToken(fmt_str, "SIMM16", token_len))
 		{
-			os << misc::fmt("0x%04x", bytes.sopk.simm16);
+			os << misc::fmt("0x%x", bytes.sopk.simm16);
+		}
+		else if (comm::Disassembler::isToken(fmt_str, "NOPCYCLES", token_len))
+		{
+			os << misc::fmt("%u", bytes.sopk.simm16);
 		}
 		else if (comm::Disassembler::isToken(fmt_str, "SRC0", token_len))
 		{
 			if (bytes.vopc.src0 == 0xFF)
-				os << misc::fmt("0x%08x", bytes.vopc.lit_cnst);
+				os << misc::fmt("0x%x", bytes.vopc.lit_cnst);
 			else
 				DumpOperand(os, bytes.vopc.src0);
 		}
@@ -845,18 +855,14 @@ void Instruction::Dump(std::ostream &os) const
 		}
 		else if (comm::Disassembler::isToken(fmt_str, "VOP2_LIT", token_len))
 		{
-			os << misc::fmt("0x%08x", bytes.vop2.lit_cnst);
+			os << misc::fmt("0x%x", bytes.vop2.lit_cnst);
 		}
 		else if (comm::Disassembler::isToken(fmt_str, "OFFSET", token_len))
 		{
 			if (bytes.smrd.imm)
-				os << misc::fmt("0x%02x", bytes.smrd.offset);
+				os << misc::fmt("0x%x", bytes.smrd.offset);
 			else
 				DumpScalar(os, bytes.smrd.offset);
-		}
-		else if (comm::Disassembler::isToken(fmt_str, "DS_VDST", token_len))
-		{
-			DumpVector(os, bytes.ds.vdst);
 		}
 		else if (comm::Disassembler::isToken(fmt_str, "ADDR", token_len))
 		{
@@ -870,19 +876,39 @@ void Instruction::Dump(std::ostream &os) const
 		{
 			DumpVector(os, bytes.ds.data1);
 		}
+		else if (comm::Disassembler::isToken(fmt_str, "64_DATA0", token_len))
+		{
+			DumpVectorSeries(os, bytes.ds.data0, bytes.ds.data0 + 1);
+		}
+		else if (comm::Disassembler::isToken(fmt_str, "64_DATA1", token_len))
+		{
+			DumpVectorSeries(os, bytes.ds.data1, bytes.ds.data1 + 1);
+		}
 		else if (comm::Disassembler::isToken(fmt_str, "OFFSET0", token_len))
 		{
 			if (bytes.ds.offset0)
 				os << "offset0:" << bytes.ds.offset0 << ' ';
 		}
-		else if (comm::Disassembler::isToken(fmt_str, "DS_SERIES_VDST", token_len))
-		{
-			DumpVectorSeries(os, bytes.ds.vdst, bytes.ds.vdst + 1);
-		}
 		else if (comm::Disassembler::isToken(fmt_str, "OFFSET1", token_len))
 		{
 			if (bytes.ds.offset1)
 				os << "offset1:" << bytes.ds.offset1 << ' ';
+		}
+		else if (comm::Disassembler::isToken(fmt_str, "DS_VDST", token_len))
+		{
+			DumpVector(os, bytes.ds.vdst);
+		}
+		else if (comm::Disassembler::isToken(fmt_str, "DS_64_VDST", token_len))
+		{
+			DumpVectorSeries(os, bytes.ds.vdst, bytes.ds.vdst + 1);
+		}
+		else if (comm::Disassembler::isToken(fmt_str, "DS_SERIES_VDST", token_len))
+		{
+			DumpVectorSeries(os, bytes.ds.vdst, bytes.ds.vdst + 1);
+		}
+		else if (comm::Disassembler::isToken(fmt_str, "DS_SERIES_64_VDST", token_len))
+		{
+			DumpVectorSeries(os, bytes.ds.vdst, bytes.ds.vdst + 3);
 		}
 		else if (comm::Disassembler::isToken(fmt_str, "VINTRP_VDST", token_len))
 		{
@@ -928,7 +954,7 @@ void Instruction::Dump(std::ostream &os) const
 		}
 		else if (comm::Disassembler::isToken(fmt_str, "VADDR", token_len))
 		{
-			if (bytes.mtbuf.offen && bytes.mtbuf.idxen)
+			if ((bytes.mtbuf.offen && bytes.mtbuf.idxen) || bytes.mtbuf.addr64)
 				DumpVectorSeries(os, bytes.mtbuf.vaddr, 
 						bytes.mtbuf.vaddr + 1);
 			else
