@@ -957,8 +957,10 @@ void Instruction::Dump(std::ostream &os) const
 			if ((bytes.mtbuf.offen && bytes.mtbuf.idxen) || bytes.mtbuf.addr64)
 				DumpVectorSeries(os, bytes.mtbuf.vaddr, 
 						bytes.mtbuf.vaddr + 1);
-			else
+			else if (bytes.mtbuf.offen || bytes.mtbuf.idxen)
 				DumpVector(os, bytes.mtbuf.vaddr);
+			else
+				os << "off";
 		}
 		else if (comm::Disassembler::isToken(fmt_str, "MU_MADDR", token_len))
 		{
