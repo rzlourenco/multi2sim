@@ -28,6 +28,23 @@ void WorkItem::ISA_S_MOVK_I32_Impl(Instruction *instruction)
 	}
 }
 
+// SCC = (D.i == signext(SIMM16))
+void WorkItem::ISA_S_CMPK_EQ_I32_Impl(Instruction *instruction)
+{
+	Instruction::Register dst;
+	Instruction::Register simm16;
+	Instruction::Register result;
+
+	dst = Read_SRC(INST.sdst);
+	simm16.as_int = misc::SignExtend32(INST.simm16, 16);
+	result.as_uint = dst.as_int == simm16.as_int;
+
+	WriteSReg(Instruction::RegisterScc, result.as_uint);
+	if (Emulator::isa_debug) {
+		Emulator::isa_debug << misc::fmt("SCC<=(%d)", result.as_uint);
+	}
+}
+
 // SCC = (D.u == SIMM16)
 void WorkItem::ISA_S_CMPK_EQ_U32_Impl(Instruction *instruction)
 {

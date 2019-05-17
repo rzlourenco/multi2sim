@@ -366,6 +366,32 @@ void WorkItem::ISA_V_CVT_F64_U32_Impl(Instruction *instruction)
 	ISAUnimplemented(instruction);
 }
 
+// D.f = S0.f - floor(S0.f).
+void WorkItem::ISA_V_FRACT_F32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register result;
+
+	// Load operand from register or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+
+	// Truncate decimal portion
+	result.as_float = s0.as_float - std::floor(s0.as_float);
+
+	// Write the results.
+	WriteVReg(INST.vdst, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V%u<=(%gf) ", id, INST.vdst,
+			result.as_float);
+	}
+}
+
 // D.f = trunc(S0.f), return integer part of S0.
 void WorkItem::ISA_V_TRUNC_F32_Impl(Instruction *instruction)
 {

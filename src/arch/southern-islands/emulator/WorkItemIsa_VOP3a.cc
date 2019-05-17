@@ -990,10 +990,133 @@ void WorkItem::ISA_V_CMP_GT_F32_VOP3a_Impl(Instruction *instruction)
 	}
 }
 
+// D.u = (S0.f >= S1.f).
+void WorkItem::ISA_V_CMP_GE_F32_VOP3a_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register result;
+
+	assert(!INST.clamp);
+	assert(!INST.omod);
+
+	// Load operands from registers.
+	s0.as_uint = ReadReg(INST.src0);
+	s1.as_uint = ReadReg(INST.src1);
+
+	// Apply absolute value modifiers.
+	if (INST.abs & 1)
+		s0.as_float = std::fabs(s0.as_float);
+	if (INST.abs & 2)
+		s1.as_float = std::fabs(s1.as_float);
+	assert(!(INST.abs & 4));
+
+	// Apply negation modifiers.
+	if (INST.neg & 1)
+		s0.as_float = -s0.as_float;
+	if (INST.neg & 2)
+		s1.as_float = -s1.as_float;
+	assert(!(INST.neg & 4));
+
+	// Compare the operands.
+	result.as_uint = (s0.as_float >= s1.as_float);
+
+	// Write the results.
+	WriteBitmaskSReg(INST.vdst, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: S[%u:+1]<=(%u) ",
+			id_in_wavefront, INST.vdst,
+			result.as_uint);
+	}
+}
+
+// D.u = !(S0.f > S1.f).
+void WorkItem::ISA_V_CMP_NGT_F32_VOP3a_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register result;
+
+	assert(!INST.clamp);
+	assert(!INST.omod);
+
+	// Load operands from registers.
+	s0.as_uint = ReadReg(INST.src0);
+	s1.as_uint = ReadReg(INST.src1);
+
+	// Apply absolute value modifiers.
+	if (INST.abs & 1)
+		s0.as_float = std::fabs(s0.as_float);
+	if (INST.abs & 2)
+		s1.as_float = std::fabs(s1.as_float);
+	assert(!(INST.abs & 4));
+
+	// Apply negation modifiers.
+	if (INST.neg & 1)
+		s0.as_float = -s0.as_float;
+	if (INST.neg & 2)
+		s1.as_float = -s1.as_float;
+	assert(!(INST.neg & 4));
+
+	// Compare the operands.
+	result.as_uint = !(s0.as_float > s1.as_float);
+
+	// Write the results.
+	WriteBitmaskSReg(INST.vdst, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: S[%u:+1]<=(%u) ",
+			id_in_wavefront, INST.vdst,
+			result.as_uint);
+	}
+}
+
 // D.u = !(S0.f <= S1.f).
 void WorkItem::ISA_V_CMP_NLE_F32_VOP3a_Impl(Instruction *instruction)
 {
-	ISAUnimplemented(instruction);
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register result;
+
+	assert(!INST.clamp);
+	assert(!INST.omod);
+
+	// Load operands from registers.
+	s0.as_uint = ReadReg(INST.src0);
+	s1.as_uint = ReadReg(INST.src1);
+
+	// Apply absolute value modifiers.
+	if (INST.abs & 1)
+		s0.as_float = std::fabs(s0.as_float);
+	if (INST.abs & 2)
+		s1.as_float = std::fabs(s1.as_float);
+	assert(!(INST.abs & 4));
+
+	// Apply negation modifiers.
+	if (INST.neg & 1)
+		s0.as_float = -s0.as_float;
+	if (INST.neg & 2)
+		s1.as_float = -s1.as_float;
+	assert(!(INST.neg & 4));
+
+	// Compare the operands.
+	result.as_uint = !(s0.as_float <= s1.as_float);
+
+	// Write the results.
+	WriteBitmaskSReg(INST.vdst, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: S[%u:+1]<=(%u) ",
+			id_in_wavefront, INST.vdst,
+			result.as_uint);
+	}
 }
 
 // D.u = !(S0.f == S1.f).
@@ -2044,6 +2167,28 @@ void WorkItem::ISA_V_MUL_F64_Impl(Instruction *instruction)
 void WorkItem::ISA_V_LDEXP_F64_Impl(Instruction *instruction)
 {
 	ISAUnimplemented(instruction);
+}
+
+// D.i = (S0.i * S1.i)>>32.
+void WorkItem::ISA_V_MUL_HI_I32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0, s1;
+	Instruction::Register result;
+
+	assert(!INST.abs);
+	assert(!INST.clamp);
+	assert(!INST.neg);
+	assert(!INST.omod);
+
+	s0 = Read_SRC(INST.src0);
+	s1 = Read_SRC(INST.src1);
+	result.as_int = ((int64_t)s0.as_int * (int64_t)s1.as_int) >> 32;
+
+	WriteVReg(INST.vdst, result.as_uint);
+	if (Emulator::isa_debug) {
+		Emulator::isa_debug << misc::fmt("t%d: V[%u]<=(%gf) ",
+				id_in_wavefront, INST.vdst, result.as_float);
+	}
 }
 
 } // namespace SI

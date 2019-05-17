@@ -483,6 +483,44 @@ void WorkItem::ISA_S_OR_B64_Impl(Instruction *instruction)
 }
 
 // D.u = S0.u ^ S1.u. scc = 1 if result is non-zero.
+void WorkItem::ISA_S_XOR_B32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register result;
+	Instruction::Register nonzero;
+
+	// Load operands from registers or as a literal constant.
+	assert(!(INST.ssrc0 == 0xFF && INST.ssrc1 == 0xFF));
+	if (INST.ssrc0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadSReg(INST.ssrc0);
+	if (INST.ssrc1 == 0xFF)
+		s1.as_uint = INST.lit_cnst;
+	else
+		s1.as_uint = ReadSReg(INST.ssrc1);
+
+	/* Bitwise AND the two operands and determine if the result is
+	 * non-zero. */
+	result.as_uint = s0.as_uint ^ s1.as_uint;
+	nonzero.as_uint = ! !result.as_uint;
+
+	// Write the results.
+	// Store the data in the destination register
+	WriteSReg(INST.sdst, result.as_uint);
+	// Store the data in the destination register
+	WriteSReg(Instruction::RegisterScc, nonzero.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, result.as_uint);
+		Emulator::isa_debug << misc::fmt("scc<=(%u) ", nonzero.as_uint);
+	}
+}
+
+// D.u = S0.u ^ S1.u. scc = 1 if result is non-zero.
 void WorkItem::ISA_S_XOR_B64_Impl(Instruction *instruction)
 {
 	// Assert no literal constants for a 64 bit instruction.
