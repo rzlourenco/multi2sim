@@ -43,6 +43,44 @@ void WorkItem::ISA_S_ADD_U32_Impl(Instruction *instruction)
 	}
 }
 
+// D.u = S0.u - S1.u. SCC = carry out.
+void WorkItem::ISA_S_SUB_U32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register sum;
+	Instruction::Register carry;
+
+	// Load operands from registers or as a literal constant.
+	assert(!(INST.ssrc0 == 0xFF && INST.ssrc1 == 0xFF));
+	if (INST.ssrc0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadSReg(INST.ssrc0);
+	if (INST.ssrc1 == 0xFF)
+		s1.as_uint = INST.lit_cnst;
+	else
+		s1.as_uint = ReadSReg(INST.ssrc1);
+
+	// Calculate the sum and carry out.
+	sum.as_uint = s0.as_uint - s1.as_uint;
+	carry.as_uint = ((unsigned long long) s0.as_uint - 
+		(unsigned long long) s1.as_uint) >> 32;
+
+	// Write the results.
+	// Store the data in the destination register
+	WriteSReg(INST.sdst, sum.as_uint);
+	// Store the data in the destination register
+	WriteSReg(Instruction::RegisterScc, carry.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("S%u<=(%u) ", INST.sdst, sum.as_uint);
+		Emulator::isa_debug << misc::fmt("scc<=(%u) ", carry.as_uint);
+	}
+}
+
 // D.u = S0.i + S1.i. scc = overflow.
 void WorkItem::ISA_S_ADD_I32_Impl(Instruction *instruction)
 {
@@ -146,6 +184,47 @@ void WorkItem::ISA_S_ADDC_U32_Impl(Instruction *instruction)
 	sum.as_uint = s0.as_uint + s1.as_uint + scc.as_uint;
 	carry.as_uint = ((unsigned long long) s0.as_uint + 
 		(unsigned long long) s1.as_uint +
+		(unsigned long long) scc.as_uint) >> 32;
+
+	// Write the results.
+	// Store the data in the destination register
+	WriteSReg(INST.sdst, sum.as_uint);
+	// Store the data in the destination register
+	WriteSReg(Instruction::RegisterScc, carry.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("S%u<=(%u) ", INST.sdst, sum.as_uint);
+		Emulator::isa_debug << misc::fmt("scc<=(%u) ", carry.as_uint);
+	}
+}
+
+// D.u = S0.u - S1.u - SCC. SCC = carry out.
+void WorkItem::ISA_S_SUBB_U32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register scc;
+	Instruction::Register sum;
+	Instruction::Register carry;
+
+	// Load operands from registers or as a literal constant.
+	assert(!(INST.ssrc0 == 0xFF && INST.ssrc1 == 0xFF));
+	if (INST.ssrc0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadSReg(INST.ssrc0);
+	if (INST.ssrc1 == 0xFF)
+		s1.as_uint = INST.lit_cnst;
+	else
+		s1.as_uint = ReadSReg(INST.ssrc1);
+	scc.as_uint = ReadSReg(Instruction::RegisterScc);
+
+	// Calculate the sum and carry out.
+	sum.as_uint = s0.as_uint - s1.as_uint - scc.as_uint;
+	carry.as_uint = ((unsigned long long) s0.as_uint - 
+		(unsigned long long) s1.as_uint -
 		(unsigned long long) scc.as_uint) >> 32;
 
 	// Write the results.

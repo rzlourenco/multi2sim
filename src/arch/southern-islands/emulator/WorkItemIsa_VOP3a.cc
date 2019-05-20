@@ -1829,6 +1829,12 @@ void WorkItem::ISA_V_MAX3_I32_Impl(Instruction *instruction)
 	}
 }
 
+// D.i = S0.i * S1.i + S2.i.
+void WorkItem::ISA_V_MAD_I32_I24_Impl(Instruction *instruction)
+{
+	ISAUnimplemented(instruction);
+}
+
 // Median of three numbers.
 void WorkItem::ISA_V_MED3_I32_Impl(Instruction *instruction)
 {

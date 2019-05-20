@@ -10,6 +10,14 @@ DEFINST(S_ADD_U32,
 	0
 )
 
+DEFINST(S_SUB_U32,
+	"	s_sub_u32 %SDST, %SSRC0, %SSRC1",
+	SOP2,
+	1,
+	4,
+	0
+)
+
 DEFINST(S_ADD_I32,
 	"	s_add_i32 %SDST, %SSRC0, %SSRC1",
 	SOP2,
@@ -30,6 +38,14 @@ DEFINST(S_ADDC_U32,
 	"	s_addc_u32 %SDST, %SSRC0, %SSRC1",
 	SOP2,
 	4,
+	4,
+	0
+)
+
+DEFINST(S_SUBB_U32,
+	"	s_subb_u32 %SDST, %SSRC0, %SSRC1",
+	SOP2,
+	5,
 	4,
 	0
 )
@@ -700,6 +716,14 @@ DEFINST(V_MUL_I32_I24,
 	0
 )
 
+DEFINST(V_MUL_U32_U24,
+	"	v_mul_u32_u24 %VDST, %SRC0, %VSRC1",
+	VOP2,
+	11,
+	4,
+	0
+)
+
 DEFINST(V_MIN_F32,
 	"	v_min_f32 %VDST, %SRC0, %VSRC1",
 	VOP2,
@@ -1339,6 +1363,22 @@ DEFINST(V_CMP_LT_I64,
 	0
 )
 
+DEFINST(V_CMP_LE_I64,
+	"	v_cmp_le_i64 vcc, %64_SRC0, %64_VSRC1",
+	VOPC,
+	163,
+	4,
+	0
+)
+
+DEFINST(V_CMP_GT_I64,
+	"	v_cmp_gt_i64 vcc, %64_SRC0, %64_VSRC1",
+	VOPC,
+	164,
+	4,
+	0
+)
+
 DEFINST(V_CMP_CLASS_F64,
 	"	v_cmp_class_f64 vcc, %64_SRC0, %64_VSRC1",
 	VOPC,
@@ -1399,6 +1439,22 @@ DEFINST(V_CMP_LT_U64,
 	"	v_cmp_lt_u64 vcc, %64_SRC0, %64_VSRC1",
 	VOPC,
 	225,
+	4,
+	0
+)
+
+DEFINST(V_CMP_EQ_U64,
+	"	v_cmp_eq_u64 vcc, %64_SRC0, %64_VSRC1",
+	VOPC,
+	226,
+	4,
+	0
+)
+
+DEFINST(V_CMP_GT_U64,
+	"	v_cmp_gt_u64 vcc, %64_SRC0, %64_VSRC1",
+	VOPC,
+	228,
 	4,
 	0
 )
@@ -1883,6 +1939,14 @@ DEFINST(V_CMP_LG_U64_VOP3a,
 	0
 )
 
+DEFINST(V_MAD_I32_I24,
+	"	v_mad_i32_i24 %VOP3_VDST, %VOP3_SRC0, %VOP3_SRC1, %VOP3_SRC2",
+	VOP3a,
+	322,
+	8,
+	0
+)
+
 DEFINST(V_MED3_I32,
 	"	v_med3_i32 %VOP3_VDST, %VOP3_SRC0, %VOP3_SRC1, %VOP3_SRC2",
 	VOP3a,
@@ -1924,7 +1988,7 @@ DEFINST(V_LDEXP_F64,
 )
 
 DEFINST(V_MUL_HI_I32,
-	"	v_mul_hi_i32 %VOP3_64_VDST, %VOP3_64_SRC0, %VOP3_SRC1",
+	"	v_mul_hi_i32 %VOP3_VDST, %VOP3_SRC0, %VOP3_SRC1",
 	VOP3a,
 	364,
 	8,
@@ -2124,6 +2188,14 @@ DEFINST(DS_READ2_B64,
  * MUBUF
  */
 
+DEFINST(BUFFER_LOAD_UBYTE,
+	"	buffer_load_ubyte %MU_SERIES_VDATA_DST, %VADDR, %SERIES_SRSRC, %MU_MADDR",
+	MUBUF,
+	8,
+	8,
+	0
+)
+
 DEFINST(BUFFER_LOAD_SBYTE,
 	"	buffer_load_sbyte %MU_SERIES_VDATA_DST, %VADDR, %SERIES_SRSRC, %MU_MADDR",
 	MUBUF,
@@ -2192,6 +2264,14 @@ DEFINST(BUFFER_ATOMIC_ADD,
 	"	buffer_atomic_add %MU_SERIES_VDATA_DST, %VADDR, %SERIES_SRSRC, %MU_MADDR",
 	MUBUF,
 	50,
+	8,
+	0
+)
+
+DEFINST(BUFFER_WBINVL1,
+	"	buffer_wbinvl1",
+	MUBUF,
+	113,
 	8,
 	0
 )

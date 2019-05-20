@@ -466,6 +466,18 @@ void WorkItem::ISA_V_CMP_LT_I64_Impl(Instruction *instruction)
 	}
 }
 
+// D.u = (S0 <= S1)
+void WorkItem::ISA_V_CMP_LE_I64_Impl(Instruction *instruction)
+{
+	ISAUnimplemented(instruction);
+}
+
+// D.u = (S0 > S1)
+void WorkItem::ISA_V_CMP_GT_I64_Impl(Instruction *instruction)
+{
+	ISAUnimplemented(instruction);
+}
+
 // D = IEEE numeric class function specified in S1.u, performed on S0.d.
 void WorkItem::ISA_V_CMP_CLASS_F64_Impl(Instruction *instruction)
 {
@@ -661,6 +673,18 @@ void WorkItem::ISA_V_CMP_LT_U64_Impl(Instruction *instruction)
 		Emulator::isa_debug << misc::fmt("t%d: vcc<=(%u) ",
 			id_in_wavefront, result.as_uint);
 	}
+}
+
+// D.u = (S0 == S1)
+void WorkItem::ISA_V_CMP_EQ_U64_Impl(Instruction *instruction)
+{
+	ISAUnimplemented(instruction);
+}
+
+// D.u = (S0 > S1)
+void WorkItem::ISA_V_CMP_GT_U64_Impl(Instruction *instruction)
+{
+	ISAUnimplemented(instruction);
 }
 
 // D.u = (S0 <> S1)

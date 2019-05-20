@@ -223,6 +223,12 @@ void WorkItem::ISA_V_MUL_I32_I24_Impl(Instruction *instruction)
 	}
 }
 
+// D.u = S0.u[23:0] * S1.u[23:0].
+void WorkItem::ISA_V_MUL_U32_U24_Impl(Instruction *instruction)
+{
+	ISAUnimplemented(instruction);
+}
+
 // D.f = min(S0.f, S1.f).
 void WorkItem::ISA_V_MIN_F32_Impl(Instruction *instruction)
 {
