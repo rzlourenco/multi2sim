@@ -23,6 +23,8 @@
 #include <arch/southern-islands/disassembler/Instruction.h>
 #include <memory/Memory.h>
 
+#include <cstdint>
+
 
 namespace SI
 {
@@ -221,6 +223,9 @@ private:
 
 	// Float16 to Float32 conversion
 	static float Float16to32(uint16_t value);
+
+	uint32_t CalculateBUFAddress(Instruction::BytesMUBUF);
+	uint32_t CalculateBUFAddress(Instruction::BytesMTBUF);
 
 public:
 
