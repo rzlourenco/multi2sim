@@ -320,6 +320,25 @@ struct opencl_si_ndrange_t *opencl_si_ndrange_create(
 	arch_ndrange->table_ptr = xcalloc(1, table_size + 16);  // FIXME align
 	arch_ndrange->cb_ptr = xcalloc(1, cb_size + 16);   // FIXME align
 
+	/* Defaults */
+	for (i = 0; i < 3; i++)
+	{
+		arch_ndrange->global_work_offset[i] = 0;
+		arch_ndrange->global_work_size[i] = 1;
+		arch_ndrange->local_work_size[i] = 1;
+		arch_ndrange->num_groups[i] = 1;
+		//printf("arch_ndrange{"
+		//		"global_work_offset[%1$d] = %2$d, "
+		//		"global_work_size[%1$d] = %3$d, "
+		//		"local_work_size[%1$d] = %4$d, "
+		//		"num_groups[%1$d] = %5$d}\n",
+		//		i,
+		//		arch_ndrange->global_work_offset[i],
+		//		arch_ndrange->global_work_size[i],
+		//		arch_ndrange->local_work_size[i],
+		//		arch_ndrange->num_groups[i]);
+	}
+
 	/* Work sizes */
 	for (i = 0; i < work_dim; i++)
 	{
@@ -328,21 +347,18 @@ struct opencl_si_ndrange_t *opencl_si_ndrange_create(
 		arch_ndrange->global_work_size[i] = global_work_size[i];
 		arch_ndrange->local_work_size[i] = local_work_size ?
 			local_work_size[i] : 1;
-		assert(!(global_work_size[i] % 
-			arch_ndrange->local_work_size[i]));
-		arch_ndrange->num_groups[i] = global_work_size[i] / 
-			arch_ndrange->local_work_size[i];
-	}
-
-	/* Unused dimensions */
-	for (i = work_dim; i < 3; i++)
-	{
-		arch_ndrange->global_work_offset[i] = 0;
-		arch_ndrange->global_work_size[i] = 1;
-		arch_ndrange->local_work_size[i] = 1;
-		arch_ndrange->num_groups[i] = 
-			arch_ndrange->global_work_size[i] / 
-			arch_ndrange->local_work_size[i];
+		assert(global_work_size[i] % arch_ndrange->local_work_size[i] == 0);
+		arch_ndrange->num_groups[i] = global_work_size[i] / arch_ndrange->local_work_size[i];
+		//printf("arch_ndrange{"
+		//		"global_work_offset[%1$d] = %2$d, "
+		//		"global_work_size[%1$d] = %3$d, "
+		//		"local_work_size[%1$d] = %4$d, "
+		//		"num_groups[%1$d] = %5$d}\n",
+		//		i,
+		//		arch_ndrange->global_work_offset[i],
+		//		arch_ndrange->global_work_size[i],
+		//		arch_ndrange->local_work_size[i],
+		//		arch_ndrange->num_groups[i]);
 	}
 
 	/* ioctl arguments. The argument array is now 5 which is the
