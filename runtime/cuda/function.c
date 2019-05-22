@@ -36,7 +36,7 @@ CUfunction cuda_function_create(CUmodule module, const char *function_name)
 	struct elf_file_t *dev_func_bin;
 	struct elf_section_t *sec;
 	char sec_name[1024];
-	int sec_index;
+	int sec_index = 0;
 	struct elf_section_t *text_sec;
 	struct elf_section_t *shared_sec = NULL;
 

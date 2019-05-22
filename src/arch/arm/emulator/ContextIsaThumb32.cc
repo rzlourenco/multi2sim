@@ -364,8 +364,8 @@ void Context::ExecuteInstThumb32_TBB()
 
 void Context::ExecuteInstThumb32_TBH()
 {
-	int rn_val;
-	int rm_val;
+	int rn_val = 0;
+	int rm_val = 0;
 	int addr;
 	unsigned int hfwrd;
 	void *buf;

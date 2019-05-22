@@ -138,7 +138,7 @@ void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFun,
 	const unsigned char *dev_func_bin_sec;
 	unsigned dev_func_bin_sec_size;
 	char identifier[1024];
-	unsigned char *elf_start;
+	unsigned char *elf_start = NULL;
 	int elf_size = 0;
 	unsigned section_header_offset;
 	unsigned align = 1;

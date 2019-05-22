@@ -74,7 +74,7 @@ void cuMemcpyAsyncImpl(struct cuda_stream_command_t *command)
 
 	unsigned args[3] = {(unsigned) dst, (unsigned) src,
 				(unsigned) size};
-	int ret;
+	int ret = -1;
 	if ((!src_is_device) && dst_is_device)
 		ret = ioctl(active_device->fd, cuda_call_MemWrite, args);
 	else if (src_is_device && (! dst_is_device))

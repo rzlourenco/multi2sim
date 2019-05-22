@@ -51,7 +51,7 @@ int Context::IsaGetOp2(unsigned int op2, ContextOp2Catecory cat)
 {
 	unsigned int imm;
 	unsigned int rotate;
-	int op_val;
+	int op_val = 0;
 	unsigned int shift;
 	unsigned int rm;
 	unsigned int rs;
@@ -147,7 +147,7 @@ int Context::IsaOp2Carry(unsigned int op2, ContextOp2Catecory cat)
 	unsigned int rs;
 	unsigned int shift_imm;
 	signed int rm_val;
-	unsigned int carry_ret;
+	unsigned int carry_ret = 0;
 	unsigned int cry_bit;
 	unsigned int cry_mask;
 	unsigned int rot_val;

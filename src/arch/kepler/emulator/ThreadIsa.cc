@@ -163,7 +163,8 @@ void Thread::ExecuteInst_IMUL_A(Instruction *inst)
 		{
 			//Immediate Mode
 			src2 = format.src2;
-		}
+		} else
+		    assert(false);
 
 		// Execute
 		temp = src1 * src2;
@@ -247,6 +248,8 @@ void Thread::ExecuteInst_IMUL_B(Instruction *inst)
 			src2 = ReadGPR(src2_id);	// Register Mode
 		else if (format.op2 == 0)	// Const mode
 			emulator->ReadConstantMemory(format.src2 << 2, 4, (char*)&src2);
+		else
+		    assert(false);
 		//else
 		//	src2 = format.src2 >> 18 ? format.src2 | 0xfff80000 : format.src2;
 
@@ -595,6 +598,8 @@ void Thread::ExecuteInst_ISAD_A(Instruction *inst)
 			dst = src3 + ((src1 > src2) ? src1 - src2 : src2 - src1);
 			src1_tmp1 = (src1 > src2) ? src1 - src2 : src2 - src1;
 		}
+		else
+		    assert(false);
 
 		// Update .CC flag
 		unsigned zf, sf, cf;
@@ -700,6 +705,8 @@ void Thread::ExecuteInst_ISAD_B(Instruction *inst)
 			src2 = ReadGPR(src2_id);
 			src3 = ReadGPR(src3_id);
 		}
+		else
+		    assert(false);
 
 		// signed mode
 		if (format.u_s == 1) // sign mode
@@ -718,6 +725,8 @@ void Thread::ExecuteInst_ISAD_B(Instruction *inst)
 			dst = src3 + ((src1 > src2) ? src1 - src2 : src2 - src1);
 			src1_tmp1 = (src1 > src2) ? src1 - src2 : src2 - src1;
 		}
+		else
+		    assert(false);
 
 		// Update .CC flag
 		unsigned zf, sf, cf;
@@ -977,6 +986,8 @@ void Thread::ExecuteInst_BFE_B(Instruction *inst)
 			src2_id = format.src2;
 			src2 = ReadGPR(src2_id);
 		}
+		else
+		    assert(false);
 
 		unsigned position, size;
 
@@ -1244,6 +1255,8 @@ void Thread::ExecuteInst_IADD_A(Instruction *inst)
 		dst_id = format.dst;
 		WriteGPR(dst_id, dst);
 	}
+	else
+		assert(false);
 
 	if (id_in_warp == warp->getThreadCount() - 1)
             warp->setTargetPC(warp->getPC() + warp->getInstructionSize());
@@ -1391,6 +1404,8 @@ void Thread::ExecuteInst_IADD_B(Instruction *inst)
 		dst_id = format.dst;
 		WriteGPR(dst_id, dst);
 	}
+	else
+	    assert(false);
 
 
 	if (id_in_warp == warp->getThreadCount() - 1)
@@ -1998,6 +2013,8 @@ void Thread::ExecuteInst_LOP_A(Instruction *inst)
 			dst = src1 ^ src2;
 		else if (format.lop == 3)
 			dst = src2;
+		else
+		    assert(false);
 
 		// Write Result
 		dst_id = format.dst;
@@ -2086,6 +2103,8 @@ void Thread::ExecuteInst_LOP_B(Instruction *inst)
 			dst = src1 ^ src2;
 		else if (format.lop == 3)
 			dst = src2;
+		else
+			assert(false);
 
 		// Write Result
 		dst_id = format.dst;
@@ -2199,6 +2218,8 @@ void Thread::ExecuteInst_ICMP_B(Instruction *inst)
 			cmp_result = format.u_s ? (src3_signed >= 0) : (src3_signed >= 0);
 		else if (cmp_op == 7)
 			cmp_result = true;
+		else
+		    assert(false);
 
 		dst = cmp_result ? src1 : src2;
 		// no Update for overflow flag (for signed arithmetic)
@@ -2496,6 +2517,8 @@ void Thread::ExecuteInst_MOV_B(Instruction *inst)
 		else if (format.srcB_mod == 1)
 			//src = ReadGPR(src_id);
 			Read_register(&src, src_id);
+		else
+			assert(false);
 
 		/* Execute */
 		dst = src;
@@ -2803,7 +2826,10 @@ void Thread::ExecuteInst_I2F_A(Instruction *inst)
 		if (format.s_fmt == 2 && format.d_fmt == 2) //Currently support 32 bit
 			dst = src;
 		else
+		{
 			ISAUnsupportedFeature(inst);
+			assert(false);
+		}
 
 		// Write Result
 		dst_id = format.dst;
@@ -2883,10 +2909,15 @@ void Thread::ExecuteInst_I2F_B(Instruction *inst)
 			src = abs(src);
 
 		// Execute
-		if (format.s_fmt == 2 && format.d_fmt == 2) //Currently support 32 bit
+		if (format.s_fmt == 2 && format.d_fmt == 2)  //Currently support 32 bit
+		{
 			dst = src;
+		}
 		else
+		{
 			ISAUnsupportedFeature(inst);
+			assert(false);
+		}
 
 		// Write Result
 		dst_id = format.dst;
@@ -2959,7 +2990,10 @@ void Thread::ExecuteInst_I2I_A(Instruction *inst)
 		if (format.s_fmt == 2 && format.d_fmt == 2) //Currently support 32 bit
 			dst = src;
 		else
+		{
 			ISAUnsupportedFeature(inst);
+			assert(false);
+		}
 
 		// Write Result
 		dst_id = format.dst;
@@ -3041,7 +3075,10 @@ void Thread::ExecuteInst_I2I_B(Instruction *inst)
 		if (format.s_fmt == 2 && format.d_fmt == 2) //Currently support 32 bit
 			dst = src;
 		else
+		{
 			ISAUnsupportedFeature(inst);
+			assert(false);
+		}
 
 		// Write Result
 		dst_id = format.dst;
@@ -3128,9 +3165,14 @@ void Thread::ExecuteInst_F2I_A(Instruction *inst)
 				dst = ceilf(src);
 			else if (format.round == 3)
 				dst = truncf(src);
+			else
+			    assert(false);
 		}
 		else
+		{
 			ISAUnsupportedFeature(inst);
+			assert(false);
+		}
 
 		// Write Result
 		dst_id = format.dst;
@@ -3222,9 +3264,14 @@ void Thread::ExecuteInst_F2I_B(Instruction *inst)
 				dst = ceilf(src);
 			else if (format.round == 3)
 				dst = truncf(src);
+			else
+			    assert(false);
 		}
 		else
+		{
 			ISAUnsupportedFeature(inst);
+			assert(false);
+		}
 
 		// Write Result
 		dst_id = format.dst;
@@ -3331,10 +3378,17 @@ void Thread::ExecuteInst_F2F_B(Instruction *inst)
 					dst = ceilf(src);
 				else if (format.round == 3)
 					dst = truncf(src);
+				else
+				    assert(false);
 			}
+			else
+			    assert(false);
 		}
 		else
+		{
 			ISAUnsupportedFeature(inst);
+			assert(false);
+		}
 
 		// Write Result
 		dst_id = format.dst;
@@ -4350,7 +4404,10 @@ void Thread::ExecuteInst_MUFU(Instruction *inst)
 		if (format.mufu_op == 4) // RCP mode
 			dst = 1.0f / src;
 		else
+		{
 			ISAUnsupportedFeature(inst);
+			assert(false);
+		}
 
 		// Write Result
 		dst_id = format.dst;
@@ -4439,6 +4496,8 @@ void Thread::ExecuteInst_FFMA_B(Instruction *inst)
 			src3_id = format.src3;
 			src3 = ReadFloatGPR(src3_id);
 		}
+		else
+		    assert(false);
 
 		if(format.fmz == 1)
 			ISAUnsupportedFeature(inst);
@@ -4712,11 +4771,13 @@ void Thread::ExecuteInst_S2R(Instruction *inst)
 		/* Read */
 		src_id = format.srcB & 0xff;
 		if (src_id == SR_CLOCKLO)	//No cycle count for now
-			;//src = grid->emulator->inst_count & 0xffffffff;
+			assert(false);//src = grid->emulator->inst_count & 0xffffffff;
 		else if (src_id == SR_CLOCKHI)
-			;//src = (grid->emulator->inst_count >> 32) & 0xffffffff;
+			assert(false);//src = (grid->emulator->inst_count >> 32) & 0xffffffff;
 		else if (format.srcB_mod == 1)
 			src = ReadSpecialRegister(src_id);
+		else
+		    assert(false);
 
 		// Execute
 		dst = src;
@@ -4838,6 +4899,8 @@ void Thread::ExecuteInst_PSETP(Instruction *inst)
 			dst = temp || srcC; // Or operation
 		else if (bool_op1 == 3)
 			dst = temp ^ srcC; // Xor operation
+		else
+		    assert(false);
 
 		// Write Result
 		dst_id = format.pred0;
@@ -5082,15 +5145,17 @@ void Thread::ExecuteInst_SSY(Instruction *inst)
 			address = offset + pc + warp->getInstructionSize();
 		}
 		else
-        {
+        	{
 			// check this
 			if (isconstmem == 1)
-              	emulator->ReadConstantMemory(offset << 2,4, (char*) &address);
-        }
+				emulator->ReadConstantMemory(offset << 2,4, (char*) &address);
+			else
+				assert(false);
+        	}
 
 		stack->push(address,
-					stack->getActiveMask(),
-					SyncStackEntrySSY);
+				stack->getActiveMask(),
+				SyncStackEntrySSY);
 	}
 
 	if (id_in_warp == warp->getThreadCount() - 1)
@@ -5545,6 +5610,8 @@ void Thread::ExecuteInst_LOP32I(Instruction *inst)
 			dst = src1 ^ src2;
 		else if (format.lop == 3)
 			dst = src2;
+		else
+			assert(false);
 
 		if (format.cc == 1)
 			ISAUnsupportedFeature(inst);
@@ -5819,6 +5886,8 @@ void Thread::ExecuteInst_SHR_A(Instruction *inst)
 			dst = (int)src1 >> src2;
 		else if (format.shift_mode == 0) // logic shift
 			dst = src1 >> src2;
+		else
+			assert(false);
 
 		if (format.cc == 1)
 			ISAUnsupportedFeature(inst);
@@ -5917,6 +5986,8 @@ void Thread::ExecuteInst_SHR_B(Instruction *inst)
 			dst = (int)src1 >> src2;
 		else if (format.shift_mode == 0) // logic shift
 			dst = src1 >> src2;
+		else
+			assert(false);
 
 		if (format.cc == 1)
 			ISAUnsupportedFeature(inst);

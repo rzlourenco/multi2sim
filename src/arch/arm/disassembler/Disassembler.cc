@@ -1371,6 +1371,8 @@ Disassembler::DisassemblyMode Disassembler::DissassembleMode(
 		disasm_mode = DisassemblyModeArm;
 	else if(!(symbol->getName().compare(0, 2, "$t")))
 		disasm_mode = DisassemblyModeThumb;
+	else
+		assert(false);
 
 	// Return
 	return disasm_mode;

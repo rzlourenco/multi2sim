@@ -655,7 +655,7 @@ ContextMode Context::OperateMode(unsigned int addr)
 	ContextMode mode;
 
 	// Locate the symbol tag in the sorted symbol list by input address
-	unsigned int tag_index;
+	unsigned int tag_index = -1;
 	for (unsigned int i = 0; i < thumb_symbol_list.size(); ++i)
 	{
 		symbol = thumb_symbol_list[i];
@@ -685,6 +685,8 @@ ContextMode Context::OperateMode(unsigned int addr)
 		{
 			mode = ContextModeThumb;
 		}
+		else
+			assert(false);
 	}
 	else
 	{
