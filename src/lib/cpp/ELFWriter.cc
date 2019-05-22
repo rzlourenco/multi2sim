@@ -118,7 +118,7 @@ Section::Section(File *file, std::string name, Buffer *first_buffer,
 	this->first_buffer = first_buffer;
 	this->last_buffer = last_buffer;
 	this->index = index;
-	info = { 0 };
+	info = {};
 
 	// Check ordered indices
 	if (last_buffer->getIndex() < first_buffer->getIndex())
@@ -158,7 +158,7 @@ Segment::Segment(File *file, std::string name, Buffer *first_buffer,
 	this->first_buffer = first_buffer;
 	this->last_buffer = last_buffer;
 	this->index = index;
-	info = { 0 };
+	info = {};
 }
 
 

@@ -565,8 +565,8 @@ static void graph_label_assignment(struct graph_t *graph)
 			}
 		}
 
-		struct graph_vertex_t *candidate;
-		struct graph_vertex_t *vertex;
+		struct graph_vertex_t *candidate = NULL;
+		struct graph_vertex_t *vertex = NULL;
 		struct list_t *candidate_list;
 		candidate_list = list_create();
 		for (int i = 0; i < list_count(graph->vertex_list); i++)

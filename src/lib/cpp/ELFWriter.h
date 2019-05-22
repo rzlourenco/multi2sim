@@ -244,7 +244,7 @@ class Symbol
 	Elf32_Sym info;
 
 	Symbol(const std::string &name) :
-		name(name), info({0}) { }
+		name(name), info({}) { }
 
 public:
 
