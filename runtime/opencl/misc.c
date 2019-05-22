@@ -25,7 +25,7 @@
 #include "list.h"
 #include "mhandle.h"
 #include "misc.h"
-#include "string.h"
+#include "string-util.h"
 
 
 /*

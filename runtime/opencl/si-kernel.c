@@ -33,7 +33,7 @@
 #include "platform.h"
 #include "si-kernel.h"
 #include "si-program.h"
-#include "string.h"
+#include "string-util.h"
 
 /*
  * Southern Islands Kernel Argument

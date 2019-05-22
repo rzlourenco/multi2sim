@@ -20,6 +20,7 @@
 
 #include <assert.h>
 #include <sys/stat.h>
+#include <string.h>
 
 #include "debug.h"
 #include "elf-format.h"

@@ -34,7 +34,7 @@
 #include "object.h"
 #include "platform.h"
 #include "program.h"
-#include "string.h"
+#include "string-util.h"
 
 
 

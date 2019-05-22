@@ -30,7 +30,7 @@
 #include "misc.h"
 #include "object.h"
 #include "opencl.h"
-#include "string.h"
+#include "string-util.h"
 
 
 
