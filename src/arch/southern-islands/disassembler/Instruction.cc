@@ -210,7 +210,7 @@ void Instruction::DumpOperand(std::ostream& os, int operand)
 	else if (operand <= 208)
 	{
 		/* Negative integer constant */
-		os << '-' << operand - 192;
+		os << -(operand - 192);
 	}
 	else if (operand <= 255)
 	{
@@ -259,7 +259,7 @@ void Instruction::DumpOperandSeries(std::ostream& os, int start, int end)
 		{
 			assert(end <= 208);
 			// -1 .. -16
-			os << -(start - 194);
+			os << -(start - 192);
 		}
 		else
 		{
@@ -893,6 +893,11 @@ void Instruction::Dump(std::ostream &os) const
 		{
 			if (bytes.ds.offset1)
 				os << "offset1:" << bytes.ds.offset1 << ' ';
+		}
+		else if (comm::Disassembler::isToken(fmt_str, "OFFSET10", token_len))
+		{
+			if (bytes.ds.offset1 || bytes.ds.offset0)
+				os << "offset:" << ((bytes.ds.offset1 << 8) | bytes.ds.offset0) << ' ';
 		}
 		else if (comm::Disassembler::isToken(fmt_str, "DS_VDST", token_len))
 		{
