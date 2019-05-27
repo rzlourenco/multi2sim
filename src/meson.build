@@ -16,5 +16,9 @@ deps += [libarch_common, libarch_arm, libarch_hsa, libarch_kepler,
 subdir('visual')
 deps += [libvisual]
 
+if host_machine.system() == 'linux'
+    deps += [liblinux_ptrace]
+endif
+
 m2s = executable('m2s', sources: 'm2s.cc', install: true,
   dependencies: [threads, zlib, deps])

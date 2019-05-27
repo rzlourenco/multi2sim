@@ -43,6 +43,7 @@
 #include <arch/southern-islands/timing/Timing.h>
 #include <arch/arm/disassembler/Disassembler.h>
 #include <arch/arm/emulator/Emulator.h>
+#include <arch/linux-ptrace/Emulator.h>
 #include <dram/System.h>
 #include <memory/Mmu.h>
 #include <memory/Manager.h>
@@ -98,6 +99,8 @@ std::string m2s_trace_file;
 // Visualization tool input file
 std::string m2s_visual_file;
 
+// Use Linux ptrace
+bool m2s_use_ptrace;
 
 
 
@@ -155,31 +158,36 @@ void LoadProgram(const std::vector<std::string> &arguments,
 	if (arguments.size() == 0)
 		return;
 	
-	// Choose emulator based on ELF header
-	std::string exe = misc::getFullPath(arguments[0], current_directory);
-	ELFReader::File elf_file(exe, false);
 	comm::Emulator *emulator;
-	switch (elf_file.getMachine())
-	{
-	case EM_386:
 
-		emulator = x86::Emulator::getInstance();
-		break;
+	if (m2s_use_ptrace) {
+		emulator = linux_ptrace::Emulator::getInstance();
+	} else {
+		// Choose emulator based on ELF header
+		std::string exe = misc::getFullPath(arguments[0], current_directory);
+		ELFReader::File elf_file(exe, false);
+		switch (elf_file.getMachine())
+		{
+			case EM_386:
 
-	case EM_ARM:
+				emulator = x86::Emulator::getInstance();
+				break;
 
-		emulator = ARM::Emulator::getInstance();
-		break;
+			case EM_ARM:
 
-	case EM_MIPS:
+				emulator = ARM::Emulator::getInstance();
+				break;
 
-		emulator = MIPS::Emulator::getInstance();
-		break;
+			case EM_MIPS:
 
-	default:
+				emulator = MIPS::Emulator::getInstance();
+				break;
 
-		throw misc::Error(misc::fmt("%s: unsupported ELF architecture",
-				exe.c_str()));
+			default:
+
+				throw misc::Error(misc::fmt("%s: unsupported ELF architecture",
+							exe.c_str()));
+		}
 	}
 
 	// Load the program in selected emulator
@@ -319,6 +327,12 @@ void RegisterOptions()
 			"in a previous simulation. This option is only "
 			"available on systems with support for GTK 3.0 or "
 			"higher.");
+
+	command_line->RegisterBool("--linux-ptrace",
+			m2s_use_ptrace,
+			"Use ptrace to execute binaries. This has the "
+			"advantage that is a lot faster and emulates all "
+			"platforms where Linux runs, but is Linux-only.");
 
 	//
 	// CUDA runtime options
@@ -609,6 +623,7 @@ int MainProgram(int argc, char **argv)
 	net::System::RegisterOptions();
 	ARM::Disassembler::RegisterOptions();
 	ARM::Emulator::RegisterOptions();
+	linux_ptrace::Emulator::RegisterOptions();
 
 	// Process command line. Return to C version of Multi2Sim if a
 	// command-line option was not recognized.
@@ -639,6 +654,7 @@ int MainProgram(int argc, char **argv)
 	net::System::ProcessOptions();
 	ARM::Disassembler::ProcessOptions();
 	ARM::Emulator::ProcessOptions();
+	linux_ptrace::Emulator::ProcessOptions();
 
 	// Initialize memory system, only if there is at least one timing
 	// simulation active. Check this in the architecture pool after all
