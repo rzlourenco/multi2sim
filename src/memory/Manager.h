@@ -78,7 +78,7 @@ protected:
 		std::map<unsigned, std::unique_ptr<Chunk>>::iterator it_chunks;
 
 		// Iterator to the chunk in holes multimap
-		std::map<unsigned, Chunk*>::iterator it_holes;
+		std::multimap<unsigned, Chunk*>::iterator it_holes;
 
 	public:
 
