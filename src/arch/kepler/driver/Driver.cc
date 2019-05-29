@@ -78,7 +78,7 @@ Driver::Driver() : comm::Driver("Kepler",
 
 
 int Driver::Call(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		int code,
 		unsigned args_ptr)
 {

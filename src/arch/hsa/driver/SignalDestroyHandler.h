@@ -39,7 +39,7 @@ class SignalDestroyHandler: public DriverCallHandler
 public:
 	SignalDestroyHandler(SignalManager *signal_manager);
 	virtual ~SignalDestroyHandler();
-	void Process(mem::Memory *memory, uint32_t args_ptr);
+	void Process(mem::BaseMemory *memory, uint32_t args_ptr);
 };
 
 }  // namespace HSA

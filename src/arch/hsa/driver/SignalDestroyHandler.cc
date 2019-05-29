@@ -41,7 +41,7 @@ SignalDestroyHandler::~SignalDestroyHandler()
 }
 
 
-void SignalDestroyHandler::Process(mem::Memory *memory, uint32_t args_ptr)
+void SignalDestroyHandler::Process(mem::BaseMemory *memory, uint32_t args_ptr)
 {
 	// Retrieve data
 	auto data = misc::new_unique<Data>();

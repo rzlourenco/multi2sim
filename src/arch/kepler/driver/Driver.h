@@ -78,11 +78,11 @@ class Driver : public comm::Driver
 	//
 	// expands to
 	//
-	//	void CallInit(mem::Memory *memory, unsigned args_ptr);
+	//	void CallInit(mem::BaseMemory *memory, unsigned args_ptr);
 	//
 #define DEFCALL(name, code) \
 	int Call##name(comm::Context *context, \
-			mem::Memory *memory, \
+			mem::BaseMemory *memory, \
 			unsigned args_ptr);
 #include "Driver.inc.h"
 #undef DEFCALL
@@ -92,7 +92,7 @@ class Driver : public comm::Driver
 
 	// Prototype of a member function executing an ABI call
 	typedef int (Driver::*CallFn)(comm::Context *context,
-			mem::Memory *memory,
+			mem::BaseMemory *memory,
 			unsigned args_ptr);
 
 	// Table of ABI call execution functions
@@ -122,7 +122,7 @@ public:
 	/// Invoke an ABI call. See documentation for comm::Driver::Call for
 	/// details on the meaning of the arguments.
 	int Call(comm::Context *context,
-			mem::Memory *memory,
+			mem::BaseMemory *memory,
 			int code,
 			unsigned args_ptr);
 

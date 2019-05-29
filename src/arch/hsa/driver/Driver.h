@@ -80,11 +80,11 @@ class Driver: public comm::Driver
 	//
 	// expands to
 	//
-	//	void CallInit(mem::Memory *memory, unsigned args_ptr);
+	//	void CallInit(mem::BaseMemory *memory, unsigned args_ptr);
 	//
 #define DEFCALL(name, code, func) \
 	int Call##name(comm::Context *context, \
-			mem::Memory *memory, \
+			mem::BaseMemory *memory, \
 			unsigned args_ptr);
 #include "Driver.inc.h"
 #undef DEFCALL
@@ -94,7 +94,7 @@ class Driver: public comm::Driver
 
 	// Prototype of a member function executing an ABI call
 	typedef int (Driver::*CallFn)(comm::Context *context,
-			mem::Memory *memory,
+			mem::BaseMemory *memory,
 			unsigned args_ptr);
 
 	// Table of ABI call execution functions
@@ -102,7 +102,7 @@ class Driver: public comm::Driver
 
 	// Retrieve the value at a certain memory space
 	template <typename T>
-	static T getArgumentValue(int offset, mem::Memory *memory,
+	static T getArgumentValue(int offset, mem::BaseMemory *memory,
 			unsigned args_ptr)
 	{
 		// Read from memory
@@ -113,7 +113,7 @@ class Driver: public comm::Driver
 
 	// Set the the value at a certain memory space
 	template<typename T>
-	static void setArgumentValue(T value, int offset, mem::Memory *memory,
+	static void setArgumentValue(T value, int offset, mem::BaseMemory *memory,
 			unsigned args_ptr)
 	{
 		memory->Write(args_ptr+offset, sizeof(T), (char *)&value);
@@ -139,7 +139,7 @@ public:
 	/// Invoke an ABI call. See documentation for comm::Driver::Call for
 	/// details on the meaning of the arguments.
 	int Call(comm::Context *context,
-			mem::Memory *memory,
+			mem::BaseMemory *memory,
 			int code,
 			unsigned args_ptr);
 

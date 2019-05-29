@@ -38,7 +38,7 @@ namespace HSA
 {
 
 int Driver::CallInit(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	debug << misc::fmt("Executing driver function %s.\n", __FUNCTION__);
@@ -50,7 +50,7 @@ int Driver::CallInit(comm::Context *context,
 
 
 int Driver::CallShutDown(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	debug << misc::fmt("Executing driver function %s.\n", __FUNCTION__);
@@ -61,7 +61,7 @@ int Driver::CallShutDown(comm::Context *context,
 
 
 int Driver::CallSystemGetInfo(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	struct __attribute__ ((packed))
@@ -115,7 +115,7 @@ int Driver::CallSystemGetInfo(comm::Context *context,
 
 
 int Driver::CallIterateAgents(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -124,7 +124,7 @@ int Driver::CallIterateAgents(comm::Context *context,
 
 
 int Driver::CallAgentGetInfo(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	struct __attribute__ ((packed))
@@ -299,7 +299,7 @@ int Driver::CallAgentGetInfo(comm::Context *context,
 
 
 int Driver::CallQueueCreate(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	struct __attribute__ ((packed))
@@ -352,7 +352,7 @@ int Driver::CallQueueCreate(comm::Context *context,
 
 
 int Driver::CallQueueDestroy(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -361,7 +361,7 @@ int Driver::CallQueueDestroy(comm::Context *context,
 
 
 int Driver::CallQueueInactivate(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -370,7 +370,7 @@ int Driver::CallQueueInactivate(comm::Context *context,
 
 
 int Driver::CallQueueLoadReadIndexAcquire(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	return CallQueueLoadReadIndexRelaxed(context, memory, args_ptr);
@@ -378,7 +378,7 @@ int Driver::CallQueueLoadReadIndexAcquire(comm::Context *context,
 
 
 int Driver::CallQueueLoadReadIndexRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	struct __attribute__((packed))
@@ -401,7 +401,7 @@ int Driver::CallQueueLoadReadIndexRelaxed(comm::Context *context,
 
 
 int Driver::CallQueueLoadWriteIndexAcquire(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	return CallQueueLoadWriteIndexRelaxed(context, memory, args_ptr);
@@ -409,7 +409,7 @@ int Driver::CallQueueLoadWriteIndexAcquire(comm::Context *context,
 
 
 int Driver::CallQueueLoadWriteIndexRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	struct __attribute__((packed))
@@ -432,7 +432,7 @@ int Driver::CallQueueLoadWriteIndexRelaxed(comm::Context *context,
 
 
 int Driver::CallQueueStoreWriteIndexRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments		| Offset	| Size
@@ -457,7 +457,7 @@ int Driver::CallQueueStoreWriteIndexRelaxed(comm::Context *context,
 
 
 int Driver::CallQueueStoreWriteIndexReleased(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -466,7 +466,7 @@ int Driver::CallQueueStoreWriteIndexReleased(comm::Context *context,
 
 
 int Driver::CallQueueCasWriteIndexAcqRel(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -475,7 +475,7 @@ int Driver::CallQueueCasWriteIndexAcqRel(comm::Context *context,
 
 
 int Driver::CallQueueCasWriteIndexAcquire(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -484,7 +484,7 @@ int Driver::CallQueueCasWriteIndexAcquire(comm::Context *context,
 
 
 int Driver::CallQueueCasWriteIndexRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -493,7 +493,7 @@ int Driver::CallQueueCasWriteIndexRelaxed(comm::Context *context,
 
 
 int Driver::CallQueueCasWriteIndexReleased(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -502,7 +502,7 @@ int Driver::CallQueueCasWriteIndexReleased(comm::Context *context,
 
 
 int Driver::CallQueueAddWriteIndexAcqRel(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments		| Offset	| Size
@@ -536,7 +536,7 @@ int Driver::CallQueueAddWriteIndexAcqRel(comm::Context *context,
 
 
 int Driver::CallQueueAddWriteIndexAcquire(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments		| Offset	| Size
@@ -570,7 +570,7 @@ int Driver::CallQueueAddWriteIndexAcquire(comm::Context *context,
 
 
 int Driver::CallQueueAddWriteIndexRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments		| Offset	| Size
@@ -605,7 +605,7 @@ int Driver::CallQueueAddWriteIndexRelaxed(comm::Context *context,
 
 
 int Driver::CallQueueAddWriteIndexRelease(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments		| Offset	| Size
@@ -639,7 +639,7 @@ int Driver::CallQueueAddWriteIndexRelease(comm::Context *context,
 
 
 int Driver::CallQueueStoreReadIndexRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -648,7 +648,7 @@ int Driver::CallQueueStoreReadIndexRelaxed(comm::Context *context,
 
 
 int Driver::CallQueueStoreReadIndexRelease(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -657,7 +657,7 @@ int Driver::CallQueueStoreReadIndexRelease(comm::Context *context,
 
 
 int Driver::CallAgentIterateRegions(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -666,7 +666,7 @@ int Driver::CallAgentIterateRegions(comm::Context *context,
 
 
 int Driver::CallRegionGetInfo(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments		| Offset	| Size
@@ -718,7 +718,7 @@ int Driver::CallRegionGetInfo(comm::Context *context,
 
 
 int Driver::CallMemoryRegister(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -727,7 +727,7 @@ int Driver::CallMemoryRegister(comm::Context *context,
 
 
 int Driver::CallMemoryDeregister(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -736,7 +736,7 @@ int Driver::CallMemoryDeregister(comm::Context *context,
 
 
 int Driver::CallMemoryAllocate(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments		| Offset	| Size
@@ -768,7 +768,7 @@ int Driver::CallMemoryAllocate(comm::Context *context,
 
 
 int Driver::CallMemoryFree(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -777,7 +777,7 @@ int Driver::CallMemoryFree(comm::Context *context,
 
 
 int Driver::CallSignalCreate(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	struct __attribute__ ((packed))
@@ -806,7 +806,7 @@ int Driver::CallSignalCreate(comm::Context *context,
 
 
 int Driver::CallSignalDestroy(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -815,7 +815,7 @@ int Driver::CallSignalDestroy(comm::Context *context,
 
 
 int Driver::CallSignalLoadRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	struct __attribute__ ((packed))
@@ -837,7 +837,7 @@ int Driver::CallSignalLoadRelaxed(comm::Context *context,
 
 
 int Driver::CallSignalLoadAcquire(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -846,7 +846,7 @@ int Driver::CallSignalLoadAcquire(comm::Context *context,
 
 
 int Driver::CallSignalStoreRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	struct __attribute__ ((packed))
@@ -867,7 +867,7 @@ int Driver::CallSignalStoreRelaxed(comm::Context *context,
 
 
 int Driver::CallSignalStoreRelease(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -876,7 +876,7 @@ int Driver::CallSignalStoreRelease(comm::Context *context,
 
 
 int Driver::CallSignalWaitRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -885,7 +885,7 @@ int Driver::CallSignalWaitRelaxed(comm::Context *context,
 
 
 int Driver::CallSignalWaitAcquire(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -894,7 +894,7 @@ int Driver::CallSignalWaitAcquire(comm::Context *context,
 
 
 int Driver::CallSignalAndRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -903,7 +903,7 @@ int Driver::CallSignalAndRelaxed(comm::Context *context,
 
 
 int Driver::CallSignalAndAcquire(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -912,7 +912,7 @@ int Driver::CallSignalAndAcquire(comm::Context *context,
 
 
 int Driver::CallSignalAndRelease(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -921,7 +921,7 @@ int Driver::CallSignalAndRelease(comm::Context *context,
 
 
 int Driver::CallSignalAndAcqRel(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -930,7 +930,7 @@ int Driver::CallSignalAndAcqRel(comm::Context *context,
 
 
 int Driver::CallSignalOrRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -939,7 +939,7 @@ int Driver::CallSignalOrRelaxed(comm::Context *context,
 
 
 int Driver::CallSignalOrAcquire(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -948,7 +948,7 @@ int Driver::CallSignalOrAcquire(comm::Context *context,
 
 
 int Driver::CallSignalOrRelease(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -957,7 +957,7 @@ int Driver::CallSignalOrRelease(comm::Context *context,
 
 
 int Driver::CallSignalOrAcqRel(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -966,7 +966,7 @@ int Driver::CallSignalOrAcqRel(comm::Context *context,
 
 
 int Driver::CallSignalXorRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -975,7 +975,7 @@ int Driver::CallSignalXorRelaxed(comm::Context *context,
 
 
 int Driver::CallSignalXorAcquire(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -984,7 +984,7 @@ int Driver::CallSignalXorAcquire(comm::Context *context,
 
 
 int Driver::CallSignalXorRelease(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -993,7 +993,7 @@ int Driver::CallSignalXorRelease(comm::Context *context,
 
 
 int Driver::CallSignalXorAcqRel(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1002,7 +1002,7 @@ int Driver::CallSignalXorAcqRel(comm::Context *context,
 
 
 int Driver::CallSignalAddRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1011,7 +1011,7 @@ int Driver::CallSignalAddRelaxed(comm::Context *context,
 
 
 int Driver::CallSignalAddAcquire(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1020,7 +1020,7 @@ int Driver::CallSignalAddAcquire(comm::Context *context,
 
 
 int Driver::CallSignalAddRelease(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1029,7 +1029,7 @@ int Driver::CallSignalAddRelease(comm::Context *context,
 
 
 int Driver::CallSignalAddAcqRel(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1038,7 +1038,7 @@ int Driver::CallSignalAddAcqRel(comm::Context *context,
 
 
 int Driver::CallSignalSubtractRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1047,7 +1047,7 @@ int Driver::CallSignalSubtractRelaxed(comm::Context *context,
 
 
 int Driver::CallSignalSubtractAcquire(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1056,7 +1056,7 @@ int Driver::CallSignalSubtractAcquire(comm::Context *context,
 
 
 int Driver::CallSignalSubtractRelease(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1065,7 +1065,7 @@ int Driver::CallSignalSubtractRelease(comm::Context *context,
 
 
 int Driver::CallSignalSubtractAcqRel(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1074,7 +1074,7 @@ int Driver::CallSignalSubtractAcqRel(comm::Context *context,
 
 
 int Driver::CallSignalExchangeRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1083,7 +1083,7 @@ int Driver::CallSignalExchangeRelaxed(comm::Context *context,
 
 
 int Driver::CallSignalExchangeAcquire(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1092,7 +1092,7 @@ int Driver::CallSignalExchangeAcquire(comm::Context *context,
 
 
 int Driver::CallSignalExchangeRelease(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1101,7 +1101,7 @@ int Driver::CallSignalExchangeRelease(comm::Context *context,
 
 
 int Driver::CallSignalExchangeAcqRel(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1110,7 +1110,7 @@ int Driver::CallSignalExchangeAcqRel(comm::Context *context,
 
 
 int Driver::CallSignalCasRelaxed(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1119,7 +1119,7 @@ int Driver::CallSignalCasRelaxed(comm::Context *context,
 
 
 int Driver::CallSignalCasAcquire(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1128,7 +1128,7 @@ int Driver::CallSignalCasAcquire(comm::Context *context,
 
 
 int Driver::CallSignalCasRelease(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1137,7 +1137,7 @@ int Driver::CallSignalCasRelease(comm::Context *context,
 
 
 int Driver::CallSignalCasAcqRel(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1146,7 +1146,7 @@ int Driver::CallSignalCasAcqRel(comm::Context *context,
 
 
 int Driver::CallStatusString(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	__UNIMPLEMENTED__
@@ -1155,7 +1155,7 @@ int Driver::CallStatusString(comm::Context *context,
 
 
 int Driver::CallProgramCreate(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments		| Offset	| Size
@@ -1197,7 +1197,7 @@ int Driver::CallProgramCreate(comm::Context *context,
 
 
 int Driver::CallProgramAddModule(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments		| Offset	| Size
@@ -1232,7 +1232,7 @@ int Driver::CallProgramAddModule(comm::Context *context,
 }
 
 int Driver::CallProgramFinalize(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments		| Offset	| Size
@@ -1271,7 +1271,7 @@ int Driver::CallProgramFinalize(comm::Context *context,
 
 
 int Driver::CallProgramDestroy(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	return 0;
@@ -1279,7 +1279,7 @@ int Driver::CallProgramDestroy(comm::Context *context,
 
 
 int Driver::CallExecutableCreate(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	struct __attribute__ ((packed))
@@ -1309,7 +1309,7 @@ int Driver::CallExecutableCreate(comm::Context *context,
 
 
 int Driver::CallExecutableLoadCodeObject(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	struct __attribute__ ((packed))
@@ -1337,7 +1337,7 @@ int Driver::CallExecutableLoadCodeObject(comm::Context *context,
 
 
 int Driver::CallExecutableGetSymbol(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	struct __attribute__ ((packed))
@@ -1369,7 +1369,7 @@ int Driver::CallExecutableGetSymbol(comm::Context *context,
 
 
 int Driver::CallExecutableSymbolGetInfo(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	struct __attribute__ ((packed))
@@ -1433,7 +1433,7 @@ int Driver::CallExecutableSymbolGetInfo(comm::Context *context,
 
 
 int Driver::CallInitFromX86(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// This function is designed only to be called from the host.
@@ -1448,7 +1448,7 @@ int Driver::CallInitFromX86(comm::Context *context,
 
 
 int Driver::CallNextAgent(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	struct __attribute__ ((packed))
@@ -1484,7 +1484,7 @@ int Driver::CallNextAgent(comm::Context *context,
 
 
 int Driver::CallNextRegion(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// This function is designed only to be called from the host.

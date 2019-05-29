@@ -31,9 +31,9 @@
 namespace mem
 {
 
-const unsigned Memory::LogPageSize;
-const unsigned Memory::PageSize;
-const unsigned Memory::PageMask;
+const unsigned BaseMemory::LogPageSize;
+const unsigned BaseMemory::PageSize;
+const unsigned BaseMemory::PageMask;
 
 bool Memory::safe_mode = true;
 

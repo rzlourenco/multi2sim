@@ -38,7 +38,7 @@ namespace SI
 //
 // ...
 int Driver::CallInit(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	return 0;
@@ -55,7 +55,7 @@ int Driver::CallInit(comm::Context *context,
 ///	should not be dereferenced in the runtime, but instead passed to other
 ///	ABI calls taking device pointers as input arguments.
 int Driver::CallMemAlloc(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments
@@ -71,7 +71,7 @@ int Driver::CallMemAlloc(comm::Context *context,
 	SI::Emulator *si_emu = SI::Emulator::getInstance();	
 	SI::Driver *si_drv = SI::Driver::getInstance();	
 
-	mem::Memory *video_mem = si_emu->getVideoMemory();
+	mem::BaseMemory *video_mem = si_emu->getVideoMemory();
 
 	// XXX(rzl): quick hack to separate allocations so we segfault instead
 	// of silently corrupting memory.
@@ -102,11 +102,11 @@ int Driver::CallMemAlloc(comm::Context *context,
 //
 // ...
 int Driver::CallMemRead(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	SI::Emulator *emulator = SI::Emulator::getInstance();
-	mem::Memory *video_memory = emulator->getVideoMemory();
+	mem::BaseMemory *video_memory = emulator->getVideoMemory();
 
 	// Arguments 
 	unsigned host_ptr;
@@ -154,11 +154,11 @@ int Driver::CallMemRead(comm::Context *context,
 /// \return
 ///	The function does not have any return value.
 int Driver::CallMemWrite(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	SI::Emulator *emulator = SI::Emulator::getInstance();
-	mem::Memory *video_memory = emulator->getVideoMemory();
+	mem::BaseMemory *video_memory = emulator->getVideoMemory();
 
 	// Arguments 
 	unsigned device_ptr;
@@ -186,11 +186,11 @@ int Driver::CallMemWrite(comm::Context *context,
 //
 // ...
 int Driver::CallMemCopy(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	SI::Emulator *emulator = SI::Emulator::getInstance();
-	mem::Memory *video_memory = emulator->getVideoMemory();
+	mem::BaseMemory *video_memory = emulator->getVideoMemory();
 	
 	// Arguments
 	unsigned int dest_ptr;                                                   
@@ -224,7 +224,7 @@ int Driver::CallMemCopy(comm::Context *context,
 
 // ABI Call 'MemF// ...
 int Driver::CallMemFree(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	//unsigned int device_ptr;                                                 
@@ -249,7 +249,7 @@ int Driver::CallMemFree(comm::Context *context,
 /// \return
 ///	Return unique program id
 int Driver::CallProgramCreate(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Create program
@@ -279,7 +279,7 @@ int Driver::CallProgramCreate(comm::Context *context,
 /// \return
 ///	No return value.
 int Driver::CallProgramSetBinary(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments 
@@ -323,7 +323,7 @@ int Driver::CallProgramSetBinary(comm::Context *context,
 /// \return int
 ///	Unique kernel ID.
 int Driver::CallKernelCreate(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments
@@ -382,7 +382,7 @@ int Driver::CallKernelCreate(comm::Context *context,
 ///	No return value.
 
 int Driver::CallKernelSetArgValue(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments
@@ -458,7 +458,7 @@ int Driver::CallKernelSetArgValue(comm::Context *context,
 /// \return
 ///	No return value.
 int Driver::CallKernelSetArgPointer(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Arguments
@@ -503,7 +503,7 @@ int Driver::CallKernelSetArgPointer(comm::Context *context,
 //
 // ...
 int Driver::CallKernelSetArgSampler(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	throw misc::Panic("ABI call not implemented");
@@ -515,7 +515,7 @@ int Driver::CallKernelSetArgSampler(comm::Context *context,
 //
 // ...
 int Driver::CallKernelSetArgImage(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	throw misc::Panic("ABI call not implemented");
@@ -549,7 +549,7 @@ int Driver::CallKernelSetArgImage(comm::Context *context,
 ///	ID of new nd-range
 
 int Driver::CallNDRangeCreate(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Get emulator and timing instance
@@ -616,7 +616,7 @@ int Driver::CallNDRangeCreate(comm::Context *context,
 //
 // ...
 int Driver::CallNDRangeGetNumBufferEntries(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	unsigned host_ptr;                                                   
@@ -655,7 +655,7 @@ int Driver::CallNDRangeGetNumBufferEntries(comm::Context *context,
 //
 // ...
 int Driver::CallNDRangeSendWorkGroups(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Get emulator instance
@@ -702,7 +702,7 @@ int Driver::CallNDRangeSendWorkGroups(comm::Context *context,
 //
 // ...
 int Driver::CallNDRangeFinish(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Get emulator instance
@@ -754,7 +754,7 @@ int Driver::CallNDRangeFinish(comm::Context *context,
 //
 // ...
 int Driver::CallNDRangePassMemObjs(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Get emulator instance
@@ -804,7 +804,7 @@ int Driver::CallNDRangePassMemObjs(comm::Context *context,
 //
 // ...
 int Driver::CallNDRangeSetFused(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Read arguments
@@ -832,7 +832,7 @@ int Driver::CallNDRangeSetFused(comm::Context *context,
 //
 // ...
 int Driver::CallNDRangeFlush(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Get emulator instance
@@ -869,7 +869,7 @@ int Driver::CallNDRangeFlush(comm::Context *context,
 //
 // ...
 int Driver::CallNDRangeFree(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Get emulator instance
@@ -898,7 +898,7 @@ int Driver::CallNDRangeFree(comm::Context *context,
 //
 // ...
 int Driver::CallNDRangeStart(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Get emulator instance
@@ -916,7 +916,7 @@ int Driver::CallNDRangeStart(comm::Context *context,
 //
 // ...
 int Driver::CallNDRangeEnd(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	// Get emulator instance
@@ -934,7 +934,7 @@ int Driver::CallNDRangeEnd(comm::Context *context,
 //
 // ...
 int Driver::CallRuntimeDebug(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		unsigned args_ptr)
 {
 	throw misc::Panic("ABI call not implemented");

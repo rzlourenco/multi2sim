@@ -24,7 +24,7 @@
 
 namespace mem
 {
-class Memory;
+class BaseMemory;
 }
 
 namespace HSA
@@ -35,7 +35,7 @@ class DriverCallHandler
 public:
 	DriverCallHandler() {};
 	virtual ~DriverCallHandler() {};
-	virtual void Process(mem::Memory *memory, uint32_t args_ptr) = 0;
+	virtual void Process(mem::BaseMemory *memory, uint32_t args_ptr) = 0;
 };
 
 }  // namespace HSA

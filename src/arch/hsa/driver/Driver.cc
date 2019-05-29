@@ -132,7 +132,7 @@ std::unique_ptr<DriverCallHandler> Driver::GetDriverCallHandler(int code)
 
 
 int Driver::Call(comm::Context *context,
-		mem::Memory *memory,
+		mem::BaseMemory *memory,
 		int code,
 		unsigned args_ptr)
 {

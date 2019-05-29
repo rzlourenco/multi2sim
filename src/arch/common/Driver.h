@@ -28,7 +28,7 @@
 
 
 // Forward declarations
-namespace mem { class Memory; }
+namespace mem { class BaseMemory; }
 
 
 namespace comm
@@ -88,7 +88,7 @@ public:
 	///	available to the application.
 	///
 	virtual int Call(comm::Context *context,
-			mem::Memory *memory,
+			mem::BaseMemory *memory,
 			int code,
 			unsigned args_ptr) = 0;
 	
