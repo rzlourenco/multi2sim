@@ -386,7 +386,7 @@ void WorkItem::ISA_BUFFER_ATOMIC_ADD_Impl(Instruction *instruction)
 		WriteVReg(INST.vdata, prev_value.as_uint);
 
 		if (Emulator::isa_debug)
-			Emulator::isa_debug << misc::fmt("V%u<=(%d) ", id,
+			Emulator::isa_debug << misc::fmt("V%u<=(%d) ",
 				INST.vdata, value.as_int);
 	}
 

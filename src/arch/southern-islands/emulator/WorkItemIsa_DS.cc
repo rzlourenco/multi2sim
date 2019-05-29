@@ -223,7 +223,7 @@ void WorkItem::ISA_DS_READ_B32_Impl(Instruction *instruction)
 
 	// Load address from register.
 	addr.as_uint = ReadVReg(INST.addr);
-	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 4;
+	addr.as_uint += (INST.offset1 << 8) | INST.offset0;
 
 	// Global data store not supported
 	assert(!INST.gds);
@@ -336,7 +336,7 @@ void WorkItem::ISA_DS_READ_I8_Impl(Instruction *instruction)
 
 	// Load address from register.
 	addr.as_uint = ReadVReg(INST.addr);
-	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 4;
+	addr.as_uint += (INST.offset1 << 8) | INST.offset0;
 
 	// Global data store not supported
 	assert(!INST.gds);
@@ -389,7 +389,7 @@ void WorkItem::ISA_DS_READ_U8_Impl(Instruction *instruction)
 
 	// Load address from register.
 	addr.as_uint = ReadVReg(INST.addr);
-	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 4;
+	addr.as_uint += (INST.offset1 << 8) | INST.offset0;
 
 	// Global data store not supported
 	assert(!INST.gds);
@@ -442,7 +442,7 @@ void WorkItem::ISA_DS_READ_I16_Impl(Instruction *instruction)
 
 	// Load address from register.
 	addr.as_uint = ReadVReg(INST.addr);
-	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 4;
+	addr.as_uint += (INST.offset1 << 8) | INST.offset0;
 
 	// Global data store not supported
 	assert(!INST.gds);
@@ -495,7 +495,7 @@ void WorkItem::ISA_DS_READ_U16_Impl(Instruction *instruction)
 
 	// Load address from register.
 	addr.as_uint = ReadVReg(INST.addr);
-	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 4;
+	addr.as_uint += (INST.offset1 << 8) | INST.offset0;
 
 	// Global data store not supported
 	assert(!INST.gds);
@@ -545,7 +545,7 @@ void WorkItem::ISA_DS_WRITE_B64_Impl(Instruction *instruction)
 
 	Instruction::Register addr;
 	addr = Read_VSRC(INST.addr);
-	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 8;
+	addr.as_uint += (INST.offset1 << 8) | INST.offset0;
 	
 	Instruction::Register64 data;
 	data = Read_VSRC_64(INST.data0);
@@ -559,7 +559,7 @@ void WorkItem::ISA_DS_WRITE_B64_Impl(Instruction *instruction)
 	lds_access[0].size = 8;
 
 	if (Emulator::isa_debug) {
-		Emulator::isa_debug << misc::fmt("t%d: LDS[%u:+7]<=(0x%x 0x%x) ",
+		Emulator::isa_debug << misc::fmt("t%d: LDS[%x:+7]<=(0x%x 0x%x) ",
 			id, addr.as_uint, data.as_uint[0], data.as_uint[1]);
 	}
 }
@@ -608,7 +608,7 @@ void WorkItem::ISA_DS_READ_B64_Impl(Instruction *instruction)
 	assert(!INST.gds);
 	Instruction::Register addr;
 	addr = Read_VSRC(INST.addr);
-	addr.as_uint += ((INST.offset1 << 8) | INST.offset0) * 8;
+	addr.as_uint += (INST.offset1 << 8) | INST.offset0;
 
 	Instruction::Register64 data_in;
 	// TODO(rzl): read 0 if outside the LDS
