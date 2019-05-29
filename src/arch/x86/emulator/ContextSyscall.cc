@@ -1909,8 +1909,11 @@ int Context::ExecuteSyscall_ioctl()
 		comm::Driver *driver = desc->getDriver();
 		assert(driver);
 
+		x86::Emulator::getInstance()->StopTimer();
 		// Invoke the driver call
-		return driver->Call(this, memory.get(), cmd, arg);
+		int ret = driver->Call(this, memory.get(), cmd, arg);
+		x86::Emulator::getInstance()->StartTimer();
+		return ret;
 	}
 	
 	// Request on command

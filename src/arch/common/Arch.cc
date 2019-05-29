@@ -114,7 +114,9 @@ void ArchPool::Run(int &num_active_emulators, int &num_active_timing_simulators)
 				continue;
 
 			// Run
+			emulator->StartTimer();
 			bool active = emulator->Run();
+			emulator->StopTimer();
 			arch->setActive(active);
                            
 			// Increase number of active emulatorlations if the architecture
