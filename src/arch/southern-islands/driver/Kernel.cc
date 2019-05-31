@@ -916,10 +916,10 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 	// specified in the kernel binary. Number of vector and scalar
 	// registers used by the kernel recorded as well.
 	// XXX(rzl): this is already set-up in NDRange::InitializeFromKernel
-	const BinaryDictEntry *enc_dict = getKernelBinaryFile()->GetSIDictEntry();
-	ndrange->setLocalMemTop(enc_dict->compute_pgm_rsrc2->lds_size);
-	ndrange->setNumSgprUsed(enc_dict->num_sgpr);
-	ndrange->setNumVgprUsed(enc_dict->num_vgpr);
+	//const BinaryDictEntry *enc_dict = getKernelBinaryFile()->GetSIDictEntry();
+	//ndrange->setLocalMemTop(enc_dict->compute_pgm_rsrc2->lds_size);
+	//ndrange->setNumSgprUsed(enc_dict->num_sgpr);
+	//ndrange->setNumVgprUsed(enc_dict->num_vgpr);
 
 	// Kernel arguments
 	int index = 0;
