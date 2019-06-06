@@ -763,9 +763,7 @@ void WorkItem::ISA_V_ADD_I32_Impl(Instruction *instruction)
 	s1.as_uint = ReadVReg(INST.vsrc1);
 
 	// Calculate the sum and carry.
-	sum.as_int = s0.as_int + s1.as_int;
-	carry.as_uint = 
-		! !(((long long) s0.as_int + (long long) s1.as_int) >> 32);
+	carry.as_uint = __builtin_sadd_overflow(s0.as_int, s1.as_int, &sum.as_int);
 
 	// Write the results.
 	WriteVReg(INST.vdst, sum.as_uint);
@@ -796,8 +794,7 @@ void WorkItem::ISA_V_SUB_I32_Impl(Instruction *instruction)
 	s1.as_uint = ReadVReg(INST.vsrc1);
 
 	// Calculate the difference and carry.
-	dif.as_uint = s0.as_int - s1.as_int;
-	carry.as_uint = (s1.as_int > s0.as_int);
+	carry.as_uint = __builtin_ssub_overflow(s0.as_int, s1.as_int, &dif.as_int);
 
 	// Write the results.
 	WriteVReg(INST.vdst, dif.as_uint);

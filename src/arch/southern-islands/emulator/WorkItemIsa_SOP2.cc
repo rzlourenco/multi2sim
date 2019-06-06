@@ -25,9 +25,7 @@ void WorkItem::ISA_S_ADD_U32_Impl(Instruction *instruction)
 		s1.as_uint = ReadSReg(INST.ssrc1);
 
 	// Calculate the sum and carry out.
-	sum.as_uint = s0.as_uint + s1.as_uint;
-	carry.as_uint = ((unsigned long long) s0.as_uint + 
-		(unsigned long long) s1.as_uint) >> 32;
+	carry.as_uint = __builtin_uadd_overflow(s0.as_uint, s1.as_uint, &sum.as_uint);
 
 	// Write the results.
 	// Store the data in the destination register
@@ -63,9 +61,7 @@ void WorkItem::ISA_S_SUB_U32_Impl(Instruction *instruction)
 		s1.as_uint = ReadSReg(INST.ssrc1);
 
 	// Calculate the sum and carry out.
-	sum.as_uint = s0.as_uint - s1.as_uint;
-	carry.as_uint = ((unsigned long long) s0.as_uint - 
-		(unsigned long long) s1.as_uint) >> 32;
+	carry.as_uint = __builtin_usub_overflow(s0.as_uint, s1.as_uint, &sum.as_uint);
 
 	// Write the results.
 	// Store the data in the destination register
@@ -101,10 +97,7 @@ void WorkItem::ISA_S_ADD_I32_Impl(Instruction *instruction)
 		s1.as_uint = ReadSReg(INST.ssrc1);
 
 	// Calculate the sum and overflow.
-	sum.as_int = s0.as_int + s1.as_int;
-	ovf.as_uint = (s0.as_int >> 31 != s1.as_int >> 31) ? 0 : 
-		((s0.as_int > 0 && sum.as_int < 0) || 
-		(s0.as_int < 0 && sum.as_int > 0));
+	ovf.as_uint = __builtin_sadd_overflow(s0.as_int, s1.as_int, &sum.as_int);
 
 	// Write the results.
 	// Store the data in the destination register
@@ -140,10 +133,7 @@ void WorkItem::ISA_S_SUB_I32_Impl(Instruction *instruction)
 		s1.as_uint = ReadSReg(INST.ssrc1);
 
 	// Calculate the sum and overflow.
-	diff.as_int = s0.as_int - s1.as_int;
-	ovf.as_uint = (s0.as_int >> 31 != s1.as_int >> 31) ? 
-		((s0.as_int > 0 && diff.as_int < 0) ||
-		(s0.as_int < 0 && diff.as_int > 0)) : 0;
+	ovf.as_uint = __builtin_ssub_overflow(s0.as_int, s1.as_int, &diff.as_int);
 
 	// Write the results.
 		// Store the data in the destination register
@@ -181,10 +171,8 @@ void WorkItem::ISA_S_ADDC_U32_Impl(Instruction *instruction)
 	scc.as_uint = ReadSReg(Instruction::RegisterScc);
 
 	// Calculate the sum and carry out.
-	sum.as_uint = s0.as_uint + s1.as_uint + scc.as_uint;
-	carry.as_uint = ((unsigned long long) s0.as_uint + 
-		(unsigned long long) s1.as_uint +
-		(unsigned long long) scc.as_uint) >> 32;
+	carry.as_uint = __builtin_uadd_overflow(s0.as_uint, s1.as_uint, &sum.as_uint);
+	carry.as_uint += __builtin_uadd_overflow(sum.as_uint, scc.as_uint, &sum.as_uint);
 
 	// Write the results.
 	// Store the data in the destination register
@@ -222,10 +210,8 @@ void WorkItem::ISA_S_SUBB_U32_Impl(Instruction *instruction)
 	scc.as_uint = ReadSReg(Instruction::RegisterScc);
 
 	// Calculate the sum and carry out.
-	sum.as_uint = s0.as_uint - s1.as_uint - scc.as_uint;
-	carry.as_uint = ((unsigned long long) s0.as_uint - 
-		(unsigned long long) s1.as_uint -
-		(unsigned long long) scc.as_uint) >> 32;
+	carry.as_uint = __builtin_usub_overflow(s0.as_uint, s1.as_uint, &sum.as_uint);
+	carry.as_uint += __builtin_usub_overflow(sum.as_uint, scc.as_uint, &sum.as_uint);
 
 	// Write the results.
 	// Store the data in the destination register
