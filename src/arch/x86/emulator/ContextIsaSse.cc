@@ -1219,6 +1219,53 @@ void Context::ExecuteInst_ucomisd_xmm_xmmm64()
 			0);
 }
 
+void Context::ExecuteInst_comisd_xmm_xmmm64()
+{
+	XmmValue dest;
+	XmmValue src;
+
+	unsigned long eflags = regs.getEflags();
+
+	int spec_mode;
+
+	LoadXmm(dest);
+	LoadXmmM64(src);
+
+	/* Prevent execution of the floating-point computation in speculative
+	 * mode, since it may cause host exceptions for garbage input operands. */
+	spec_mode = this->getState(StateSpecMode);
+	if (!spec_mode)
+	{
+		__X86_ISA_ASM_START__
+		asm volatile (
+			"push %3\n\t"
+			"popf\n\t"
+			"movdqu %2, %%xmm0\n\t"
+			"movdqu %0, %%xmm1\n\t"
+			"comisd %%xmm0, %%xmm1\n\t"
+			"movdqu %%xmm1, %0\n\t"
+			"pushf\n\t"
+			"pop %1\n\t"
+			: "=m" (dest), "=g" (eflags)
+			: "m" (src), "g" (eflags)
+			: "xmm0", "xmm1"
+		);
+		__X86_ISA_ASM_END__
+	}
+
+	StoreXmm(dest);
+	regs.setEflags(eflags);
+
+	newUinst(Uinst::OpcodeXmmFpComp,
+			Uinst::DepXmmm64,
+			Uinst::DepXmm,
+			0,
+			Uinst::DepZps,
+			Uinst::DepCf,
+			Uinst::DepOf,
+			0);
+}
+
 
 void Context::ExecuteInst_ucomiss_xmm_xmmm32()
 {
@@ -1244,6 +1291,53 @@ void Context::ExecuteInst_ucomiss_xmm_xmmm32()
 			"movdqu %2, %%xmm0\n\t"
 			"movdqu %0, %%xmm1\n\t"
 			"ucomiss %%xmm0, %%xmm1\n\t"
+			"movdqu %%xmm1, %0\n\t"
+			"pushf\n\t"
+			"pop %1\n\t"
+			: "=m" (dest), "=g" (eflags)
+			: "m" (src), "g" (eflags)
+			: "xmm0", "xmm1"
+		);
+		__X86_ISA_ASM_END__
+	}
+
+	StoreXmm(dest);
+	regs.setEflags(eflags);
+
+	newUinst(Uinst::OpcodeXmmFpComp,
+			Uinst::DepXmmm32,
+			Uinst::DepXmm,
+			0,
+			Uinst::DepZps,
+			Uinst::DepCf,
+			Uinst::DepOf,
+			0);
+}
+
+void Context::ExecuteInst_comiss_xmm_xmmm32()
+{
+	XmmValue dest;
+	XmmValue src;
+
+	unsigned long eflags = regs.getEflags();
+
+	int spec_mode;
+
+	LoadXmm(dest);
+	LoadXmmM32(src);
+
+	/* Prevent execution of the floating-point computation in speculative
+	 * mode, since it may cause host exceptions for garbage input operands. */
+	spec_mode = this->getState(StateSpecMode);
+	if (!spec_mode)
+	{
+		__X86_ISA_ASM_START__
+		asm volatile (
+			"push %3\n\t"
+			"popf\n\t"
+			"movdqu %2, %%xmm0\n\t"
+			"movdqu %0, %%xmm1\n\t"
+			"comiss %%xmm0, %%xmm1\n\t"
 			"movdqu %%xmm1, %0\n\t"
 			"pushf\n\t"
 			"pop %1\n\t"

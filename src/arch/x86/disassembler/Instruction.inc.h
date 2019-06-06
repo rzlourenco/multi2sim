@@ -134,6 +134,9 @@ DEFINST(cmpxchg_rm32_r32, 0x0f, 0xb1, SKIP, REG, SKIP, 0)
 
 DEFINST(cmpxchg8b_m64, 0x0f, 0xc7, SKIP, MEM|1, SKIP, 0)
 
+DEFINST(comisd_xmm_xmmm64, 0x0f, 0x2f, SKIP, REG, SKIP, Instruction::PrefixOp)
+DEFINST(comiss_xmm_xmmm32, 0x0f, 0x2f, SKIP, REG, SKIP, 0)
+
 DEFINST(cpuid, 0x0f, 0xa2, SKIP, SKIP, SKIP, 0)
 
 DEFINST(cvtdq2pd_xmm_xmmm64, 0x0f, 0xe6, SKIP, REG, SKIP, Instruction::PrefixRep)
