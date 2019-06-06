@@ -49,11 +49,9 @@ namespace x86
 {
 
 #define __UNIMPLEMENTED__ \
-		throw misc::Panic(misc::fmt("%s: Unimplemented system call." \
-				"\n%s", \
-				__FUNCTION__ + 15, \
-				syscall_error_note)); \
-		return 0;
+		::std::cerr << misc::fmt("%s: unimplemented system call.", \
+				__FUNCTION__ + 15); \
+		return -SIM_ENOSYS;
 
 static const char *syscall_error_note =
 	"\tThe most common Linux system calls are currently supported by "
