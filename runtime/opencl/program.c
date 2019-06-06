@@ -124,32 +124,44 @@ struct opencl_program_entry_t *opencl_program_add(struct opencl_program_t *progr
 	return entry;
 }
 
+static char *
+strcat_that_is_not_dumb(char *dest, char const *src)
+{
+	while (*dest) ++dest;
+	while (*src) *dest++ = *src++;
+	*dest = '\0';
+	return dest;
+}
+
 
 void opencl_program_set_source(struct opencl_program_t *program,
 	unsigned int count, const char **strings, const size_t *lengths)
 {
 	char *source = NULL;
-	int source_size = 0;
-	int source_pos = 0;
-	int i;
-	
-	/* Reconstruct source in one single null-terminated string */
-	for (i = 0; i < count; i++)
-	{
-		int length;
-		/* Reconstruct null-terminated string */
-		length = lengths && lengths[i] ? lengths[i] : strlen(strings[i]);
+	unsigned int i;
 
-		if (source_size - source_pos < length)
-		{
-			if (!source)
-				source = (char *)xmalloc(length);
-			else
-				source = (char *)xrealloc(source, source_size + length);
-		}
-		memcpy(source + source_pos, strings[i], length);
-		source_pos += length;
+	size_t total_size = 0;
+	for (i = 0; i < count; ++i) {
+		if (lengths && lengths[i])
+			total_size += lengths[i];
+		else
+			total_size += strlen(strings[i]);
 	}
+	source = xmalloc(total_size + 1);
+
+	/* Reconstruct source in one single null-terminated string */
+	char *source_cursor = source;
+	for (i = 0; i < count; i++) {
+		if (lengths && lengths[i]) {
+			memcpy(source_cursor, strings[i], lengths[i]);			
+			source_cursor += lengths[i];
+			*source_cursor = '\0';
+		} else {
+			source_cursor = strcat_that_is_not_dumb(source_cursor, strings[i]);
+		}
+	}
+	assert(*source_cursor == '\0');
+	assert(source_cursor - source == total_size);
 
 	/* Set in program */
 	assert(!program->source);
