@@ -469,7 +469,24 @@ void WorkItem::ISA_V_CMP_LT_I64_Impl(Instruction *instruction)
 // D.u = (S0 <= S1)
 void WorkItem::ISA_V_CMP_LE_I64_Impl(Instruction *instruction)
 {
-	ISAUnimplemented(instruction);
+	Instruction::Register64 s0, s1;
+	Instruction::Register result;
+
+	if (INST.src0 == 0xFF) {
+		s0.as_long = (int64_t)(int32_t)INST.lit_cnst;
+	} else {
+		s0 = Read_SRC_64(INST.src0);
+	}
+	s1 = Read_VSRC_64(INST.vsrc1);
+
+	result.as_uint = s0.as_long <= s1.as_long;
+	WriteBitmaskSReg(Instruction::RegisterVcc, result.as_uint);
+
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: vcc<=(%u) ",
+			id_in_wavefront, result.as_uint);
+	}
 }
 
 // D.u = (S0 > S1)
@@ -678,7 +695,21 @@ void WorkItem::ISA_V_CMP_LT_U64_Impl(Instruction *instruction)
 // D.u = (S0 == S1)
 void WorkItem::ISA_V_CMP_EQ_U64_Impl(Instruction *instruction)
 {
-	ISAUnimplemented(instruction);
+	Instruction::Register64 s0, s1;
+	Instruction::Register result;
+
+	assert(INST.src0 != 0xFF);
+	s0 = Read_SRC_64(INST.src0);
+	s1 = Read_VSRC_64(INST.vsrc1);
+
+	result.as_uint = s0.as_ulong == s1.as_ulong;
+	WriteBitmaskSReg(Instruction::RegisterVcc, result.as_uint);
+
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: vcc<=(%u) ",
+			id_in_wavefront, result.as_uint);
+	}
 }
 
 // D.u = (S0 > S1)

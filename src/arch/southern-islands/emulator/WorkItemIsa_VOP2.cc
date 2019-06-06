@@ -226,7 +226,33 @@ void WorkItem::ISA_V_MUL_I32_I24_Impl(Instruction *instruction)
 // D.u = S0.u[23:0] * S1.u[23:0].
 void WorkItem::ISA_V_MUL_U32_U24_Impl(Instruction *instruction)
 {
-	ISAUnimplemented(instruction);
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register product;
+
+	// Load operands from registers or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+	s1.as_uint = ReadVReg(INST.vsrc1);
+
+	// Truncate operands to 24-bit unsigned integers
+	s0.as_uint = s0.as_uint & 0x00FFFFFF;
+	s1.as_uint = s1.as_uint & 0x00FFFFFF;
+
+	// Calculate the product.
+	product.as_int = s0.as_uint * s1.as_uint;
+
+	// Write the results.
+	WriteVReg(INST.vdst, product.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V%u<=(%d)", id, INST.vdst,
+			product.as_int);
+	}
 }
 
 // D.f = min(S0.f, S1.f).
@@ -878,7 +904,34 @@ void WorkItem::ISA_V_ADDC_U32_Impl(Instruction *instruction)
 // D.u = S0.u - S1.u - VCC
 void WorkItem::ISA_V_SUBB_U32_Impl(Instruction *instruction)
 {
-	ISAUnimplemented(instruction);
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register vcc;
+	Instruction::Register result;
+	Instruction::Register carry;
+
+	// Load operands from registers or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+	s1.as_uint = ReadVReg(INST.vsrc1);
+	vcc.as_uint = ReadReg(Instruction::RegisterVcc);
+
+	carry.as_uint = __builtin_usub_overflow(s0.as_uint, s1.as_uint, &result.as_uint);
+	carry.as_uint += __builtin_usub_overflow(result.as_uint, vcc.as_uint, &result.as_uint);
+
+	// Write the results.
+	WriteVReg(INST.vdst, result.as_uint);
+	WriteBitmaskSReg(Instruction::RegisterVcc, carry.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V%u<=(%d) ", id, INST.vdst,
+			result.as_uint);
+		Emulator::isa_debug << misc::fmt("vcc<=(%u) ", carry.as_uint);
+	}
 }
 
 // D = {flt32_to_flt16(S1.f),flt32_to_flt16(S0.f)}, with round-toward-zero.

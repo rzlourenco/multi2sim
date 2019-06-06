@@ -1832,7 +1832,33 @@ void WorkItem::ISA_V_MAX3_I32_Impl(Instruction *instruction)
 // D.i = S0.i * S1.i + S2.i.
 void WorkItem::ISA_V_MAD_I32_I24_Impl(Instruction *instruction)
 {
-	ISAUnimplemented(instruction);
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register s2;
+	Instruction::Register result;
+
+	assert(!INST.clamp);
+	assert(!INST.omod);
+	assert(!INST.neg);
+	assert(!INST.abs);
+
+	// Load operands from registers.
+	s0.as_uint = misc::SignExtend32(ReadReg(INST.src0), 24);
+	s1.as_uint = misc::SignExtend32(ReadReg(INST.src1), 24);
+	s2.as_uint = ReadReg(INST.src2);
+	
+	__builtin_smul_overflow(s0.as_int, s1.as_int, &result.as_int);
+	__builtin_sadd_overflow(result.as_int, s2.as_int, &result.as_int);
+
+	// Write the results.
+	WriteVReg(INST.vdst, result.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V[%u]<=(%d) ",
+			id_in_wavefront, INST.vdst, result.as_int);
+	}
 }
 
 // Median of three numbers.
