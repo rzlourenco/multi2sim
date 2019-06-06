@@ -1,0 +1,14 @@
+image: alpine/edge
+packages:
+  - clang-devel
+  - llvm-devel
+  - elfutils-devel
+  - libclc-devel
+  - gcc-c++
+  - meson
+sources:
+  - https://git.sr.ht/~rzl/multi2sim
+tasks:
+  - build: |
+      meson . build
+      ninja -C build
