@@ -35,6 +35,7 @@
 #include "platform.h"
 #include "program.h"
 #include "string-util.h"
+#include "llvm.h"
 
 
 
@@ -407,7 +408,7 @@ cl_int clBuildProgram(
 	void *user_data)
 {
 	char *binary_name;
-	void *binary;
+	char *binary;
 	unsigned int size;
 	FILE *f;
 	cl_device_id default_device;
@@ -444,30 +445,34 @@ cl_int clBuildProgram(
 	if (!program->source)
 		return CL_SUCCESS;
 
+
 	/* Runtime compilation is not supported, but the user can have activated
 	 * environment variable 'M2S_OPENCL_BINARY', which will make the runtime
 	 * load that specific pre-compiled binary. */
 	binary_name = getenv("M2S_OPENCL_BINARY");
-	if (!binary_name || !*binary_name)
-		fatal("%s: runtime kernel compilation not supported.\n%s",
-				__FUNCTION__, opencl_err_program_compile);
+	if (binary_name && *binary_name) {
+		/* Load binary */
+		f = fopen(binary_name, "rb");
+		if (!f)
+			fatal("%s: %s: cannot open file.\n%s", __FUNCTION__,
+					binary_name, opencl_err_program_not_found);
 
-	/* Load binary */
-	f = fopen(binary_name, "rb");
-	if (!f)
-		fatal("%s: %s: cannot open file.\n%s", __FUNCTION__,
-			binary_name, opencl_err_program_not_found);
-	
-	/* Allocate buffer */
-	fseek(f, 0, SEEK_END);
-	size = ftell(f);
-	binary = xmalloc(size);
+		/* Allocate buffer */
+		fseek(f, 0, SEEK_END);
+		size = ftell(f);
+		binary = xmalloc(size);
 
-	/* Read binary */
-	fseek(f, 0, SEEK_SET);
-	if (fread(binary, size, 1, f) != 1)
-		fatal("%s: cannot read file\n", __FUNCTION__);
-	fclose(f);
+		/* Read binary */
+		fseek(f, 0, SEEK_SET);
+		if (fread(binary, size, 1, f) != 1)
+			fatal("%s: cannot read file\n", __FUNCTION__);
+		fclose(f);
+	} else {
+		ret = opencl_llvm_compile_kernel(
+			program->source, options, &binary, &size);
+		if (ret != CL_SUCCESS)
+			return ret;
+	}
 	
 	/* Initialize program entries (per-device-type info) */
 	ret = CL_SUCCESS;
@@ -506,9 +511,10 @@ cl_int clBuildProgram(
 		opencl_program_add(program, device, arch_program);
 	
 		/* Show warning */
-		warning("%s: %s: program binary loaded for device '%s'.\n%s",
-			__FUNCTION__, binary_name, device->name,
-			opencl_note_program_binary);
+		if (binary_name)
+			warning("%s: %s: program binary loaded for device '%s'.\n%s",
+				__FUNCTION__, binary_name, device->name,
+				opencl_note_program_binary);
 	}
 
 out:

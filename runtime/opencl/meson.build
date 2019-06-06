@@ -21,6 +21,8 @@ libm2s_opencl_src = [
   'evg-program.h',
   'list.c',
   'list.h',
+  'llvm.cc',
+  'llvm.h',
   'mhandle.c',
   'mhandle.h',
   'misc.c',
@@ -67,4 +69,11 @@ libm2s_opencl_src = [
 libm2s_opencl_lib = both_libraries('m2s-opencl',
   install: true,
   sources: libm2s_opencl_src,
-  dependencies: [have_m32, threads, libdl])
+  include_directories: m2s_inc,
+  dependencies: [have_m32, threads, libdl, llvm, clang, libelf],
+  c_args: ['-fno-sanitize=all'],
+  cpp_args: ['-fno-sanitize=all',
+    '-DLIBCLC_INCLUDEDIR="@0@/"'.format(libclc.get_pkgconfig_variable('includedir')),
+    '-DLIBCLC_LIBEXECDIR="@0@/"'.format(libclc.get_pkgconfig_variable('libexecdir')),
+  ],
+  link_args: ['-fno-sanitize=all', '-Wl,-z,notext'])

@@ -8,6 +8,17 @@ threads = dependency('threads')
 zlib = dependency('zlib')
 libdl = cc.find_library('dl', required: false)
 gtk3 = dependency('gtk+-3.0', required: false)
+llvm = dependency('llvm', modules:['amdgpu'], required: true)
+libclc = dependency('libclc', required: true)
+clang = declare_dependency(
+  dependencies: [
+    cpp.find_library('clang', required: true),
+    cpp.find_library('clangBasic', required: true),
+    cpp.find_library('clangCodeGen', required: true),
+    cpp.find_library('clangFrontend', required: true),
+    cpp.find_library('clangSerialization', required: true),
+  ])
+libelf = cc.find_library('elf', required: true)
 
 add_global_arguments('-D_GNU_SOURCE', language: ['c', 'cpp'])
 
