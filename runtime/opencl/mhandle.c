@@ -38,7 +38,7 @@ struct mhandle_item_t
 	/* item fields */
 	void *ptr;
 	unsigned long size;
-	char *at;
+	char const *at;
 	
 	/* hash table fields */
 	unsigned int removed : 1;
@@ -56,7 +56,7 @@ static int mhandle_hash_table_size;  /* Allocated size for hash table */
 static int mhandle_hash_table_count;  /* Number of elements */
 
 /* Forward declarations */
-static void mhandle_hash_table_insert(void *ptr, unsigned long size, char *at, int corrupt_info);
+static void mhandle_hash_table_insert(void *ptr, unsigned long size, char const *at, int corrupt_info);
 
 
 
@@ -65,7 +65,7 @@ static void mhandle_hash_table_insert(void *ptr, unsigned long size, char *at, i
  * Private Functions
  */
 
-static void mhandle_out_of_memory(char *at)
+static void mhandle_out_of_memory(char const *at)
 {
 	fprintf(stderr, "\nfatal: %s: out of memory\n", at);
 	abort();
@@ -116,7 +116,7 @@ static void mhandle_hash_table_grow(void)
 }
 
 
-static void mhandle_hash_table_insert(void *ptr, unsigned long size, char *at, int corrupt_info)
+static void mhandle_hash_table_insert(void *ptr, unsigned long size, char const *at, int corrupt_info)
 {
 	struct mhandle_item_t *item;
 	int index;
@@ -159,7 +159,7 @@ static struct mhandle_item_t *mhandle_hash_table_get(void *ptr)
 }
 
 
-static unsigned long mhandle_hash_table_remove(void *ptr, char *at)
+static unsigned long mhandle_hash_table_remove(void *ptr, char const *at)
 {
 	struct mhandle_item_t *item;
 
@@ -192,7 +192,7 @@ static void mhandle_mark_corrupt(void *eff_ptr, unsigned long eff_size)
 }
 
 
-static void mhandle_check_corrupt(void *eff_ptr, unsigned long eff_size, char *at)
+static void mhandle_check_corrupt(void *eff_ptr, unsigned long eff_size, char const *at)
 {
 	unsigned long i;
 	unsigned long size;
@@ -261,7 +261,7 @@ static void mhandle_check_corrupt(void *eff_ptr, unsigned long eff_size, char *a
  * Public Functions
  */
  
-void mhandle_free(void *ptr, char *at)
+void mhandle_free(void *ptr, char const *at)
 {
 	struct mhandle_item_t *item;
 	void *eff_ptr;
@@ -301,7 +301,7 @@ void mhandle_free(void *ptr, char *at)
 }
 
 
-void *mhandle_malloc(unsigned long size, char *at)
+void *mhandle_malloc(unsigned long size, char const *at)
 {
 	void *ptr;
 	void *eff_ptr;
@@ -325,7 +325,7 @@ void *mhandle_malloc(unsigned long size, char *at)
 }
 
 
-void *mhandle_calloc(unsigned long nmemb, unsigned long size, char *at)
+void *mhandle_calloc(unsigned long nmemb, unsigned long size, char const *at)
 {
 	void *ptr;
 	void *eff_ptr;
@@ -354,7 +354,7 @@ void *mhandle_calloc(unsigned long nmemb, unsigned long size, char *at)
 }
 
 
-void *mhandle_realloc(void *ptr, unsigned long size, char *at)
+void *mhandle_realloc(void *ptr, unsigned long size, char const *at)
 {
 	void *eff_ptr;
 	unsigned long eff_size;
@@ -415,7 +415,7 @@ void *mhandle_realloc(void *ptr, unsigned long size, char *at)
 }
 
 
-char *mhandle_strdup(const char *s, char *at)
+char *mhandle_strdup(const char *s, char const *at)
 {
 	char *ptr;
 	void *eff_ptr;
@@ -443,7 +443,7 @@ char *mhandle_strdup(const char *s, char *at)
 }
 
 
-void *__xmalloc(size_t size, char *at)
+void *__xmalloc(size_t size, char const *at)
 {
 	void *ptr;
 
@@ -455,7 +455,7 @@ void *__xmalloc(size_t size, char *at)
 }
 
 
-void *__xcalloc(size_t nmemb, size_t size, char *at)
+void *__xcalloc(size_t nmemb, size_t size, char const *at)
 {
 	void *ptr;
 
@@ -467,7 +467,7 @@ void *__xcalloc(size_t nmemb, size_t size, char *at)
 }
 
 
-void *__xrealloc(void *ptr, size_t size, char *at)
+void *__xrealloc(void *ptr, size_t size, char const *at)
 {
 	void *new_ptr;
 
@@ -479,7 +479,7 @@ void *__xrealloc(void *ptr, size_t size, char *at)
 }
 
 
-void *__xstrdup(const char *s, char *at)
+char *__xstrdup(const char *s, char const *at)
 {
 	void *ptr;
 
@@ -515,7 +515,7 @@ void __mhandle_done()
 }
 
 
-void __mhandle_check(char *at)
+void __mhandle_check(char const *at)
 {
 	int i;
 	int count = 0;
@@ -546,7 +546,7 @@ unsigned long __mhandle_used_memory()
 }
 
 
-void __mhandle_register_ptr(void *ptr, unsigned long size, char *at)
+void __mhandle_register_ptr(void *ptr, unsigned long size, char const *at)
 {
 	mhandle_hash_table_insert(ptr, size, at, 0);
 }

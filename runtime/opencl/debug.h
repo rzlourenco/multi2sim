@@ -20,10 +20,18 @@
 #ifndef RUNTIME_OPENCL_DEBUG_H
 #define RUNTIME_OPENCL_DEBUG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Other messages */
-void m2s_opencl_warning(char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-void m2s_opencl_fatal(char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-void m2s_opencl_panic(char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+void m2s_opencl_warning(char const *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+void m2s_opencl_fatal(char const *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+void m2s_opencl_panic(char const *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+
+#ifdef __cplusplus
+}
+#endif
 
 #define warning m2s_opencl_warning
 #define fatal m2s_opencl_fatal

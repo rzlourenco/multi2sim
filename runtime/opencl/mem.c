@@ -99,7 +99,7 @@ cl_mem clCreateBuffer(
 	opencl_debug("call '%s'", __FUNCTION__);
 	opencl_debug("\tcontext = %p", context);
 	opencl_debug("\tflags = 0x%x", (int) flags);
-	opencl_debug("\tsize = %u", size);
+	opencl_debug("\tsize = %zu", size);
 	opencl_debug("\thost_ptr = %p", host_ptr);
 	opencl_debug("\terrcode_ret = %p", errcode_ret);
 

@@ -213,7 +213,7 @@ cl_int clSetKernelArg(
 	opencl_debug("call '%s'", __FUNCTION__);
 	opencl_debug("\tkernel = %p", kernel);
 	opencl_debug("\targ_index = %d", arg_index);
-	opencl_debug("\ttarg_size = %u", arg_size);
+	opencl_debug("\ttarg_size = %zu", arg_size);
 	opencl_debug("\targ_value = %p", arg_value);
 
 	/* Check valid kernel */

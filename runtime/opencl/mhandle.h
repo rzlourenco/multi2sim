@@ -77,19 +77,22 @@
 #endif
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void *mhandle_malloc(size_t size, char *at);
-void *mhandle_calloc(size_t nmemb, size_t size, char *at);
-void *mhandle_realloc(void *ptr, size_t size, char *at);
-char *mhandle_strdup(const char *s, char *at);
-void mhandle_free(void *ptr, char *at);
+void *mhandle_malloc(size_t size, char const *at);
+void *mhandle_calloc(size_t nmemb, size_t size, char const *at);
+void *mhandle_realloc(void *ptr, size_t size, char const *at);
+char *mhandle_strdup(const char *s, char const *at);
+void mhandle_free(void *ptr, char const *at);
 
-void *__xmalloc(size_t size, char *at);
-void *__xcalloc(size_t nmemb, size_t size, char *at);
-void *__xrealloc(void *ptr, size_t size, char *at);
-void *__xstrdup(const char *s, char *at);
+void *__xmalloc(size_t size, char const *at);
+void *__xcalloc(size_t nmemb, size_t size, char const *at);
+void *__xrealloc(void *ptr, size_t size, char const *at);
+char *__xstrdup(const char *s, char const *at);
 
-void __mhandle_check(char *at);
+void __mhandle_check(char const *at);
 void __mhandle_done();
 unsigned long __mhandle_used_memory();
 
@@ -97,7 +100,11 @@ unsigned long __mhandle_used_memory();
  * pointer can be registered using 'mhandle_register_ptr' to prevent function
  * 'free' from reporting invalid pointer errors. This pointer will not have the
  * extra corruption bytes. */
-void __mhandle_register_ptr(void *ptr, unsigned long size, char *at);
+void __mhandle_register_ptr(void *ptr, unsigned long size, char const *at);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

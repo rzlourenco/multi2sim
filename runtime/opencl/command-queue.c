@@ -328,8 +328,8 @@ cl_int clEnqueueReadBuffer(
 	opencl_debug("\tcommand_queue = %p", command_queue);
 	opencl_debug("\tbuffer = %p", buffer);
 	opencl_debug("\tblocking_read = %u", blocking_read);
-	opencl_debug("\toffset = %u", offset);
-	opencl_debug("\tcopy bytes = %u", cb);
+	opencl_debug("\toffset = %zd", offset);
+	opencl_debug("\tcopy bytes = %zu", cb);
 	opencl_debug("\tpointer = %p", ptr);
 	opencl_debug("\tnum_events_in_wait_list = %u", num_events_in_wait_list);
 	opencl_debug("\tevent_wait_list = %p", event_wait_list);
@@ -405,8 +405,8 @@ cl_int clEnqueueWriteBuffer(
 	opencl_debug("\tcommand_queue = %p", command_queue);
 	opencl_debug("\tbuffer = %p", buffer);
 	opencl_debug("\tblocking_write = %u", blocking_write);
-	opencl_debug("\toffset = %u", offset);
-	opencl_debug("\tcopy bytes = %u", cb);
+	opencl_debug("\toffset = %zu", offset);
+	opencl_debug("\tcopy bytes = %zu", cb);
 	opencl_debug("\tpointer = %p", ptr);
 	opencl_debug("\tnum_events_in_wait_list = %u", num_events_in_wait_list);
 	opencl_debug("\tevent_wait_list = %p", event_wait_list);
@@ -481,9 +481,9 @@ cl_int clEnqueueCopyBuffer(
 	opencl_debug("\tcommand_queue = %p", command_queue);
 	opencl_debug("\tsrc_buffer = %p", src_buffer);
 	opencl_debug("\tdst_buffer = %p", dst_buffer);
-	opencl_debug("\tsrc_offset = %u", src_offset);
-	opencl_debug("\tdst_offset = %u", dst_offset);
-	opencl_debug("\tcopy bytes = %u", cb);
+	opencl_debug("\tsrc_offset = %zu", src_offset);
+	opencl_debug("\tdst_offset = %zu", dst_offset);
+	opencl_debug("\tcopy bytes = %zu", cb);
 	opencl_debug("\tnum_events_in_wait_list = %u", num_events_in_wait_list);
 	opencl_debug("\tevent_wait_list = %p", event_wait_list);
 	opencl_debug("\tevent = %p", event);
@@ -648,8 +648,8 @@ void *clEnqueueMapBuffer(
 	opencl_debug("\tbuffer = %p", mem);
 	opencl_debug("\tblocking_map = %d", blocking_map);
 	opencl_debug("\tmap_flags = %lld", map_flags);
-	opencl_debug("\toffset = %u", offset);
-	opencl_debug("\tcb = %u", cb);
+	opencl_debug("\toffset = %zu", offset);
+	opencl_debug("\tcb = %zu", cb);
 	opencl_debug("\tnum_events_in_wait_list = %u", num_events_in_wait_list);
 	opencl_debug("\tevent_wait_list = %p", event_wait_list);
 	opencl_debug("\tevent = %p", event);

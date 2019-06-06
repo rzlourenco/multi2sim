@@ -29,6 +29,10 @@
 #include "../include/CL/cl.h"
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* NOTE: The following re-declaration of 'pthread_setaffinity_np' is made to
  * avoid some 'implicit declaration' warnings in older pthread distributions.
  * Sometimes, the warning would still show up even after declaring macro
@@ -263,6 +267,11 @@ void copyProperties(void *dest, const void *src, size_t size, size_t numObjs);
 
 void *clrt_buffer_allocate(size_t size);
 void clrt_buffer_free(void *buffer);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

@@ -26,7 +26,7 @@
 #include "mhandle.h"
 
 
-void m2s_opencl_fatal(char *fmt, ...)
+void m2s_opencl_fatal(char const *fmt, ...)
 {
 	va_list va;
 	va_start(va, fmt);
@@ -38,7 +38,7 @@ void m2s_opencl_fatal(char *fmt, ...)
 }
 
 
-void m2s_opencl_panic(char *fmt, ...)
+void m2s_opencl_panic(char const *fmt, ...)
 {
 	va_list va;
 	va_start(va, fmt);
@@ -50,7 +50,7 @@ void m2s_opencl_panic(char *fmt, ...)
 }
 
 
-void m2s_opencl_warning(char *fmt, ...)
+void m2s_opencl_warning(char const *fmt, ...)
 {
 	va_list va;
 	va_start(va, fmt);
