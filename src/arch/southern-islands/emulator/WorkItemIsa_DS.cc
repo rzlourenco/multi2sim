@@ -267,62 +267,51 @@ void WorkItem::ISA_DS_READ_B32_Impl(Instruction *instruction)
 // R = DS[ADDR+offset0*4], R+1 = DS[ADDR+offset1*4]. Read 2 Dwords.
 void WorkItem::ISA_DS_READ2_B32_Impl(Instruction *instruction)
 {
-	Instruction::Register addr;
+	Instruction::Register addr0;
+	Instruction::Register addr1;
 	Instruction::Register data0;
 	Instruction::Register data1;
 
 	assert(!INST.gds);
 
 	// Load address from register.
-	addr.as_uint = ReadVReg(INST.addr);
+	addr0.as_uint = ReadVReg(INST.addr);
+	addr1.as_uint = addr0.as_uint;
+
+	assert(INST.offset0 != INST.offset1);
+
+	addr0.as_uint += INST.offset0 * 4;
+	addr1.as_uint += INST.offset1 * 4;
 
 	// Global data store not supported
 	assert(!INST.gds);
 
-	// Read Dword.
-	if (INST.gds)
-	{
-		assert(0);
-	}
-	else
-	{
-		lds->Read(
-			addr.as_uint + INST.offset0*4, 4, (char *)&data0.as_uint);
-		lds->Read(
-			addr.as_uint + INST.offset1*4, 4, (char *)&data1.as_uint);
-	}
+
+	lds->Read(
+		addr0.as_uint, 4, (char *)&data0.as_uint);
+	lds->Read(
+		addr1.as_uint, 4, (char *)&data1.as_uint);
 
 	// Write results.
 	WriteVReg(INST.vdst, data0.as_uint);
 	WriteVReg(INST.vdst+1, data1.as_uint);
 
 	// Record last memory access for the detailed simulator.
-	if (INST.gds)
-	{
-		assert(0);
-	}
-	else
-	{
-		// If offset1 != 1, then the following is incorrect
-		assert(INST.offset0 == 0);
-		assert(INST.offset1 == 1);
-		lds_access_count = 2;
-		lds_access[0].type = MemoryAccessRead;
-		lds_access[0].addr = addr.as_uint;
-		lds_access[0].size = 4;
-		lds_access[1].type = MemoryAccessRead;
-		lds_access[1].addr = addr.as_uint + 4;
-		lds_access[1].size = 4;
-	}
+	lds_access_count = 2;
+	lds_access[0].type = MemoryAccessRead;
+	lds_access[0].addr = addr0.as_uint;
+	lds_access[0].size = 4;
+	lds_access[1].type = MemoryAccessRead;
+	lds_access[1].addr = addr1.as_uint;
+	lds_access[1].size = 4;
 
 	// Print isa debug information.
 	if (Emulator::isa_debug)
 	{
 		Emulator::isa_debug << misc::fmt("t%d: V%u<=(0x%x)(0x%x) ", id, 
-			INST.vdst, addr.as_uint+INST.offset0*4, 
-			data0.as_uint);
-		Emulator::isa_debug << misc::fmt("V%u<=(0x%x)(0x%x) ", INST.vdst+1, 
-			addr.as_uint+INST.offset1*4, data1.as_uint);
+			INST.vdst, addr0.as_uint, data0.as_uint);
+		Emulator::isa_debug << misc::fmt("V%u<=(0x%x)(0x%x) ",
+			INST.vdst+1, addr1.as_uint, data1.as_uint);
 	}
 }
 
