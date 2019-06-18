@@ -103,11 +103,9 @@ void BranchUnit::Complete()
 
 		// Access complete, remove the uop from the queue, and get the
 		// iterator for the next element
+		assert(uop->getWorkGroup()->inflight_instructions > 0);
+		uop->getWorkGroup()->inflight_instructions--;
 		it = write_buffer.erase(it);
-		assert(uop->getWorkGroup()
-				->inflight_instructions > 0);
-		uop->getWorkGroup()->
-				inflight_instructions--;
 
 		// Statistics
 		num_instructions++;

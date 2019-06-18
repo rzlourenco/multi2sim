@@ -109,11 +109,9 @@ void LdsUnit::Complete()
 				compute_unit->getIndex());
 
 		// Access complete, remove the uop from the queue
+		assert(uop->getWorkGroup()->inflight_instructions > 0);
+		uop->getWorkGroup()->inflight_instructions--;
 		it = write_buffer.erase(it);
-		assert(uop->getWorkGroup()
-				->inflight_instructions > 0);
-		uop->getWorkGroup()->
-				inflight_instructions--;
 
 		// Statistics
 		num_instructions++;

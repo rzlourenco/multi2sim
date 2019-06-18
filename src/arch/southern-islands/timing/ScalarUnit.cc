@@ -238,6 +238,8 @@ void ScalarUnit::Complete()
 						"wg=%d "
 						"WGFinished\n",
 						work_group->getId());
+				assert(uop->getWorkGroup()->inflight_instructions > 0);
+				uop->getWorkGroup()->inflight_instructions--;
 				compute_unit->UnmapWorkGroup(uop->getWorkGroup());
 			}
 		}
@@ -251,8 +253,6 @@ void ScalarUnit::Complete()
 
 		// Access complete, remove the uop from the queue
 		it = write_buffer.erase(it);
-		assert(uop->getWorkGroup()->inflight_instructions > 0);
-		uop->getWorkGroup()->inflight_instructions--;
 
 		// Statistics
 		num_instructions++;

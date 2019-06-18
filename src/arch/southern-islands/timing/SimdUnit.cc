@@ -111,11 +111,9 @@ void SimdUnit::Complete()
 
 		// Remove uop from the exec buffer and get the iterator to the
 		// next element
+		assert(uop->getWorkGroup()->inflight_instructions > 0);
+		uop->getWorkGroup()->inflight_instructions--;
 		it = exec_buffer.erase(it);
-		assert(uop->getWorkGroup()
-				->inflight_instructions > 0);
-		uop->getWorkGroup()->
-				inflight_instructions--;
 	}
 
 }
