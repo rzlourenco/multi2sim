@@ -182,6 +182,38 @@ void Context::ExecuteInst_andps_xmm_xmmm128()
 			0);
 }
 
+void Context::ExecuteInst_andnps_xmm_xmmm128()
+{
+	XmmValue dest;
+	XmmValue src;
+
+	LoadXmm(dest);
+	LoadXmmM128(src);
+
+	__X86_ISA_ASM_START__
+	asm volatile (
+		"movdqu %1, %%xmm0\n\t"
+		"movdqu %0, %%xmm1\n\t"
+		"andnps %%xmm0, %%xmm1\n\t"
+		"movdqu %%xmm1, %0\n\t"
+		: "=m" (dest)
+		: "m" (src)
+		: "xmm0", "xmm1"
+	);
+	__X86_ISA_ASM_END__
+
+	StoreXmm(dest);
+
+	newUinst(Uinst::OpcodeXmmNand,
+			Uinst::DepXmmm128,
+			Uinst::DepXmm,
+			0,
+			Uinst::DepXmm,
+			0,
+			0,
+			0);
+}
+
 
 #define X86_ISA_CMPP_ASM(__inst) \
 	__X86_ISA_ASM_START__ \
@@ -240,6 +272,50 @@ void Context::ExecuteInst_cmppd_xmm_xmmm128_imm8()
 			0);
 }
 
+void Context::ExecuteInst_cmpsd_xmm_xmmm64_imm8()
+{
+	XmmValue dest;
+	XmmValue src;
+
+	int spec_mode;
+	int imm8 = inst.getImmByte();
+
+	LoadXmm(dest);
+	LoadXmmM64(src);
+
+	/* Prevent execution of the floating-point computation in speculative
+	 * mode, since it may cause host exceptions for garbage input operands. */
+	spec_mode = this->getState(StateSpecMode);
+	if (!spec_mode)
+	{
+		switch (imm8)
+		{
+		case 0: X86_ISA_CMPP_ASM("cmpeqsd"); break;
+		case 1: X86_ISA_CMPP_ASM("cmpltsd"); break;
+		case 2: X86_ISA_CMPP_ASM("cmplesd"); break;
+		case 3: X86_ISA_CMPP_ASM("cmpunordsd"); break;
+		case 4: X86_ISA_CMPP_ASM("cmpneqsd"); break;
+		case 5: X86_ISA_CMPP_ASM("cmpnltsd"); break;
+		case 6: X86_ISA_CMPP_ASM("cmpnlesd"); break;
+		case 7: X86_ISA_CMPP_ASM("cmpordsd"); break;
+		default:
+			throw misc::Error(misc::fmt(
+					"%s: invalid value for 'imm8'",
+					__FUNCTION__));
+		}
+	}
+
+	StoreXmm(dest);
+	newUinst(Uinst::OpcodeXmmFpComp,
+			Uinst::DepXmmm64,
+			Uinst::DepXmm,
+			0,
+			Uinst::DepXmm,
+			0,
+			0,
+			0);
+}
+
 
 void Context::ExecuteInst_cmpps_xmm_xmmm128_imm8()
 {
@@ -277,6 +353,50 @@ void Context::ExecuteInst_cmpps_xmm_xmmm128_imm8()
 	StoreXmm(dest);
 	newUinst(Uinst::OpcodeXmmFpComp,
 			Uinst::DepXmmm128,
+			Uinst::DepXmm,
+			0,
+			Uinst::DepXmm,
+			0,
+			0,
+			0);
+}
+
+void Context::ExecuteInst_cmpss_xmm_xmmm64_imm8()
+{
+	XmmValue dest;
+	XmmValue src;
+
+	int spec_mode;
+	int imm8 = inst.getImmByte();
+
+	LoadXmm(dest);
+	LoadXmmM64(src);
+
+	/* Prevent execution of the floating-point computation in speculative
+	 * mode, since it may cause host exceptions for garbage input operands. */
+	spec_mode = this->getState(StateSpecMode);
+	if (!spec_mode)
+	{
+		switch (imm8)
+		{
+		case 0: X86_ISA_CMPP_ASM("cmpeqss"); break;
+		case 1: X86_ISA_CMPP_ASM("cmpltss"); break;
+		case 2: X86_ISA_CMPP_ASM("cmpless"); break;
+		case 3: X86_ISA_CMPP_ASM("cmpunordss"); break;
+		case 4: X86_ISA_CMPP_ASM("cmpneqss"); break;
+		case 5: X86_ISA_CMPP_ASM("cmpnltss"); break;
+		case 6: X86_ISA_CMPP_ASM("cmpnless"); break;
+		case 7: X86_ISA_CMPP_ASM("cmpordss"); break;
+		default:
+			throw misc::Error(misc::fmt(
+					"%s: invalid value for 'imm8'",
+					__FUNCTION__));
+		}
+	}
+
+	StoreXmm(dest);
+	newUinst(Uinst::OpcodeXmmFpComp,
+			Uinst::DepXmmm64,
 			Uinst::DepXmm,
 			0,
 			Uinst::DepXmm,

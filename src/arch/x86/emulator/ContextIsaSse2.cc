@@ -151,6 +151,38 @@ void Context::ExecuteInst_andpd_xmm_xmmm128()
 			0);
 }
 
+void Context::ExecuteInst_andnpd_xmm_xmmm128()
+{
+	XmmValue dest;
+	XmmValue src;
+
+	LoadXmm(dest);
+	LoadXmmM128(src);
+
+	__X86_ISA_ASM_START__
+	asm volatile (
+		"movdqu %1, %%xmm0\n\t"
+		"movdqu %0, %%xmm1\n\t"
+		"andpd %%xmm0, %%xmm1\n\t"
+		"movdqu %%xmm1, %0\n\t"
+		: "=m" (dest)
+		: "m" (src)
+		: "xmm0", "xmm1"
+	);
+	__X86_ISA_ASM_END__
+
+	StoreXmm(dest);
+
+	newUinst(Uinst::OpcodeXmmNand,
+			Uinst::DepXmmm128,
+			Uinst::DepXmm,
+			0,
+			Uinst::DepXmm,
+			0,
+			0,
+			0);
+}
+
 
 void Context::ExecuteInst_cvtdq2pd_xmm_xmmm64()
 {

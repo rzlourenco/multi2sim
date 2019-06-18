@@ -928,6 +928,53 @@ void Context::ExecuteInst_div_rm8()
 			0);
 }
 
+void Context::ExecuteInst_div_rm16()
+{
+	int spec_mode;
+	int skip_emulation;
+
+	unsigned int ax = regs.getAx();
+	unsigned int dx = regs.getDx();
+	unsigned int rm16 = LoadRm16();
+
+	if (!rm16)
+		throw Error("Division by 0");
+
+	/* A devide exception would occur in the host process if the 'div' instruction
+	 * in the assembly code below generates a result greater than 0xffffffff. */
+	spec_mode = getState(StateSpecMode);
+	skip_emulation = spec_mode && dx;
+
+	// Emulate
+	if (!skip_emulation)
+	{
+		__X86_CONTEXT_SAVE_FLAGS__
+		asm volatile (
+			"mov %2, %%ax\n\t"
+			"mov %3, %%dx\n\t"
+			"mov %4, %%bx\n\t"
+			"div %%bx\n\t"
+			"mov %%ax, %0\n\t"
+			"mov %%dx, %1\n\t"
+			: "=m" (ax), "=m" (dx)
+			: "m" (ax), "m" (dx), "m" (rm16)
+			: "ax", "dx", "bx"
+		);
+		__X86_CONTEXT_RESTORE_FLAGS__
+	}
+
+	regs.Write(Instruction::RegAx, ax);
+	regs.Write(Instruction::RegDx, dx);
+
+	newUinst(Uinst::OpcodeDiv,
+			Uinst::DepEdx,
+			Uinst::DepEax,
+			Uinst::DepRm16,
+			Uinst::DepEax,
+			Uinst::DepEdx,
+			0,
+			0);
+}
 
 void Context::ExecuteInst_div_rm32()
 {

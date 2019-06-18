@@ -51,6 +51,8 @@ DEFINST(and_r32_rm32, 0x23, SKIP, SKIP, REG, SKIP, 0)
 
 DEFINST(andpd_xmm_xmmm128, 0x0f, 0x54, SKIP, REG, SKIP, Instruction::PrefixOp)
 DEFINST(andps_xmm_xmmm128, 0x0f, 0x54, SKIP, REG, SKIP, 0)
+DEFINST(andnpd_xmm_xmmm128, 0x0f, 0x55, SKIP, REG, SKIP, Instruction::PrefixOp)
+DEFINST(andnps_xmm_xmmm128, 0x0f, 0x55, SKIP, REG, SKIP, 0)
 
 DEFINST(bound_r16_rm32, 0x62, SKIP, SKIP, REG, SKIP, Instruction::PrefixOp)
 DEFINST(bound_r32_rm64, 0x62, SKIP, SKIP, REG, SKIP, Instruction::PrefixOp)
@@ -126,6 +128,8 @@ DEFINST(cmp_r32_rm32, 0x3b, SKIP, SKIP, REG, SKIP, 0)
 
 DEFINST(cmppd_xmm_xmmm128_imm8, 0x0f, 0xc2, SKIP, REG, IB, Instruction::PrefixOp)
 DEFINST(cmpps_xmm_xmmm128_imm8, 0x0f, 0xc2, SKIP, REG, IB, 0)
+DEFINST(cmpsd_xmm_xmmm64_imm8, 0x0f, 0xc2, SKIP, REG, IB, Instruction::PrefixRepnz)
+DEFINST(cmpss_xmm_xmmm64_imm8, 0x0f, 0xc2, SKIP, REG, IB, Instruction::PrefixRep)
 
 DEFINST(cmpsb, 0xa6, SKIP, SKIP, SKIP, SKIP, 0)
 DEFINST(cmpsd, 0xa7, SKIP, SKIP, SKIP, SKIP, 0)
@@ -165,6 +169,7 @@ DEFINST(dec_ir16, 0x48|INDEX, SKIP, SKIP, SKIP, SKIP, Instruction::PrefixOp)
 DEFINST(dec_ir32, 0x48|INDEX, SKIP, SKIP, SKIP, SKIP, 0)
 
 DEFINST(div_rm8, 0xf6, SKIP, SKIP, 6, SKIP, 0)
+DEFINST(div_rm16, 0xf7, SKIP, SKIP, 6, SKIP, Instruction::PrefixOp)
 DEFINST(div_rm32, 0xf7, SKIP, SKIP, 6, SKIP, 0)
 
 DEFINST(divpd_xmm_xmmm128, 0x0f, 0x5e, SKIP, REG, SKIP, Instruction::PrefixOp)
