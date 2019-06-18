@@ -4794,6 +4794,61 @@ int Context::ExecuteSyscall_rt_sigsuspend()
 
 int Context::ExecuteSyscall_pread64()
 {
+	// Arguments
+	int guest_fd = regs.getEbx();
+	unsigned buf_ptr = regs.getEcx();
+	unsigned count = regs.getEdx();
+	unsigned offset = regs.getEsi();
+	emulator->syscall_debug << misc::fmt("  guest_fd=%d, "
+			"buf_ptr=0x%x, count=0x%x, offset=0x%x\n",
+			guest_fd, buf_ptr, count, offset);
+
+	// Get file descriptor
+	comm::FileDescriptor *desc = file_table->getFileDescriptor(guest_fd);
+	if (!desc)
+		return -EBADF;
+	int host_fd = desc->getHostIndex();
+	emulator->syscall_debug << misc::fmt("  host_fd=%d\n", host_fd);
+
+	// Poll the file descriptor to check if read is blocking
+	auto buf = misc::new_unique_array<char>(count);
+	struct pollfd fds;
+	fds.fd = host_fd;
+	fds.events = POLLIN;
+	int err = poll(&fds, 1, 0);
+	if (err < 0)
+		throw misc::Panic("Error executing 'poll'");
+
+	// Non-blocking read
+	if (fds.revents || (desc->getFlags() & O_NONBLOCK))
+	{
+		// Host system call
+		err = pread(host_fd, buf.get(), count, offset);
+		if (err == -1)
+			return -errno;
+
+		// Write in guest memory
+		if (err > 0)
+		{
+			memory->Write(buf_ptr, err, buf.get());
+			emulator->syscall_debug << misc::StringBinaryBuffer(buf.get(),
+					count, 40);
+		}
+
+		// Return number of read bytes
+		return err;
+	}
+
+	// Blocking read - suspend thread
+	emulator->syscall_debug << misc::fmt("  blocking read - process suspended\n");
+	syscall_read_fd = guest_fd;
+	Suspend(&Context::SyscallReadCanWakeup, &Context::SyscallReadWakeup,
+			StateRead);
+	emulator->ProcessEventsSchedule();
+
+	// Free allocated buffer. Return value doesn't matter,
+	// it will be overwritten when context wakes up from blocking call.
+	return 0;
 	__UNIMPLEMENTED__
 }
 
@@ -4806,7 +4861,57 @@ int Context::ExecuteSyscall_pread64()
 
 int Context::ExecuteSyscall_pwrite64()
 {
-	__UNIMPLEMENTED__
+	// Arguments
+	int guest_fd = regs.getEbx();
+	unsigned buf_ptr = regs.getEcx();
+	unsigned count = regs.getEdx();
+	unsigned offset = regs.getEsi();
+	emulator->syscall_debug << misc::fmt("  guest_fd=%d, "
+			"buf_ptr=0x%x, count=0x%x, offset=0x%x\n",
+			guest_fd, buf_ptr, count, offset);
+
+	// Get file descriptor
+	comm::FileDescriptor *desc = file_table->getFileDescriptor(guest_fd);
+	if (!desc)
+		return -EBADF;
+	int host_fd = desc->getHostIndex();
+	emulator->syscall_debug << misc::fmt("  host_fd=%d\n", host_fd);
+
+	// Read buffer from memory
+	auto buf = misc::new_unique_array<char>(count);
+	memory->Read(buf_ptr, count, buf.get());
+	emulator->syscall_debug << "  buf=\""
+			<< misc::StringBinaryBuffer(buf.get(), count, 40)
+			<< "\"\n";
+
+	// Poll the file descriptor to check if write is blocking
+	struct pollfd fds;
+	fds.fd = host_fd;
+	fds.events = POLLOUT;
+	poll(&fds, 1, 0);
+
+	// Non-blocking write
+	if (fds.revents)
+	{
+		// Host write
+		int err = pwrite(host_fd, buf.get(), count, offset);
+		if (err == -1)
+			err = -errno;
+
+		// Return written bytes
+		return err;
+	}
+
+	// Blocking write - suspend thread
+	emulator->syscall_debug << misc::fmt("  blocking write - process suspended\n");
+	syscall_write_fd = guest_fd;
+	Suspend(&Context::SyscallWriteCanWakeup, &Context::SyscallWriteWakeup,
+			StateWrite);
+	emulator->ProcessEventsSchedule();
+
+	// Return value doesn't matter here. It will be overwritten when the
+	// context wakes up after blocking call.
+	return 0;
 }
 
 
@@ -7644,7 +7749,31 @@ int Context::ExecuteSyscall_getrandom() {
 
 
 int Context::ExecuteSyscall_memfd_create() {
-	__UNIMPLEMENTED__
+	// Arguments
+	unsigned file_name_ptr = regs.getEbx();
+	int flags = regs.getEcx();
+
+	std::string file_name = memory->ReadString(file_name_ptr);
+	std::string full_path = getFullPath(file_name);
+	emulator->syscall_debug << misc::fmt(
+			"  filename='%s', flags=0x%x\n",
+			file_name.c_str(),
+			flags);
+
+	int host_fd = memfd_create(full_path.c_str(), flags);
+	if (host_fd == -1)
+		return -errno;
+
+	comm::FileDescriptor *desc = file_table->newFileDescriptor(
+			comm::FileDescriptor::TypeRegular,
+			host_fd, full_path, 0);
+	emulator->syscall_debug << misc::fmt(
+			"  File opened:\n"
+			"    guest_fd=%d\n"
+			"    host_fd=%d\n",
+			desc->getGuestIndex(),
+			desc->getHostIndex());
+	return desc->getGuestIndex();
 }
 
 
