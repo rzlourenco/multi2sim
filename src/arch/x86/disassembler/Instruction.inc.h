@@ -605,6 +605,8 @@ DEFINST(psubq_xmm_xmmm128, 0x0f, 0xfb, SKIP, REG, SKIP, Instruction::PrefixOp)
 
 DEFINST(ptest_xmm_xmmm128, 0x0f, 0x38, 0x17, REG, SKIP, Instruction::PrefixOp)
 
+DEFINST(punpckhdq_xmm_xmmm128, 0x0f, 0x6a, SKIP, REG, SKIP, Instruction::PrefixOp)
+
 DEFINST(punpcklbw_xmm_xmmm128, 0x0f, 0x60, SKIP, REG, SKIP, Instruction::PrefixOp)
 DEFINST(punpcklwd_xmm_xmmm128, 0x0f, 0x61, SKIP, REG, SKIP, Instruction::PrefixOp)
 DEFINST(punpckldq_xmm_xmmm128, 0x0f, 0x62, SKIP, REG, SKIP, Instruction::PrefixOp)
