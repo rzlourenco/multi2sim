@@ -405,7 +405,33 @@ void WorkItem::ISA_V_TRUNC_F32_Impl(Instruction *instruction)
 		s0.as_uint = ReadReg(INST.src0);
 
 	// Truncate decimal portion
-	value.as_float = (float)((int)s0.as_float);
+	value.as_float = std::trunc(s0.as_float);
+
+	// Write the results.
+	WriteVReg(INST.vdst, value.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V%u<=(%gf) ", id, INST.vdst,
+			value.as_float);
+	}
+}
+
+// D.f = round_nearest_even(S0.f).
+void WorkItem::ISA_V_RNDNE_F32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register value;
+
+	// Load operand from register or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+
+	// Truncate decimal portion
+	value.as_float = std::nearbyint(s0.as_float * 0.5f) * 2.0f;
 
 	// Write the results.
 	WriteVReg(INST.vdst, value.as_uint);

@@ -659,6 +659,43 @@ void WorkItem::ISA_S_ANDN2_B64_Impl(Instruction *instruction)
 	}
 }
 
+// D.u = S0.u | ~S1.u. scc = 1 if result is non-zero.
+void WorkItem::ISA_S_ORN2_B64_Impl(Instruction *instruction)
+{
+	// Assert no literal constants for a 64 bit instruction.
+	assert(!(INST.ssrc0 == 0xFF || INST.ssrc1 == 0xFF));
+
+	Instruction::Register64 s0;
+	Instruction::Register64 s1;
+	Instruction::Register64 result;
+	Instruction::Register nonzero;
+
+	// Load operands from registers.
+	s0 = Read_SSRC_64(INST.ssrc0);
+	s1 = Read_SSRC_64(INST.ssrc1);
+
+	/* Bitwise AND the first operand with the negation of the second and
+	 * determine if the result is non-zero. */
+	result.as_ulong = s0.as_ulong | ~s1.as_ulong;
+	nonzero.as_uint = result.as_ulong != 0;
+
+	// Write the results.
+	// Store the data in the destination register
+	WriteSReg(INST.sdst, result.lo.as_uint);
+	// Store the data in the destination register
+	WriteSReg(INST.sdst + 1, result.hi.as_uint);
+	// Store the data in the destination register
+	WriteSReg(Instruction::RegisterScc, nonzero.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst, result.lo.as_uint);
+		Emulator::isa_debug << misc::fmt("S%u<=(0x%x) ", INST.sdst + 1, result.hi.as_uint);
+		Emulator::isa_debug << misc::fmt("scc<=(%u)", nonzero.as_uint);
+	}
+}
+
 // D.u = ~(S0.u & S1.u). scc = 1 if result is non-zero.
 void WorkItem::ISA_S_NAND_B64_Impl(Instruction *instruction)
 {

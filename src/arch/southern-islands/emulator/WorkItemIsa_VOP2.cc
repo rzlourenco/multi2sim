@@ -255,6 +255,41 @@ void WorkItem::ISA_V_MUL_U32_U24_Impl(Instruction *instruction)
 	}
 }
 
+// D.f = max(S0.f, S1.f) (DX9 rules for NaN).
+void WorkItem::ISA_V_MAX_LEGACY_F32_Impl(Instruction *instruction)
+{
+	Instruction::Register s0;
+	Instruction::Register s1;
+	Instruction::Register max;
+
+	// Load operands from registers or as a literal constant.
+	if (INST.src0 == 0xFF)
+		s0.as_uint = INST.lit_cnst;
+	else
+		s0.as_uint = ReadReg(INST.src0);
+	s1.as_uint = ReadVReg(INST.vsrc1);
+
+	// Calculate the minimum operand.
+	if (s0.as_float < s1.as_float)
+	{
+		max.as_float = s1.as_float;
+	}
+	else
+	{
+		max.as_float = s0.as_float;
+	}
+
+	// Write the results.
+	WriteVReg(INST.vdst, max.as_uint);
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V%u<=(%gf)", id, INST.vdst,
+			max.as_float);
+	}
+}
+
 // D.f = min(S0.f, S1.f).
 void WorkItem::ISA_V_MIN_F32_Impl(Instruction *instruction)
 {

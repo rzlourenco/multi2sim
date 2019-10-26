@@ -60,30 +60,92 @@ void WorkItem::ISA_DS_WRITE2_B32_Impl(Instruction *instruction)
 
 	// Load address and data from registers.
 	addr0.as_uint = ReadVReg(INST.addr);
+	addr1.as_uint = addr0.as_uint;
+
+	assert(INST.offset0 != INST.offset1);
+
 	addr0.as_uint += INST.offset0*4;
-	addr1.as_uint = ReadVReg(INST.addr);
 	addr1.as_uint += INST.offset1*4;
+
 	data0.as_uint = ReadVReg(INST.data0);
 	data1.as_uint = ReadVReg(INST.data1);
 
+	unsigned int m0 = ReadSReg(Instruction::RegisterM0) & 0x0000FFFF;
 	bool ignored0 =  addr0.as_uint >= std::min(
 			 work_group->getNDRange()->getLocalMemTop(), 
 			 ReadSReg(Instruction::RegisterM0));
-	bool ignored1 =  addr0.as_uint >= std::min(
+	bool ignored1 =  addr1.as_uint >= std::min(
 			 work_group->getNDRange()->getLocalMemTop(), 
 			 ReadSReg(Instruction::RegisterM0));
 	lds_access_count = 0;
 	if (!ignored0) {
-		lds->Write(addr0.as_uint, 4,
-			(char *)&data0.as_uint);
+		lds->Write(addr0.as_uint, 4, (char *)&data0.as_uint);
 		lds_access[lds_access_count].type = MemoryAccessWrite;
 		lds_access[lds_access_count].addr = addr0.as_uint;
 		lds_access[lds_access_count].size = 4;
 		++lds_access_count;
 	}
 	if (!ignored1) {
-		lds->Write(addr1.as_uint, 4,
-			(char *)&data1.as_uint);
+		lds->Write(addr1.as_uint, 4, (char *)&data1.as_uint);
+		lds_access[lds_access_count].type = MemoryAccessWrite;
+		lds_access[lds_access_count].addr = addr1.as_uint;
+		lds_access[lds_access_count].size = 4;
+		++lds_access_count;
+	}
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		if (!(ignored0 && ignored1))
+			Emulator::isa_debug << misc::fmt("t%d: ", id);
+		if (!ignored0) {
+			Emulator::isa_debug << misc::fmt("LDS[%u]<=(%u,%f) ",
+				addr0.as_uint, data0.as_uint, data0.as_float);
+		}
+		if (!ignored1) {
+			Emulator::isa_debug << misc::fmt("LDS[%u]<=(%u,%f) ",
+				addr1.as_uint, data1.as_uint, data1.as_float);
+		}
+	}
+}
+
+// DS[ADDR+offset0*4*64] = D0; DS[ADDR+offset1*4*64] = D1; Write 2 Dwords
+void WorkItem::ISA_DS_WRITE2ST64_B32_Impl(Instruction *instruction)
+{
+	assert(!INST.gds);
+
+	Instruction::Register addr0, addr1;
+	Instruction::Register data0, data1;
+
+	// Load address and data from registers.
+	addr0.as_uint = ReadVReg(INST.addr);
+	addr1.as_uint = addr0.as_uint;
+
+	assert(INST.offset0 != INST.offset1);
+
+	addr0.as_uint += INST.offset0*4*64;
+	addr1.as_uint += INST.offset1*4*64;
+
+	data0.as_uint = ReadVReg(INST.data0);
+	data1.as_uint = ReadVReg(INST.data1);
+
+	unsigned int m0 = ReadSReg(Instruction::RegisterM0) & 0x0000FFFF;
+	bool ignored0 =  addr0.as_uint >= std::min(
+			 work_group->getNDRange()->getLocalMemTop(), 
+			 ReadSReg(Instruction::RegisterM0));
+	bool ignored1 =  addr1.as_uint >= std::min(
+			 work_group->getNDRange()->getLocalMemTop(), 
+			 ReadSReg(Instruction::RegisterM0));
+	lds_access_count = 0;
+	if (!ignored0) {
+		lds->Write(addr0.as_uint, 4, (char *)&data0.as_uint);
+		lds_access[lds_access_count].type = MemoryAccessWrite;
+		lds_access[lds_access_count].addr = addr0.as_uint;
+		lds_access[lds_access_count].size = 4;
+		++lds_access_count;
+	}
+	if (!ignored1) {
+		lds->Write(addr1.as_uint, 4, (char *)&data1.as_uint);
 		lds_access[lds_access_count].type = MemoryAccessWrite;
 		lds_access[lds_access_count].addr = addr1.as_uint;
 		lds_access[lds_access_count].size = 4;
@@ -282,6 +344,57 @@ void WorkItem::ISA_DS_READ2_B32_Impl(Instruction *instruction)
 
 	addr0.as_uint += INST.offset0 * 4;
 	addr1.as_uint += INST.offset1 * 4;
+
+	// Global data store not supported
+	assert(!INST.gds);
+
+
+	lds->Read(
+		addr0.as_uint, 4, (char *)&data0.as_uint);
+	lds->Read(
+		addr1.as_uint, 4, (char *)&data1.as_uint);
+
+	// Write results.
+	WriteVReg(INST.vdst, data0.as_uint);
+	WriteVReg(INST.vdst+1, data1.as_uint);
+
+	// Record last memory access for the detailed simulator.
+	lds_access_count = 2;
+	lds_access[0].type = MemoryAccessRead;
+	lds_access[0].addr = addr0.as_uint;
+	lds_access[0].size = 4;
+	lds_access[1].type = MemoryAccessRead;
+	lds_access[1].addr = addr1.as_uint;
+	lds_access[1].size = 4;
+
+	// Print isa debug information.
+	if (Emulator::isa_debug)
+	{
+		Emulator::isa_debug << misc::fmt("t%d: V%u<=(0x%x)(0x%x) ", id, 
+			INST.vdst, addr0.as_uint, data0.as_uint);
+		Emulator::isa_debug << misc::fmt("V%u<=(0x%x)(0x%x) ",
+			INST.vdst+1, addr1.as_uint, data1.as_uint);
+	}
+}
+
+// R = DS[ADDR+offset0*4*64], R+1 = DS[ADDR+offset1*4*64]. Read 2 Dwords.
+void WorkItem::ISA_DS_READ2ST64_B32_Impl(Instruction *instruction)
+{
+	Instruction::Register addr0;
+	Instruction::Register addr1;
+	Instruction::Register data0;
+	Instruction::Register data1;
+
+	assert(!INST.gds);
+
+	// Load address from register.
+	addr0.as_uint = ReadVReg(INST.addr);
+	addr1.as_uint = addr0.as_uint;
+
+	assert(INST.offset0 != INST.offset1);
+
+	addr0.as_uint += INST.offset0 * 4 * 64;
+	addr1.as_uint += INST.offset1 * 4 * 64;
 
 	// Global data store not supported
 	assert(!INST.gds);
