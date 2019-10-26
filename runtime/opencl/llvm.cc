@@ -933,49 +933,38 @@ opencl_llvm_compile_kernel(
         char *saveptr;
         char *tok = strtok_r(options_copy, " \t\b\n\r", &saveptr);
         while (tok) {
-            Options.emplace_back(tok);
+            Options.push_back(tok);
             tok = strtok_r(nullptr, " \t\b\n\r", &saveptr);
         }
     }
 
     for (size_t ix = 0; ix < Options.size();) {
         auto &opt = Options[ix];
-        if (strcmp(opt, "-D")) {
+        if (strcmp(opt, "-D") == 0
+            || strcmp(opt, "-I") == 0)
+        {
             if (ix + 1 >= Options.size())
-                return CL_INVALID_BUILD_OPTIONS;
-            else
-                ix += 2;
+                throw InvalidBuildOptions{};
+            ix += 2;
+        } else if (strcmp(opt, "-cl-single-precision-constant") == 0
+            || strcmp(opt, "-cl-denorms-are-zero") == 0
+            || strcmp(opt, "-cl-opt-disable") == 0
+            || strcmp(opt, "-cl-mad-enable") == 0
+            || strcmp(opt, "-cl-no-signed-zeros") == 0
+            || strcmp(opt, "-cl-unsafe-math-optimizations") == 0
+            || strcmp(opt, "-cl-finite-math-only") == 0
+            || strcmp(opt, "-cl-fast-relaxed-math") == 0
+            || strcmp(opt, "-w") == 0
+            || strcmp(opt, "-Werror") == 0
+            || strncmp(opt, "-cl-std=", 8) == 0
+            || strncmp(opt, "-D", 2) == 0
+            || strncmp(opt, "-I", 2) == 0)
+        {
+            ix += 1;
+        } else {
+            abort();
+            throw InvalidBuildOptions{};
         }
-        if (strcmp(opt, "-I") == 0) {
-            if (ix + 1 >= Options.size())
-                return CL_INVALID_BUILD_OPTIONS;
-            else
-                ix += 2;
-        }
-        if (strcmp(opt, "-cl-single-precision-constant") == 0)
-            ix += 1;
-        else if (strcmp(opt, "-cl-denorms-are-zero") == 0)
-            ix += 1;
-        else if (strcmp(opt, "-cl-opt-disable") == 0)
-            ix += 1;
-        else if (strcmp(opt, "-cl-mad-enable") == 0)
-            ix += 1;
-        else if (strcmp(opt, "-cl-no-signed-zeros") == 0)
-            ix += 1;
-        else if (strcmp(opt, "-cl-unsafe-math-optimizations") == 0)
-            ix += 1;
-        else if (strcmp(opt, "-cl-finite-math-only") == 0)
-            ix += 1;
-        else if (strcmp(opt, "-cl-fast-relaxed-math") == 0)
-            ix += 1;
-        else if (strcmp(opt, "-w") == 0)
-            ix += 1;
-        else if (strcmp(opt, "-Werror") == 0)
-            ix += 1;
-        else if (strncmp(opt, "-cl-std=", 8) == 0)
-            ix += 1;
-        else
-            return CL_INVALID_BUILD_OPTIONS;
     }
     Options.push_back(File.c_str());
 
@@ -1020,9 +1009,9 @@ opencl_llvm_compile_kernel(
     return CL_SUCCESS;
 } catch (InvalidBuildOptions &e) {
     return CL_INVALID_BUILD_OPTIONS;
-    //} catch (BuildError &e) {
-    //   return CL_BUILD_PROGRAM_FAILURE;
-    //} catch (FailedToEmitBitcode &e) {
-    //   return CL_BUILD_PROGRAM_FAILURE;
+} catch (BuildError &e) {
+    return CL_BUILD_PROGRAM_FAILURE;
+} catch (FailedToEmitBitcode &e) {
+    return CL_BUILD_PROGRAM_FAILURE;
 }
 
